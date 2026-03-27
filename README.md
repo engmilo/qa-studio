@@ -2,7 +2,7 @@
 
 A single-page AI-powered test case generator built for QA engineers. Describe a feature and get structured, prioritised test cases instantly.
 
-🔗 **Live site:** https://YOUR-USERNAME.github.io/qa-studio
+🔗 **Live site:** https://engmilo.github.io/qa-studio
 
 ---
 
@@ -21,7 +21,7 @@ A single-page AI-powered test case generator built for QA engineers. Describe a 
 
 ### 1. Clone the repo
 ```bash
-git clone https://github.com/YOUR-USERNAME/qa-studio.git
+git clone https://github.com/engmilo/qa-studio.git
 cd qa-studio
 ```
 
@@ -91,7 +91,7 @@ git push origin main
 
 Then go to your repo → **Settings → Pages → Source: main branch → Save**.
 
-Your site will be live at `https://YOUR-USERNAME.github.io/qa-studio` within a minute.
+Your site will be live at `https://engmilo.github.io/qa-studio` within a minute.
 
 ---
 
