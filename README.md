@@ -30,7 +30,7 @@ cd qa-studio
 Open `index.html` and update this line near the top of the `<script>` block:
 
 ```js
-const WORKER_URL = "https://YOUR-WORKER.YOUR-NAME.workers.dev";
+const WORKER_URL = "qa-proxy.eng-milo.workers.dev";
 ```
 
 ### 3. Cloudflare Worker (API proxy)
