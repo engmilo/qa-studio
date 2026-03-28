@@ -136,7 +136,6 @@
             margin-bottom: 4px;
         }
 
-        /* ✅ NEW: Subtitle style */
         .page-subtitle {
             font-size: 15px;
             color: var(--text-muted);
@@ -496,7 +495,6 @@
 
     <main class="main-content">
         <header class="topbar" id="pageTitle">AI Test Case Generator</header>
-        <!-- ✅ NEW: Subtitle -->
         <p class="page-subtitle" id="pageSubtitle">Generate, save, and track test cases by project.</p>
 
         <section id="view-generator">
@@ -605,7 +603,7 @@
 const WORKER_URL = "https://qa-proxy.eng-milo.workers.dev";
 
 // ============================================================
-// I18N — ✅ Added: documentTitle, subtitle, chipStories
+// I18N
 // ============================================================
 const i18n = {
     en: {
@@ -785,16 +783,12 @@ let lang = localStorage.getItem("qa_lang") || "en";
 const t = key => (i18n[lang] && i18n[lang][key] !== undefined) ? i18n[lang][key] : (i18n.en[key] || key);
 
 // ============================================================
-// applyLang — ✅ FIXED: updates title, subtitle, and html lang
+// applyLang
 // ============================================================
 function applyLang() {
-    // Browser tab title
     document.title = t("documentTitle");
-
-    // HTML lang attribute
     document.documentElement.lang = lang === "dz" ? "ar" : lang;
 
-    // Topbar title — show generator title or view name
     const activeView = document.querySelector(".sidebar-nav .nav-item.active")?.dataset.view;
     if (activeView === "generator") {
         document.getElementById("pageTitle").textContent = t("generatorPageTitle");
@@ -802,21 +796,17 @@ function applyLang() {
         document.getElementById("pageTitle").textContent = t(activeView);
     }
 
-    // ✅ Subtitle — only visible on generator
     const subtitleEl = document.getElementById("pageSubtitle");
     subtitleEl.textContent = t("pageSubtitle");
     subtitleEl.style.display = (activeView === "generator") ? "block" : "none";
 
-    // data-i18n elements
     document.querySelectorAll("[data-i18n]").forEach(el => {
         const val = t(el.dataset.i18n);
         if (typeof val === "string") el.textContent = val;
     });
 
-    // Text direction
     document.body.dir = t("dir");
 
-    // Textarea placeholder
     if (lang === "dz") {
         testInput.setAttribute("placeholder", "وصف الميزة اللي تحب تولّد ليها حالات الاختبار…");
         testInput.dir = "rtl";
@@ -867,6 +857,86 @@ function dlBlob(blob, filename) {
 }
 
 // ============================================================
+// ✅ NEW: JSON REPAIR HELPER
+// ============================================================
+function repairJSON(raw) {
+    let clean = raw.replace(/^```json\s*/i, "").replace(/```\s*$/g, "").trim();
+
+    // First try parsing directly
+    try {
+        const parsed = JSON.parse(clean);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch (e) { /* continue to repair */ }
+
+    // Try to find and extract just the JSON array
+    const arrayStart = clean.indexOf("[");
+    if (arrayStart !== -1) {
+        clean = clean.substring(arrayStart);
+    }
+
+    // Try parsing again
+    try {
+        const parsed = JSON.parse(clean);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch (e) { /* continue to repair */ }
+
+    // Remove any trailing incomplete object
+    // Find the last complete object by finding last "},"  or last "}" before end
+    let repaired = clean;
+
+    // Remove trailing incomplete content after last complete object
+    const lastCompleteObj = repaired.lastIndexOf("}");
+    if (lastCompleteObj !== -1) {
+        repaired = repaired.substring(0, lastCompleteObj + 1);
+
+        // Check if there's an incomplete object after last comma
+        // Find the last "},\n  {" pattern — if the last { doesn't have a matching }, remove it
+        const lastOpenBrace = repaired.lastIndexOf("{");
+        const lastCloseBrace = repaired.lastIndexOf("}");
+
+        if (lastOpenBrace > lastCloseBrace) {
+            // There's an unclosed object — remove it
+            repaired = repaired.substring(0, lastOpenBrace);
+            repaired = repaired.replace(/,\s*$/, ""); // remove trailing comma
+        }
+
+        // Ensure it ends with ]
+        repaired = repaired.replace(/,\s*$/, "");
+        if (!repaired.endsWith("]")) {
+            repaired += "\n]";
+        }
+
+        // Ensure it starts with [
+        if (!repaired.startsWith("[")) {
+            repaired = "[\n" + repaired;
+        }
+
+        try {
+            const parsed = JSON.parse(repaired);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch (e) { /* last resort below */ }
+    }
+
+    // Last resort: try to extract individual objects using regex
+    const objectPattern = /\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g;
+    const matches = clean.match(objectPattern);
+    if (matches && matches.length > 0) {
+        const objects = [];
+        for (const match of matches) {
+            try {
+                const obj = JSON.parse(match);
+                if (obj.id && obj.title) {
+                    objects.push(obj);
+                }
+            } catch (e) { /* skip malformed */ }
+        }
+        if (objects.length > 0) return objects;
+    }
+
+    throw new Error("Could not parse AI response. Please try again.");
+}
+
+// ============================================================
 // THEME
 // ============================================================
 const savedTheme = localStorage.getItem("qa_theme") || "light";
@@ -900,7 +970,7 @@ document.getElementById("langSelect").addEventListener("change", e => {
 });
 
 // ============================================================
-// ROUTING — ✅ FIXED: shows/hides subtitle per view
+// ROUTING
 // ============================================================
 const views = {
     generator:  document.getElementById("view-generator"),
@@ -919,14 +989,12 @@ document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
         document.querySelectorAll(".sidebar-nav .nav-item").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
 
-        // Title
         if (view === "generator") {
             document.getElementById("pageTitle").textContent = t("generatorPageTitle");
         } else {
             document.getElementById("pageTitle").textContent = t(view);
         }
 
-        // ✅ Subtitle only on generator
         document.getElementById("pageSubtitle").style.display =
             (view === "generator") ? "block" : "none";
 
@@ -984,7 +1052,7 @@ document.getElementById("projectNameInput").addEventListener("keydown", e => {
 });
 
 // ============================================================
-// ✅ CHIPS — Now inserts full user stories
+// CHIPS
 // ============================================================
 function buildChips() {
     const row = document.getElementById("chipsRow");
@@ -997,16 +1065,11 @@ function buildChips() {
         btn.className = "chip";
         btn.textContent = label;
         btn.addEventListener("click", () => {
-            // Deselect all chips, highlight clicked one
             row.querySelectorAll(".chip").forEach(c => c.classList.remove("active-chip"));
             btn.classList.add("active-chip");
-
-            // Insert the full user story into textarea
             const story = stories[idx] || label;
             testInput.value = story;
             charCounter.textContent = `${story.length} characters`;
-
-            // Auto-focus the textarea
             testInput.focus();
         });
         row.appendChild(btn);
@@ -1088,13 +1151,13 @@ function createTestCard(tc) {
         </div>`;
 
     div.querySelector(".view-details-btn").addEventListener("click", () => {
-        const steps = tc.steps.map(s => `<li>${esc(s)}</li>`).join("");
+        const steps = (tc.steps || []).map(s => `<li>${esc(s)}</li>`).join("");
         openModal(tc.title,
-            `<p><strong>Description:</strong><br>${esc(tc.description)}</p>` +
+            `<p><strong>Description:</strong><br>${esc(tc.description || "")}</p>` +
             `<p><strong>Steps:</strong><ol>${steps}</ol></p>` +
-            `<p><strong>Expected:</strong><br>${esc(tc.expected)}</p>` +
-            `<p><strong>Tags:</strong> ${tc.tags.map(esc).join(", ")}</p>` +
-            `<p><strong>Risk:</strong> ${esc(tc.risk)}</p>`
+            `<p><strong>Expected:</strong><br>${esc(tc.expected || "")}</p>` +
+            `<p><strong>Tags:</strong> ${(tc.tags || []).map(esc).join(", ")}</p>` +
+            `<p><strong>Risk:</strong> ${esc(tc.risk || "")}</p>`
         );
     });
 
@@ -1113,6 +1176,9 @@ function createTestCard(tc) {
     return div;
 }
 
+// ============================================================
+// ✅ FIXED: Generate — max_tokens: 4096 + JSON repair
+// ============================================================
 generateBtn.addEventListener("click", async () => {
     const feature = testInput.value.trim();
     if (!feature) return;
@@ -1136,7 +1202,7 @@ generateBtn.addEventListener("click", async () => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 model: "claude-sonnet-4-20250514",
-                max_tokens: 1000,
+                max_tokens: 4096,  // ✅ FIXED: was 1000, now 4096
                 system: `You are a QA engineer. Given a feature description, generate 4-6 test cases as a JSON array.
 Each object must have exactly these fields:
 - id: string like "TC-001"
@@ -1152,10 +1218,17 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
             }),
         });
 
-        const data  = await res.json();
-        const raw   = data.content.map(b => b.text || "").join("").trim();
-        const clean = raw.replace(/^```json\s*/i, "").replace(/```$/g, "").trim();
-        latestTestCases = JSON.parse(clean);
+        if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(`Server error ${res.status}: ${errText.slice(0, 200)}`);
+        }
+
+        const data = await res.json();
+        const raw  = data.content.map(b => b.text || "").join("").trim();
+
+        // ✅ FIXED: Use repairJSON instead of raw JSON.parse
+        latestTestCases = repairJSON(raw);
+
         latestTestCases.sort((a, b) => (priorityOrder[a.priority] || 9) - (priorityOrder[b.priority] || 9));
 
         resultsEl.innerHTML = "";
@@ -1201,9 +1274,9 @@ document.getElementById("exportCsv").addEventListener("click", () => {
     if (!latestTestCases.length) return;
     const header = ["ID","Title","Description","Steps","Expected","Priority","Tags","Risk","Status"];
     const rows   = latestTestCases.map(tc => [
-        tc.id, tc.title, tc.description,
-        tc.steps.join(" | "), tc.expected,
-        tc.priority, tc.tags.join(" | "), tc.risk,
+        tc.id, tc.title, tc.description || "",
+        (tc.steps || []).join(" | "), tc.expected || "",
+        tc.priority, (tc.tags || []).join(" | "), tc.risk || "",
         tc.status || "Untested",
     ]);
     const csv = [header, ...rows]
@@ -1217,9 +1290,9 @@ document.getElementById("exportExcel").addEventListener("click", () => {
     const wsData = [
         ["ID","Title","Description","Steps","Expected","Priority","Tags","Risk","Status"],
         ...latestTestCases.map(tc => [
-            tc.id, tc.title, tc.description,
-            tc.steps.join(" | "), tc.expected,
-            tc.priority, tc.tags.join(", "), tc.risk,
+            tc.id, tc.title, tc.description || "",
+            (tc.steps || []).join(" | "), tc.expected || "",
+            tc.priority, (tc.tags || []).join(", "), tc.risk || "",
             tc.status || "Untested",
         ]),
     ];
@@ -1234,10 +1307,10 @@ document.getElementById("exportWord").addEventListener("click", () => {
     if (!latestTestCases.length) return;
     const tableRows = latestTestCases.map(tc => `
         <tr>
-            <td>${tc.id}</td><td>${tc.title}</td><td>${tc.description}</td>
-            <td>${tc.steps.map(s => `• ${s}`).join("<br>")}</td>
-            <td>${tc.expected}</td><td>${tc.priority}</td>
-            <td>${tc.tags.join(", ")}</td><td>${tc.risk}</td>
+            <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td><td>${esc(tc.description || "")}</td>
+            <td>${(tc.steps || []).map(s => `• ${esc(s)}`).join("<br>")}</td>
+            <td>${esc(tc.expected || "")}</td><td>${esc(tc.priority)}</td>
+            <td>${(tc.tags || []).join(", ")}</td><td>${esc(tc.risk || "")}</td>
             <td>${tc.status || "Untested"}</td>
         </tr>`).join("");
 
