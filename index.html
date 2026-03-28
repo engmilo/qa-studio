@@ -435,6 +435,9 @@
             <button id="themeToggle" class="nav-item">
                 <i data-lucide="moon" id="themeIcon"></i><span data-i18n="theme">Theme</span>
             </button>
+            <button id="clearAllBtn" class="nav-item" style="color:#dc2626;font-size:13px;">
+                <i data-lucide="trash-2"></i><span data-i18n="clearAllData">Clear All Data</span>
+            </button>
         </div>
     </aside>
 
@@ -578,7 +581,11 @@ const i18n = {
         dashUntested: "Untested", dashTotal: "Total",
         priorityBreakdown: "Priority Breakdown",
         dashEmpty: "No test cases yet. Generate some to see stats here.",
-        pass: "Pass", fail: "Fail", blocked: "Blocked",
+        pass: "Pass", fail: "Fail", blocked: "Blocked", untested: "Untested",
+        colId: "ID", colPriority: "Priority", colStatus: "Status", colTitle: "Title",
+        delete: "Delete", testsLabel: "tests",
+        pCritical: "Critical", pHigh: "High", pMedium: "Medium", pLow: "Low", pTrivial: "Trivial",
+        clearAllData: "Clear All Data", confirmClearAll: "Clear ALL data (projects, history, test cases)? This cannot be undone.",
         confirmDelete: "Delete this project? This cannot be undone.",
         footerText: "QA Studio by Milo Haireche — 20+ years of QA expertise",
         chips: ["Login flow","Password reset","File upload","Search & filter","User registration","Checkout"],
@@ -617,7 +624,11 @@ const i18n = {
         dashUntested: "Testaamaton", dashTotal: "Yhteensä",
         priorityBreakdown: "Prioriteettijakauma",
         dashEmpty: "Ei testitapauksia vielä. Luo niitä nähdäksesi tilastot.",
-        pass: "Hyväksytty", fail: "Hylätty", blocked: "Estetty",
+        pass: "Hyväksytty", fail: "Hylätty", blocked: "Estetty", untested: "Testaamaton",
+        colId: "ID", colPriority: "Prioriteetti", colStatus: "Tila", colTitle: "Otsikko",
+        delete: "Poista", testsLabel: "testiä",
+        pCritical: "Kriittinen", pHigh: "Korkea", pMedium: "Keskitaso", pLow: "Matala", pTrivial: "Triviaali",
+        clearAllData: "Tyhjennä kaikki", confirmClearAll: "Tyhjennä KAIKKI tiedot (projektit, historia, testitapaukset)? Toimintoa ei voi peruuttaa.",
         confirmDelete: "Poistetaanko tämä projekti? Toimintoa ei voi peruuttaa.",
         footerText: "QA Studio, tekijä Milo Haireche — yli 20 vuoden QA-kokemus",
         chips: ["Kirjautuminen","Salasanan palautus","Tiedoston lataus","Haku ja suodatus","Rekisteröinti","Kassaprosessi"],
@@ -656,7 +667,11 @@ const i18n = {
         dashUntested: "ما تختبرش", dashTotal: "المجموع",
         priorityBreakdown: "توزيع الأولوية",
         dashEmpty: "ما كاين حالات اختبار بعد. ولّد باش تشوف الإحصائيات.",
-        pass: "نجح", fail: "فشل", blocked: "محظور",
+        pass: "نجح", fail: "فشل", blocked: "محظور", untested: "ما تختبرش",
+        colId: "المعرّف", colPriority: "الأولوية", colStatus: "الحالة", colTitle: "العنوان",
+        delete: "حذف", testsLabel: "اختبارات",
+        pCritical: "حرج", pHigh: "عالي", pMedium: "متوسط", pLow: "منخفض", pTrivial: "بسيط",
+        clearAllData: "امسح كل شيء", confirmClearAll: "تمسح كل شيء (المشاريع، السجل، حالات الاختبار)؟ ما تقدرش ترجع.",
         confirmDelete: "تحذف هذا المشروع؟ ما تقدرش ترجع.",
         footerText: "QA Studio من Milo Haireche — أكثر من 20 سنة خبرة في ضمان الجودة",
         chips: ["تسجيل الدخول","استرجاع كلمة السر","رفع الملفات","البحث والتصفية","تسجيل المستخدم","الدفع"],
@@ -746,6 +761,16 @@ function esc(str) {
     const d = document.createElement("div");
     d.textContent = String(str);
     return d.innerHTML;
+}
+function statusLabel(s) {
+    if(s === "pass") return t("pass");
+    if(s === "fail") return t("fail");
+    if(s === "blocked") return t("blocked");
+    return t("untested");
+}
+function priorityLabel(p) {
+    const map = { Critical:"pCritical", High:"pHigh", Medium:"pMedium", Low:"pLow", Trivial:"pTrivial" };
+    return map[p] ? t(map[p]) : p;
 }
 function dlBlob(blob, filename) {
     const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: filename });
@@ -1123,6 +1148,7 @@ Each object must have exactly these fields:
 - priority: one of "Critical", "High", "Medium", "Low", "Trivial"
 - tags: array of 1-3 tag strings
 - risk: one sentence
+IMPORTANT: Write all text content (title, description, steps, expected, tags, risk) in ${lang === "fi" ? "Finnish" : lang === "dz" ? "Algerian Arabic (Darja)" : "English"}. The priority field must always use the English values (Critical/High/Medium/Low/Trivial).
 Return ONLY the raw JSON array, no markdown, no explanation.`,
                 messages: [{ role: "user", content: `Feature: ${feature}` }],
             }),
@@ -1242,7 +1268,7 @@ function renderDashboard() {
     const pCards = ["Critical","High","Medium","Low","Trivial"].filter(p=>pCounts[p]).map(p=>`
         <div class="dash-card">
             <div class="dash-value" style="color:${priorityColors[p]}">${pCounts[p]}</div>
-            <div class="dash-label"><span class="dash-dot" style="background:${priorityColors[p]}"></span>${p}</div>
+            <div class="dash-label"><span class="dash-dot" style="background:${priorityColors[p]}"></span>${priorityLabel(p)}</div>
         </div>`).join("");
     if(total === 0 && state.usageTotal === 0) {
         document.getElementById("dashContent").innerHTML = `<div class="empty-state">${t("dashEmpty")}</div>`;
@@ -1299,6 +1325,23 @@ document.getElementById("clearHistoryBtn").addEventListener("click", () => {
     renderHistory();
 });
 
+document.getElementById("clearAllBtn").addEventListener("click", () => {
+    if(!confirm(t("confirmClearAll"))) return;
+    state.usageTotal = 0;
+    state.history = [];
+    state.projects = [];
+    latestTestCases = [];
+    saveState();
+    saveLatestTestCases();
+    document.getElementById("results").innerHTML = "";
+    toggleActionBtns();
+    updateUsageCounter();
+    renderDashboard();
+    renderHistory();
+    renderProjects();
+    renderSuites();
+});
+
 // ============================================================
 // PROJECTS — with Delete button
 // ============================================================
@@ -1332,10 +1375,10 @@ function renderProjects() {
                     <td><strong>${esc(p.name)}</strong></td>
                     <td style="color:var(--text-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.description)}</td>
                     <td>${p.created}</td>
-                    <td style="color:var(--text-muted);font-size:13px;">${p.testCases.length} tests</td>
+                    <td style="color:var(--text-muted);font-size:13px;">${p.testCases.length} ${t("testsLabel")}</td>
                     <td>
                         <button class="danger-btn delete-project-btn" data-pid="${p.id}">
-                            <i data-lucide="trash-2"></i> Delete
+                            <i data-lucide="trash-2"></i> ${t("delete")}
                         </button>
                     </td>
                 </tr>`).join("")}
@@ -1353,13 +1396,13 @@ function renderProjects() {
             const rows = project.testCases.map(tc => `
                 <tr>
                     <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td>
-                    <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(tc.priority)}</span></td>
-                    <td style="color:var(--text-muted)">${tc.status||"Untested"}</td>
+                    <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${priorityLabel(tc.priority)}</span></td>
+                    <td style="color:var(--text-muted)">${statusLabel(tc.status)}</td>
                 </tr>`).join("");
             openModal(project.name, `
                 <p style="color:var(--text-muted);font-size:13px;margin-top:0;">${esc(project.description)}</p>
                 <table style="font-size:14px">
-                    <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th></tr></thead>
+                    <thead><tr><th>${t("colId")}</th><th>${t("colTitle")}</th><th>${t("colPriority")}</th><th>${t("colStatus")}</th></tr></thead>
                     <tbody>${rows}</tbody>
                 </table>`);
         });
@@ -1383,17 +1426,17 @@ function renderSuites() {
                 <div style="display:flex;align-items:center;gap:12px;">
                     <span style="color:var(--text-muted);font-size:13px;">${p.created}</span>
                     <button class="danger-btn delete-suite-btn" data-pid="${p.id}">
-                        <i data-lucide="trash-2"></i> Delete
+                        <i data-lucide="trash-2"></i> ${t("delete")}
                     </button>
                 </div>
             </div>
             <table>
-                <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th></tr></thead>
+                <thead><tr><th>${t("colId")}</th><th>${t("colTitle")}</th><th>${t("colPriority")}</th><th>${t("colStatus")}</th></tr></thead>
                 <tbody>${p.testCases.map(tc => `
                     <tr>
                         <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td>
-                        <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(tc.priority)}</span></td>
-                        <td style="color:var(--text-muted)">${tc.status||"Untested"}</td>
+                        <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${priorityLabel(tc.priority)}</span></td>
+                        <td style="color:var(--text-muted)">${statusLabel(tc.status)}</td>
                     </tr>`).join("")}
                 </tbody>
             </table>
