@@ -1,796 +1,1220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QA Studio — AI Test Case Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <style>
-        :root {
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --success: #10b981;
-            --danger: #dc2626;
-            --warning: #f97316;
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            font-family: "Inter", sans-serif;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body.light {
+            --body-bg: #f5f6f8;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --sidebar-bg: #ffffff;
+        }
+
+        body.dark {
+            --body-bg: #111827;
+            --card-bg: #1f2937;
+            --text: #e5e7eb;
+            --text-muted: #9ca3af;
+            --border: #374151;
+            --sidebar-bg: #1a1a1d;
+        }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
+            background: var(--body-bg);
             color: var(--text);
-            line-height: 1.6;
+            transition: background 0.25s ease, color 0.25s ease;
         }
 
-        /* ===== LAYOUT ===== */
-        .app-layout { display: flex; min-height: 100vh; }
+        .app-layout {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+        }
 
-        /* ===== SIDEBAR ===== */
+        /* ── SIDEBAR ── */
         .sidebar {
-            width: 220px;
-            background: var(--card-bg);
+            width: 240px;
+            background: var(--sidebar-bg);
             border-right: 1px solid var(--border);
+            padding: 20px 0;
             display: flex;
             flex-direction: column;
             position: fixed;
-            height: 100vh;
-            z-index: 100;
+            left: 0; top: 0; bottom: 0;
+            z-index: 10;
         }
 
-        .sidebar-logo {
+        .sidebar-header {
+            padding: 0 24px 20px;
             font-size: 20px;
-            font-weight: 700;
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
+            font-weight: 600;
         }
 
-        .sidebar-nav { list-style: none; padding: 12px 0; flex: 1; }
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 0 12px;
+        }
 
-        .sidebar-nav a {
+        .nav-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 11px 20px;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: transparent;
+            border: none;
             cursor: pointer;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
-        }
-
-        .sidebar-nav a:hover {
-            background: var(--bg);
+            font-size: 15px;
             color: var(--text);
+            transition: background 0.2s ease;
+            width: 100%;
+            text-align: left;
+            font-family: "Inter", sans-serif;
         }
 
-        .sidebar-nav a.active {
-            background: #eef2ff;
-            color: var(--primary);
-            border-left-color: var(--primary);
-            font-weight: 600;
-        }
-
-        .sidebar-nav a .icon { font-size: 18px; width: 24px; text-align: center; }
+        .nav-item:hover { background: rgba(0,0,0,0.06); }
+        body.dark .nav-item:hover { background: rgba(255,255,255,0.06); }
+        .nav-item.active { background: #3b82f6; color: white; }
 
         .sidebar-footer {
-            padding: 16px 20px;
+            padding: 12px;
             border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .usage-counter {
             font-size: 12px;
             color: var(--text-muted);
+            text-align: center;
+            padding: 2px 4px;
         }
 
-        .sidebar-footer select {
-            width: 100%;
-            margin-top: 8px;
-            padding: 6px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 12px;
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .main-content {
-            flex: 1;
-            margin-left: 220px;
-            padding: 30px 40px;
-            max-width: 1100px;
-        }
-
-        .page-title { font-size: 24px; font-weight: 700; margin-bottom: 24px; }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        /* ===== GENERATOR ===== */
-        .generator-card {
+        .lang-select {
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
+            color: var(--text);
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 13px;
+            cursor: pointer;
+            width: 100%;
+            font-family: "Inter", sans-serif;
+        }
+
+        /* ── MAIN ── */
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 24px 36px 48px 24px;
+            box-sizing: border-box;
+        }
+
+        .topbar {
+            font-size: 24px;
+            font-weight: 600;
             margin-bottom: 24px;
         }
 
-        .quick-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-
-        .quick-tag {
-            padding: 6px 14px;
-            border: 1px solid var(--border);
-            border-radius: 20px;
+        /* ── GENERATOR PANEL ── */
+        .generator-panel {
             background: var(--card-bg);
-            color: var(--text-muted);
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .quick-tag:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-            background: #eef2ff;
-        }
-
-        .feature-input {
-            width: 100%;
-            min-height: 100px;
-            padding: 14px;
-            border: 1px solid var(--border);
+            padding: 20px;
             border-radius: 10px;
-            font-size: 15px;
-            font-family: inherit;
-            resize: vertical;
-            outline: none;
-            transition: border-color 0.2s;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
         }
 
-        .feature-input:focus { border-color: var(--primary); }
+        /* Prompt chips */
+        .chips-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
 
-        .char-count {
-            text-align: right;
-            font-size: 12px;
+        .chip {
+            padding: 5px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: transparent;
             color: var(--text-muted);
-            margin: 6px 0 16px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            font-family: "Inter", sans-serif;
+        }
+        .chip:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background: rgba(59,130,246,0.08);
         }
 
-        .action-buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            resize: vertical;
+            font-size: 15px;
+            background: var(--card-bg);
+            color: var(--text);
+            box-sizing: border-box;
+            font-family: "Inter", sans-serif;
+        }
+        textarea:focus { outline: 2px solid #3b82f6; outline-offset: -1px; }
 
-        /* ===== BUTTONS ===== */
-        .btn {
+        .char-counter {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Progress bar */
+        .progress-wrap {
+            display: none;
+            margin-top: 14px;
+        }
+        .progress-track {
+            background: var(--border);
+            border-radius: 999px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 999px;
+            transition: width 0.35s ease;
+        }
+        .progress-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Button row */
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .primary-btn {
+            padding: 10px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 20px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
             font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: var(--card-bg);
+            font-family: "Inter", sans-serif;
+            transition: background 0.2s ease;
+        }
+        .primary-btn:hover { background: #2563eb; }
+        .primary-btn:disabled { background: #93c5fd; cursor: not-allowed; }
+
+        .secondary-btn {
+            padding: 10px 16px;
+            background: transparent;
             color: var(--text);
-        }
-
-        .btn:hover { background: var(--bg); }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
-
-        .btn-danger {
-            background: #fef2f2;
-            color: var(--danger);
-            border-color: #fecaca;
-        }
-
-        .btn-danger:hover { background: #fee2e2; }
-
-        /* ===== STATUS MESSAGES ===== */
-        .status-msg {
-            margin-top: 16px;
-            padding: 12px 16px;
-            border-radius: 8px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             font-size: 14px;
-            display: none;
+            font-family: "Inter", sans-serif;
+            transition: background 0.2s ease;
+        }
+        .secondary-btn:hover { background: rgba(0,0,0,0.05); }
+        body.dark .secondary-btn:hover { background: rgba(255,255,255,0.05); }
+
+        /* ── RESULTS ── */
+        .results { display: flex; flex-direction: column; gap: 16px; }
+
+        .test-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
 
-        .status-msg.show { display: block; }
-        .status-msg.error { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
-        .status-msg.success { background: #f0fdf4; color: var(--success); border: 1px solid #bbf7d0; }
-        .status-msg.loading { background: #eef2ff; color: var(--primary); border: 1px solid #c7d2fe; }
+        .test-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .test-card h3 { margin: 0; font-size: 17px; }
 
-        /* ===== DASHBOARD ===== */
+        .priority-badge {
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            color: white;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        .priority-Critical { background: #dc2626; }
+        .priority-High     { background: #f97316; }
+        .priority-Medium   { background: #3b82f6; }
+        .priority-Low      { background: #10b981; }
+        .priority-Trivial  { background: #6b7280; }
+
+        /* Status buttons */
+        .test-card-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .status-btn {
+            padding: 5px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: transparent;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: "Inter", sans-serif;
+            transition: all 0.18s;
+        }
+        .status-btn:hover { opacity: 0.8; }
+        .status-btn.active-pass    { background: #10b981; color: white; border-color: #10b981; }
+        .status-btn.active-fail    { background: #dc2626; color: white; border-color: #dc2626; }
+        .status-btn.active-blocked { background: #f97316; color: white; border-color: #f97316; }
+
+        .status-msg { color: var(--text-muted); font-size: 15px; padding: 8px 0; }
+
+        /* ── TABLE CARD ── */
+        .table-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 15px; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
+        th { font-weight: 600; color: var(--text-muted); font-size: 13px; }
+
+        tr.clickable { cursor: pointer; }
+        tr.clickable:hover td { background: rgba(59,130,246,0.05); }
+
+        /* ── DASHBOARD ── */
         .dash-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
             gap: 16px;
             margin-bottom: 24px;
         }
-
         .dash-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 10px;
             padding: 20px;
-            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
+        .dash-value { font-size: 32px; font-weight: 600; margin-bottom: 6px; line-height: 1; }
+        .dash-label { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+        .dash-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .dash-section-title { font-size: 16px; font-weight: 600; margin: 0 0 14px; }
 
-        .dash-value { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
-
-        .dash-label {
-            font-size: 13px;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .dash-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .dash-section-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* ===== TABLES ===== */
-        .table-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            overflow-x: auto;
-        }
-
-        table { width: 100%; border-collapse: collapse; }
-
-        th, td {
-            text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        th {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        tr:last-child td { border-bottom: none; }
-
-        tr.clickable { cursor: pointer; transition: background 0.2s; }
-        tr.clickable:hover { background: var(--bg); }
-
-        /* ===== PRIORITY BADGES ===== */
-        .priority-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .priority-Critical { background: #fef2f2; color: #dc2626; }
-        .priority-High { background: #fff7ed; color: #f97316; }
-        .priority-Medium { background: #fffbeb; color: #d97706; }
-        .priority-Low { background: #f0fdf4; color: #16a34a; }
-        .priority-Trivial { background: #f1f5f9; color: #64748b; }
-
-        /* ===== STATUS BADGES ===== */
-        .status-badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        .status-pass { background: #f0fdf4; color: #16a34a; }
-        .status-fail { background: #fef2f2; color: #dc2626; }
-        .status-blocked { background: #fff7ed; color: #f97316; }
-        .status-untested { background: #f1f5f9; color: #64748b; }
-
-        /* ===== EMPTY STATE ===== */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-muted);
-            font-size: 15px;
-        }
-
-        /* ===== SECTION HEADER ===== */
+        /* ── SECTION HEADER ── */
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 16px;
         }
+        .section-header h2 { margin: 0; font-size: 18px; }
 
-        .section-header h2 { font-size: 18px; }
-
-        /* ===== MODAL ===== */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            padding: 48px 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 15px;
         }
 
-        .modal-overlay.active { display: flex; }
+        /* ── MODAL ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            z-index: 1000;
+        }
+        .modal-overlay.visible { opacity: 1; pointer-events: auto; }
 
         .modal {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 24px;
-            max-width: 700px;
-            width: 90%;
-            max-height: 80vh;
+            width: 560px;
+            max-width: 92%;
+            max-height: 82vh;
             overflow-y: auto;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.25);
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
+        .modal-header h2 { margin: 0; font-size: 18px; }
+        .modal-content { font-size: 15px; line-height: 1.6; }
+        .modal-content ol { padding-left: 20px; margin: 8px 0; }
+        .modal-content li { margin-bottom: 4px; }
 
-        .modal-header h3 { font-size: 20px; }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
+        .close-btn {
+            padding: 6px 10px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
             cursor: pointer;
-            color: var(--text-muted);
-            padding: 4px 8px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
         }
+        .close-btn:hover { background: rgba(0,0,0,0.06); }
 
-        .modal-close:hover { color: var(--text); }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .sidebar { width: 60px; }
-            .sidebar-logo span, .sidebar-nav a span:not(.icon) { display: none; }
-            .sidebar-nav a { justify-content: center; padding: 14px; }
-            .sidebar-footer { display: none; }
-            .main-content { margin-left: 60px; padding: 20px; }
+        /* RTL support for Arabic */
+        body[dir="rtl"] .sidebar {
+            left: auto;
+            right: 0;
+            border-right: none;
+            border-left: 1px solid var(--border);
         }
+        body[dir="rtl"] .main-content {
+            margin-left: 0;
+            margin-right: 240px;
+        }
+        body[dir="rtl"] .nav-item { text-align: right; flex-direction: row-reverse; }
+        body[dir="rtl"] .test-card-header { flex-direction: row-reverse; }
+        body[dir="rtl"] .test-card-actions { flex-direction: row-reverse; }
+        body[dir="rtl"] .btn-row { flex-direction: row-reverse; }
+        body[dir="rtl"] .section-header { flex-direction: row-reverse; }
+        body[dir="rtl"] textarea { text-align: right; }
+
+        /* Inline text input for save modal */
+        .text-input {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 15px;
+            font-family: "Inter", sans-serif;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .text-input:focus { outline: 2px solid #3b82f6; outline-offset: -1px; }
     </style>
 </head>
-<body>
-    <div class="app-layout">
 
-        <!-- ===== SIDEBAR ===== -->
-        <aside class="sidebar">
-            <div class="sidebar-logo">🧪 <span>QA Studio</span></div>
-            <ul class="sidebar-nav">
-                <li><a class="active" data-tab="generator"><span class="icon">✨</span><span>Generator</span></a></li>
-                <li><a data-tab="dashboard"><span class="icon">📊</span><span>Dashboard</span></a></li>
-                <li><a data-tab="projects"><span class="icon">📁</span><span>Projects</span></a></li>
-                <li><a data-tab="suites"><span class="icon">🗂️</span><span>Suites</span></a></li>
-                <li><a data-tab="history"><span class="icon">🕐</span><span>History</span></a></li>
-            </ul>
-            <div class="sidebar-footer">
-                <div id="usageDisplay">0 test cases generated</div>
-            </div>
-        </aside>
+<body class="light">
+<div class="app-layout">
 
-        <!-- ===== MAIN CONTENT ===== -->
-        <main class="main-content">
+    <aside class="sidebar">
+        <div class="sidebar-header">QA Studio</div>
+        <nav class="sidebar-nav">
+            <button class="nav-item active" data-view="generator">
+                <i data-lucide="sparkles"></i>
+                <span data-i18n="generator">Generator</span>
+            </button>
+            <button class="nav-item" data-view="dashboard">
+                <i data-lucide="bar-chart-2"></i>
+                <span data-i18n="dashboard">Dashboard</span>
+            </button>
+            <button class="nav-item" data-view="projects">
+                <i data-lucide="folder"></i>
+                <span data-i18n="projects">Projects</span>
+            </button>
+            <button class="nav-item" data-view="suites">
+                <i data-lucide="layers"></i>
+                <span data-i18n="suites">Suites</span>
+            </button>
+            <button class="nav-item" data-view="history">
+                <i data-lucide="clock"></i>
+                <span data-i18n="history">History</span>
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="usage-counter" id="usageCounter">0</div>
+            <select id="langSelect" class="lang-select">
+                <option value="en">🇬🇧 English</option>
+                <option value="fi">🇫🇮 Suomi</option>
+                <option value="dz">🇩🇿 دارجة</option>
+            </select>
+            <button id="themeToggle" class="nav-item">
+                <i data-lucide="moon" id="themeIcon"></i>
+                <span data-i18n="theme">Theme</span>
+            </button>
+        </div>
+    </aside>
 
-            <!-- Generator -->
-            <div id="generator" class="tab-content active">
-                <h1 class="page-title">Generator</h1>
-                <div class="generator-card">
-                    <div class="quick-tags">
-                        <button class="quick-tag" data-feature="Login flow">Login flow</button>
-                        <button class="quick-tag" data-feature="Password reset">Password reset</button>
-                        <button class="quick-tag" data-feature="File upload">File upload</button>
-                        <button class="quick-tag" data-feature="Search & filter">Search & filter</button>
-                        <button class="quick-tag" data-feature="User registration">User registration</button>
-                        <button class="quick-tag" data-feature="Checkout">Checkout</button>
+    <main class="main-content">
+        <header class="topbar" id="pageTitle">AI Test Case Generator</header>
+
+        <!-- ── GENERATOR ── -->
+        <section id="view-generator">
+            <div class="generator-panel">
+                <div class="chips-row" id="chipsRow"></div>
+                <textarea id="testInput" placeholder="Describe the feature you want test cases for…"></textarea>
+                <div class="char-counter" id="charCounter">0 characters</div>
+                <div class="progress-wrap" id="progressWrap">
+                    <div class="progress-track">
+                        <div class="progress-bar" id="progressBar"></div>
                     </div>
-                    
-                    <textarea id="featureInput" class="feature-input" placeholder="Describe the feature you want to test..."></textarea>
-                    <div class="char-count"><span id="charCount">0</span> characters</div>
-                    <div class="action-buttons">
-                        <button id="generateBtn" class="btn btn-primary">✨ Generate Test Cases</button>
-                        <button id="exportJsonBtn" class="btn" disabled>{ } Export JSON</button>
-                        <button id="exportCsvBtn" class="btn" disabled>📋 Export CSV</button>
-                        <button id="exportExcelBtn" class="btn" disabled>📊 Export Excel</button>
-                        <button id="exportWordBtn" class="btn" disabled>📄 Export Word</button>
-                        <button id="saveProjectBtn" class="btn" disabled>💾 Save to Project</button>
-                    </div>
-                    <div id="statusMsg" class="status-msg"></div>
+                    <div class="progress-label" id="progressLabel" data-i18n="generating">Generating…</div>
                 </div>
-                <div id="resultsArea"></div>
+                <div class="btn-row">
+                    <button id="generateBtn" class="primary-btn">
+                        <i data-lucide="wand-2"></i>
+                        <span data-i18n="generate">Generate Test Cases</span>
+                    </button>
+                    <button id="exportJson" class="secondary-btn">
+                        <i data-lucide="braces"></i>
+                        <span data-i18n="exportJson">Export JSON</span>
+                    </button>
+                    <button id="exportCsv" class="secondary-btn">
+                        <i data-lucide="file-text"></i>
+                        <span data-i18n="exportCsv">Export CSV</span>
+                    </button>
+                    <button id="exportExcel" class="secondary-btn">
+                        <i data-lucide="table-2"></i>
+                        <span data-i18n="exportExcel">Export Excel</span>
+                    </button>
+                    <button id="exportWord" class="secondary-btn">
+                        <i data-lucide="file"></i>
+                        <span data-i18n="exportWord">Export Word</span>
+                    </button>
+                    <button id="saveProjectBtn" class="secondary-btn">
+                        <i data-lucide="save"></i>
+                        <span data-i18n="saveProject">Save to Project</span>
+                    </button>
+                </div>
             </div>
+            <div id="results" class="results"></div>
+        </section>
 
-            <!-- Dashboard -->
-            <div id="dashboard" class="tab-content">
-                <h1 class="page-title">Dashboard</h1>
-                <div id="dashContent"></div>
-            </div>
+        <!-- ── DASHBOARD ── -->
+        <section id="view-dashboard" style="display:none;">
+            <div id="dashContent"></div>
+        </section>
 
-            <!-- History -->
-            <div id="history" class="tab-content">
+        <!-- ── PROJECTS ── -->
+        <section id="view-projects" style="display:none;">
+            <div class="table-card">
                 <div class="section-header">
-                    <h1 class="page-title" style="margin-bottom:0;">History</h1>
-                    <button id="clearHistoryBtn" class="btn btn-danger">🗑️ Clear History</button>
+                    <h2 data-i18n="projects">Projects</h2>
                 </div>
-                <div class="table-card" style="margin-top:20px;">
-                    <div id="historyContent"></div>
-                </div>
+                <div id="projectsContent"></div>
             </div>
+        </section>
 
-            <!-- Projects -->
-            <div id="projects" class="tab-content">
+        <!-- ── SUITES ── -->
+        <section id="view-suites" style="display:none;">
+            <div id="suitesContent"></div>
+        </section>
+
+        <!-- ── HISTORY ── -->
+        <section id="view-history" style="display:none;">
+            <div class="table-card">
                 <div class="section-header">
-                    <h1 class="page-title" style="margin-bottom:0;">Projects</h1>
-                    <button id="addProjectBtn" class="btn btn-primary">+ Add Project</button>
+                    <h2 data-i18n="history">History</h2>
+                    <button id="clearHistoryBtn" class="secondary-btn">
+                        <i data-lucide="trash-2"></i>
+                        <span data-i18n="clearHistory">Clear History</span>
+                    </button>
                 </div>
-                <div class="table-card" style="margin-top:20px;">
-                    <div id="projectsContent"></div>
-                </div>
+                <div id="historyContent"></div>
             </div>
+        </section>
+    </main>
+</div>
 
-            <!-- Test Suites -->
-            <div id="suites" class="tab-content">
-                <h1 class="page-title">Test Suites</h1>
-                <div id="suitesContent"></div>
-            </div>
-        </main>
+<!-- ── DETAIL MODAL ── -->
+<div id="modalOverlay" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalTitle">Details</h2>
+            <button id="modalClose" class="close-btn"><i data-lucide="x"></i></button>
+        </div>
+        <div id="modalContent" class="modal-content"></div>
     </div>
+</div>
 
-    <!-- Modal -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 id="modalTitle"></h3>
-                <button class="modal-close" id="modalClose">&times;</button>
-            </div>
-            <div id="modalBody"></div>
+<!-- ── SAVE-TO-PROJECT MODAL ── -->
+<div id="saveModalOverlay" class="modal-overlay">
+    <div class="modal" style="max-width:380px;">
+        <div class="modal-header">
+            <h2 data-i18n="saveProject">Save to Project</h2>
+            <button id="saveModalClose" class="close-btn"><i data-lucide="x"></i></button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
+            <input id="projectNameInput" type="text" class="text-input" placeholder="Project name…" />
+            <button id="confirmSaveBtn" class="primary-btn" style="justify-content:center;">
+                <i data-lucide="check"></i>
+                <span data-i18n="save">Save</span>
+            </button>
         </div>
     </div>
+</div>
 
 <script>
 // ============================================================
-// ✅ CONFIG — YOUR WORKER URL (FIXED)
+// CONFIG — replace with your Cloudflare Worker URL
 // ============================================================
-const WORKER_URL = "https://qa-proxy.eng-milo.workers.dev";
+const WORKER_URL = "https://YOUR-WORKER.YOUR-NAME.workers.dev";
+// ============================================================
 
 // ============================================================
-// STATE
+// I18N
 // ============================================================
-let state = { usageTotal: 0, history: [], projects: [], language: 'en' };
-let latestTestCases = [];
-
-const priorityColors = {
-    Critical: "#dc2626", High: "#f97316", Medium: "#f59e0b",
-    Low: "#10b981", Trivial: "#6b7280"
-};
-
-const translations = {
+const i18n = {
     en: {
-        dashTotalAll: "Total Test Cases Generated",
-        dashSession: "Current Session",
-        dashPass: "Pass", dashFail: "Fail",
-        dashBlocked: "Blocked", dashUntested: "Untested",
-        priorityBreakdown: "Priority Breakdown",
-        emptyHistory: "No history yet. Generate some test cases to see them here.",
-        emptyProjects: "No projects yet. Create a project to get started.",
-        colFeature: "Feature", colGenerated: "Generated", colCount: "Count",
-        colName: "Name", colDesc: "Description", colCreated: "Created"
+        appName: "QA Studio",
+        generator:    "Generator",
+        dashboard:    "Dashboard",
+        projects:     "Projects",
+        suites:       "Suites",
+        history:      "History",
+        theme:        "Theme",
+        generate:     "Generate Test Cases",
+        generating:   "Generating…",
+        exportJson:   "Export JSON",
+        exportCsv:    "Export CSV",
+        exportExcel:  "Export Excel",
+        exportWord:   "Export Word",
+        saveProject:  "Save to Project",
+        save:         "Save",
+        clearHistory: "Clear History",
+        viewDetails:  "View Details",
+        noResults:    "Describe a feature above and hit Generate.",
+        colFeature:   "Feature",
+        colGenerated: "Date",
+        colCount:     "Tests",
+        colName:      "Name",
+        colDesc:      "Description",
+        colCreated:   "Created",
+        emptyHistory: "No history yet.",
+        emptyProjects:"No saved projects yet.",
+        dashTotalAll:     "All-time generated",
+        dashSession:      "This session",
+        dashPass:         "Passed",
+        dashFail:         "Failed",
+        dashBlocked:      "Blocked",
+        dashUntested:     "Untested",
+        priorityBreakdown:"Priority Breakdown",
+        pass: "Pass", fail: "Fail", blocked: "Blocked",
+        chips: ["Login flow","Password reset","File upload","Search & filter","User registration","Checkout"],
+        usageFn: n => `${n} test case${n !== 1 ? "s" : ""} generated`,
+        dir: "ltr",
+    },
+    fi: {
+        appName: "QA Studio",
+        generator:    "Generaattori",
+        dashboard:    "Kojelauta",
+        projects:     "Projektit",
+        suites:       "Testipaketit",
+        history:      "Historia",
+        theme:        "Teema",
+        generate:     "Luo testitapaukset",
+        generating:   "Luodaan…",
+        exportJson:   "Vie JSON",
+        exportCsv:    "Vie CSV",
+        exportExcel:  "Vie Excel",
+        exportWord:   "Vie Word",
+        saveProject:  "Tallenna projektiin",
+        save:         "Tallenna",
+        clearHistory: "Tyhjennä historia",
+        viewDetails:  "Näytä tiedot",
+        noResults:    "Kuvaile ominaisuus yllä ja paina Luo.",
+        colFeature:   "Ominaisuus",
+        colGenerated: "Päivämäärä",
+        colCount:     "Tapauksia",
+        colName:      "Nimi",
+        colDesc:      "Kuvaus",
+        colCreated:   "Luotu",
+        emptyHistory: "Ei historiaa vielä.",
+        emptyProjects:"Ei tallennettuja projekteja.",
+        dashTotalAll:     "Luotu yhteensä",
+        dashSession:      "Tällä sessiolla",
+        dashPass:         "Hyväksytty",
+        dashFail:         "Hylätty",
+        dashBlocked:      "Estetty",
+        dashUntested:     "Testaamaton",
+        priorityBreakdown:"Prioriteettijakauma",
+        pass: "Hyväksytty", fail: "Hylätty", blocked: "Estetty",
+        chips: ["Kirjautuminen","Salasanan palautus","Tiedostolataus","Haku & suodatus","Rekisteröinti","Kassaprosessi"],
+        usageFn: n => `${n} testitapausta luotu`,
+        dir: "ltr",
+    },
+    dz: {
+        appName: "QA Studio",
+        generator:    "المولّد",
+        dashboard:    "لوحة القيادة",
+        projects:     "المشاريع",
+        suites:       "الحزم",
+        history:      "السجل",
+        theme:        "المظهر",
+        generate:     "ولّد حالات الاختبار",
+        generating:   "جاري التوليد…",
+        exportJson:   "صدّر JSON",
+        exportCsv:    "صدّر CSV",
+        exportExcel:  "صدّر Excel",
+        exportWord:   "صدّر Word",
+        saveProject:  "احفظ في مشروع",
+        save:         "احفظ",
+        clearHistory: "امسح السجل",
+        viewDetails:  "شوف التفاصيل",
+        noResults:    "وصف الميزة فوق وأضغط ولّد.",
+        colFeature:   "الميزة",
+        colGenerated: "التاريخ",
+        colCount:     "الحالات",
+        colName:      "الاسم",
+        colDesc:      "الوصف",
+        colCreated:   "تاريخ الإنشاء",
+        emptyHistory: "ما كاين سجل بعد.",
+        emptyProjects:"ما كاين مشاريع بعد.",
+        dashTotalAll:     "مجموع ما تولّد",
+        dashSession:      "هاد الجلسة",
+        dashPass:         "نجح",
+        dashFail:         "فشل",
+        dashBlocked:      "محظور",
+        dashUntested:     "ما تختبرش",
+        priorityBreakdown:"توزيع الأولوية",
+        pass: "نجح", fail: "فشل", blocked: "محظور",
+        chips: ["تسجيل الدخول","استرجاع كلمة السر","رفع الملفات","البحث والتصفية","تسجيل المستخدم","الدفع"],
+        usageFn: n => `${n} حالات اختبار تولّدت`,
+        dir: "rtl",
     }
 };
+
+let lang = localStorage.getItem("qa_lang") || "en";
+const t = key => (i18n[lang] && i18n[lang][key] !== undefined) ? i18n[lang][key] : (i18n.en[key] || key);
+
+function applyLang() {
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+        const val = t(el.dataset.i18n);
+        if (typeof val === "string") el.textContent = val;
+    });
+    document.body.dir = t("dir");
+    if (lang === "dz") {
+        testInput.setAttribute("placeholder", "وصف الميزة اللي تحب تولّد ليها حالات الاختبار…");
+        testInput.dir = "rtl";
+    } else if (lang === "fi") {
+        testInput.setAttribute("placeholder", "Kuvaile ominaisuus, jolle haluat testitapaukset…");
+        testInput.dir = "ltr";
+    } else {
+        testInput.setAttribute("placeholder", "Describe the feature you want test cases for…");
+        testInput.dir = "ltr";
+    }
+    buildChips();
+    updateUsageCounter();
+    lucide.createIcons();
+}
+
+// ============================================================
+// PERSISTENT STATE
+// ============================================================
+const state = {
+    usageTotal: parseInt(localStorage.getItem("qa_usage_total") || "0"),
+    history:    JSON.parse(localStorage.getItem("qa_history")   || "[]"),
+    projects:   JSON.parse(localStorage.getItem("qa_projects")  || "[]"),
+};
+
+function saveState() {
+    localStorage.setItem("qa_usage_total", String(state.usageTotal));
+    localStorage.setItem("qa_history",     JSON.stringify(state.history));
+    localStorage.setItem("qa_projects",    JSON.stringify(state.projects));
+}
 
 // ============================================================
 // HELPERS
 // ============================================================
-function t(key) {
-    return translations[state.language || 'en']?.[key] || key;
-}
-
 function esc(str) {
-    if (str == null) return '';
-    const d = document.createElement('div');
+    const d = document.createElement("div");
     d.textContent = String(str);
     return d.innerHTML;
 }
 
-function saveState() {
-    try { localStorage.setItem('qaStudioState', JSON.stringify(state)); } catch(e) {}
-}
-
-function loadState() {
-    try {
-        const s = localStorage.getItem('qaStudioState');
-        if (s) state = { ...state, ...JSON.parse(s) };
-    } catch(e) {}
-}
-
-function formatDate(d) {
-    return new Date(d).toLocaleDateString('en-US', {
-        year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'
+function dlBlob(blob, filename) {
+    const a = Object.assign(document.createElement("a"), {
+        href: URL.createObjectURL(blob),
+        download: filename,
     });
-}
-
-function updateUsage() {
-    document.getElementById('usageDisplay').textContent = `${state.usageTotal} test cases generated`;
-}
-
-function showStatus(msg, type) {
-    const el = document.getElementById('statusMsg');
-    el.textContent = msg;
-    el.className = 'status-msg show ' + type;
-}
-
-function clearStatus() {
-    document.getElementById('statusMsg').className = 'status-msg';
-}
-
-function openModal(title, html) {
-    document.getElementById('modalTitle').textContent = title;
-    document.getElementById('modalBody').innerHTML = html;
-    document.getElementById('modalOverlay').classList.add('active');
-}
-
-function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('active');
-}
-
-function downloadBlob(blob, name) {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
     a.click();
     URL.revokeObjectURL(a.href);
 }
 
-function statusBadge(s) {
-    const cls = s ? `status-${s}` : 'status-untested';
-    const label = s ? s.charAt(0).toUpperCase() + s.slice(1) : 'Untested';
-    return `<span class="status-badge ${cls}">${label}</span>`;
+// ============================================================
+// THEME
+// ============================================================
+const savedTheme = localStorage.getItem("qa_theme") || "light";
+document.body.className = savedTheme;
+
+document.getElementById("themeToggle").addEventListener("click", () => {
+    const isDark = document.body.classList.contains("dark");
+    document.body.className = isDark ? "light" : "dark";
+    localStorage.setItem("qa_theme", isDark ? "light" : "dark");
+    document.getElementById("themeIcon").setAttribute("data-lucide", isDark ? "moon" : "sun");
+    lucide.createIcons();
+});
+
+// Sync icon on load
+if (savedTheme === "dark") {
+    document.getElementById("themeIcon").setAttribute("data-lucide", "sun");
 }
 
 // ============================================================
-// NAV
+// LANGUAGE SELECTOR
 // ============================================================
-function initNav() {
-    const links = document.querySelectorAll('.sidebar-nav a');
-    const tabs = document.querySelectorAll('.tab-content');
-    links.forEach(link => {
-        link.addEventListener('click', () => {
-            links.forEach(l => l.classList.remove('active'));
-            tabs.forEach(t => t.classList.remove('active'));
-            link.classList.add('active');
-            document.getElementById(link.dataset.tab).classList.add('active');
-            const id = link.dataset.tab;
-            if (id === 'dashboard') renderDashboard();
-            if (id === 'history') renderHistory();
-            if (id === 'projects') renderProjects();
-            if (id === 'suites') renderSuites();
+document.getElementById("langSelect").value = lang;
+document.getElementById("langSelect").addEventListener("change", e => {
+    lang = e.target.value;
+    localStorage.setItem("qa_lang", lang);
+    applyLang();
+    // Re-render current active view in new language
+    const activeView = document.querySelector(".sidebar-nav .nav-item.active")?.dataset.view;
+    if (activeView === "history")  renderHistory();
+    if (activeView === "projects") renderProjects();
+    if (activeView === "suites")   renderSuites();
+    if (activeView === "dashboard") renderDashboard();
+});
+
+// ============================================================
+// ROUTING
+// ============================================================
+const views = {
+    generator: document.getElementById("view-generator"),
+    dashboard:  document.getElementById("view-dashboard"),
+    projects:  document.getElementById("view-projects"),
+    suites:    document.getElementById("view-suites"),
+    history:   document.getElementById("view-history"),
+};
+
+document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const view = btn.dataset.view;
+        if (!view) return;
+        Object.values(views).forEach(v => (v.style.display = "none"));
+        views[view].style.display = "block";
+        document.querySelectorAll(".sidebar-nav .nav-item").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("pageTitle").textContent = t(view);
+        if (view === "dashboard") renderDashboard();
+        if (view === "projects")  renderProjects();
+        if (view === "suites")    renderSuites();
+        if (view === "history")   renderHistory();
+    });
+});
+
+// ============================================================
+// MODAL — Detail
+// ============================================================
+const modalOverlay = document.getElementById("modalOverlay");
+function openModal(title, contentHTML) {
+    document.getElementById("modalTitle").textContent = title;
+    document.getElementById("modalContent").innerHTML = contentHTML;
+    modalOverlay.classList.add("visible");
+    lucide.createIcons();
+}
+function closeModal() { modalOverlay.classList.remove("visible"); }
+document.getElementById("modalClose").addEventListener("click", closeModal);
+modalOverlay.addEventListener("click", e => { if (e.target === modalOverlay) closeModal(); });
+
+// ============================================================
+// MODAL — Save to Project
+// ============================================================
+const saveModalOverlay = document.getElementById("saveModalOverlay");
+document.getElementById("saveModalClose").addEventListener("click",
+    () => saveModalOverlay.classList.remove("visible"));
+saveModalOverlay.addEventListener("click",
+    e => { if (e.target === saveModalOverlay) saveModalOverlay.classList.remove("visible"); });
+
+document.getElementById("saveProjectBtn").addEventListener("click", () => {
+    if (!latestTestCases.length) return;
+    document.getElementById("projectNameInput").value = "";
+    saveModalOverlay.classList.add("visible");
+    lucide.createIcons();
+    setTimeout(() => document.getElementById("projectNameInput").focus(), 80);
+});
+
+document.getElementById("confirmSaveBtn").addEventListener("click", () => {
+    const name = document.getElementById("projectNameInput").value.trim();
+    if (!name) return;
+    state.projects.unshift({
+        id: Date.now(),
+        name,
+        description: testInput.value.trim().slice(0, 90),
+        created: new Date().toISOString().slice(0, 10),
+        testCases: JSON.parse(JSON.stringify(latestTestCases)),
+    });
+    saveState();
+    saveModalOverlay.classList.remove("visible");
+});
+
+document.getElementById("projectNameInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") document.getElementById("confirmSaveBtn").click();
+});
+
+// ============================================================
+// EXAMPLE PROMPT CHIPS
+// ============================================================
+function buildChips() {
+    const row = document.getElementById("chipsRow");
+    row.innerHTML = "";
+    (t("chips") || []).forEach(label => {
+        const btn = document.createElement("button");
+        btn.className = "chip";
+        btn.textContent = label;
+        btn.addEventListener("click", () => {
+            testInput.value = label;
+            charCounter.textContent = `${label.length} characters`;
         });
+        row.appendChild(btn);
     });
 }
 
 // ============================================================
-// GENERATOR — CALLS YOUR WORKER
+// USAGE COUNTER
 // ============================================================
-async function generateTestCases() {
-    const feature = document.getElementById('featureInput').value.trim();
-    if (!feature) { showStatus('Please enter a feature description.', 'error'); return; }
+function updateUsageCounter() {
+    const fn = i18n[lang]?.usageFn;
+    document.getElementById("usageCounter").textContent =
+        typeof fn === "function" ? fn(state.usageTotal) : `${state.usageTotal}`;
+}
 
-    const btn = document.getElementById('generateBtn');
-    btn.disabled = true;
-    btn.textContent = '⏳ Generating...';
-    showStatus('Contacting AI to generate test cases...', 'loading');
+// ============================================================
+// PROGRESS BAR
+// ============================================================
+let progressInterval;
+
+function startProgress() {
+    const wrap = document.getElementById("progressWrap");
+    const bar  = document.getElementById("progressBar");
+    wrap.style.display = "block";
+    bar.style.width = "0%";
+    bar.style.background = "linear-gradient(90deg,#3b82f6,#8b5cf6)";
+    let pct = 0;
+    progressInterval = setInterval(() => {
+        pct += Math.random() * 9 + 2;
+        if (pct > 85) pct = 85;
+        bar.style.width = pct + "%";
+    }, 320);
+}
+
+function finishProgress(success = true) {
+    clearInterval(progressInterval);
+    const bar  = document.getElementById("progressBar");
+    const wrap = document.getElementById("progressWrap");
+    if (!success) bar.style.background = "#dc2626";
+    bar.style.width = "100%";
+    setTimeout(() => {
+        wrap.style.display = "none";
+        bar.style.width = "0%";
+        bar.style.background = "";
+    }, 650);
+}
+
+// ============================================================
+// GENERATOR
+// ============================================================
+const resultsEl   = document.getElementById("results");
+const generateBtn = document.getElementById("generateBtn");
+const testInput   = document.getElementById("testInput");
+const charCounter = document.getElementById("charCounter");
+let latestTestCases = [];
+
+testInput.addEventListener("input", () => {
+    charCounter.textContent = `${testInput.value.length} characters`;
+});
+
+const priorityOrder = { Critical: 1, High: 2, Medium: 3, Low: 4, Trivial: 5 };
+const priorityColors = { Critical: "#dc2626", High: "#f97316", Medium: "#3b82f6", Low: "#10b981", Trivial: "#6b7280" };
+
+function createTestCard(tc) {
+    const div = document.createElement("div");
+    div.className = "test-card";
+    div.innerHTML = `
+        <div class="test-card-header">
+            <h3>${esc(tc.id)} — ${esc(tc.title)}</h3>
+            <span class="priority-badge priority-${esc(tc.priority)}">${esc(tc.priority)}</span>
+        </div>
+        <div class="test-card-actions">
+            <button class="primary-btn view-details-btn" style="padding:6px 14px;font-size:13px;">
+                <i data-lucide="eye"></i> ${t("viewDetails")}
+            </button>
+            <button class="status-btn pass-btn ${tc.status === "pass" ? "active-pass" : ""}">${t("pass")}</button>
+            <button class="status-btn fail-btn ${tc.status === "fail" ? "active-fail" : ""}">${t("fail")}</button>
+            <button class="status-btn blocked-btn ${tc.status === "blocked" ? "active-blocked" : ""}">${t("blocked")}</button>
+        </div>`;
+
+    div.querySelector(".view-details-btn").addEventListener("click", () => {
+        const steps = tc.steps.map(s => `<li>${esc(s)}</li>`).join("");
+        openModal(tc.title,
+            `<p><strong>Description:</strong><br>${esc(tc.description)}</p>` +
+            `<p><strong>Steps:</strong><ol>${steps}</ol></p>` +
+            `<p><strong>Expected:</strong><br>${esc(tc.expected)}</p>` +
+            `<p><strong>Tags:</strong> ${tc.tags.map(esc).join(", ")}</p>` +
+            `<p><strong>Risk:</strong> ${esc(tc.risk)}</p>`
+        );
+    });
+
+    function setStatus(status) {
+        tc.status = tc.status === status ? null : status;
+        div.querySelector(".pass-btn").classList.toggle("active-pass", tc.status === "pass");
+        div.querySelector(".fail-btn").classList.toggle("active-fail", tc.status === "fail");
+        div.querySelector(".blocked-btn").classList.toggle("active-blocked", tc.status === "blocked");
+        // Live-refresh dashboard if open
+        if (document.getElementById("view-dashboard").style.display !== "none") renderDashboard();
+    }
+
+    div.querySelector(".pass-btn").addEventListener("click",    () => setStatus("pass"));
+    div.querySelector(".fail-btn").addEventListener("click",    () => setStatus("fail"));
+    div.querySelector(".blocked-btn").addEventListener("click", () => setStatus("blocked"));
+
+    return div;
+}
+
+generateBtn.addEventListener("click", async () => {
+    const feature = testInput.value.trim();
+    if (!feature) return;
+
+    // Guard against unconfigured worker URL
+    if (!WORKER_URL || WORKER_URL.includes("YOUR-WORKER")) {
+        resultsEl.innerHTML = `<p class="status-msg" style="color:#dc2626;">
+            ⚠️ Please set your WORKER_URL in the config at the top of the &lt;script&gt; block.
+        </p>`;
+        return;
+    }
+
+    generateBtn.disabled = true;
+    generateBtn.querySelector("span").textContent = t("generating");
+    resultsEl.innerHTML = "";
+    latestTestCases = [];
+    startProgress();
 
     try {
         const res = await fetch(WORKER_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ feature })
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                model: "claude-sonnet-4-20250514",
+                max_tokens: 1000,
+                system: `You are a QA engineer. Given a feature description, generate 4-6 test cases as a JSON array.
+Each object must have exactly these fields:
+- id: string like "TC-001"
+- title: short string
+- description: one sentence
+- steps: array of 3-5 step strings
+- expected: string
+- priority: one of "Critical", "High", "Medium", "Low", "Trivial"
+- tags: array of 1-3 tag strings
+- risk: one sentence
+Return ONLY the raw JSON array, no markdown, no explanation.`,
+                messages: [{ role: "user", content: `Feature: ${feature}` }],
+            }),
         });
 
-        if (!res.ok) {
-            const errText = await res.text();
-            throw new Error(`Server responded with ${res.status}: ${errText}`);
-        }
+        const data   = await res.json();
+        const raw    = data.content.map(b => b.text || "").join("").trim();
+        const clean  = raw.replace(/^```json\s*/i, "").replace(/```$/g, "").trim();
+        latestTestCases = JSON.parse(clean);
+        latestTestCases.sort((a, b) => (priorityOrder[a.priority] || 9) - (priorityOrder[b.priority] || 9));
 
-        const data = await res.json();
-        const testCases = data.testCases || data.test_cases || data;
+        resultsEl.innerHTML = "";
+        latestTestCases.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
+        lucide.createIcons();
+        finishProgress(true);
 
-        if (!Array.isArray(testCases) || testCases.length === 0) {
-            throw new Error('No test cases returned from the API.');
-        }
+        // 🎉 Confetti
+        confetti({
+            particleCount: 130,
+            spread: 80,
+            origin: { y: 0.55 },
+            colors: ["#3b82f6", "#8b5cf6", "#10b981", "#f97316"],
+        });
 
-        latestTestCases = testCases;
-        state.usageTotal += testCases.length;
-        state.history.unshift({ feature, date: formatDate(new Date()), count: testCases.length });
+        // Persist usage + history
+        state.usageTotal += latestTestCases.length;
+        state.history.unshift({
+            feature: feature.slice(0, 60),
+            date: new Date().toISOString().slice(0, 10),
+            count: latestTestCases.length,
+        });
+        if (state.history.length > 50) state.history.pop();
         saveState();
-        updateUsage();
-
-        showStatus(`✅ Generated ${testCases.length} test cases successfully!`, 'success');
-
-        // Enable export buttons
-        document.getElementById('exportJsonBtn').disabled = false;
-        document.getElementById('exportCsvBtn').disabled = false;
-        document.getElementById('exportExcelBtn').disabled = false;
-        document.getElementById('exportWordBtn').disabled = false;
-        document.getElementById('saveProjectBtn').disabled = false;
-
-        renderResults(testCases);
+        updateUsageCounter();
 
     } catch (err) {
-        console.error('Generation error:', err);
-        showStatus(`❌ ${err.message}`, 'error');
+        finishProgress(false);
+        resultsEl.innerHTML = `<p class="status-msg" style="color:#dc2626;">Error: ${esc(err.message)}</p>`;
     } finally {
-        btn.disabled = false;
-        btn.textContent = '✨ Generate Test Cases';
+        generateBtn.disabled = false;
+        generateBtn.querySelector("span").textContent = t("generate");
     }
-}
-
-function renderResults(tcs) {
-    document.getElementById('resultsArea').innerHTML = `
-        <div class="table-card">
-            <div class="section-header">
-                <h2>Generated Test Cases (${tcs.length})</h2>
-            </div>
-            <table>
-                <thead><tr>
-                    <th>ID</th><th>Title</th><th>Priority</th>
-                    <th>Steps</th><th>Expected</th>
-                </tr></thead>
-                <tbody>${tcs.map(tc => `
-                    <tr class="clickable" data-tcid="${esc(tc.id)}">
-                        <td><strong>${esc(tc.id)}</strong></td>
-                        <td>${esc(tc.title)}</td>
-                        <td><span class="priority-badge priority-${esc(tc.priority)}">${esc(tc.priority)}</span></td>
-                        <td style="color:var(--text-muted);font-size:13px;">${tc.steps ? tc.steps.length + ' steps' : '—'}</td>
-                        <td style="color:var(--text-muted);font-size:13px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(tc.expected || tc.expectedResult || '')}</td>
-                    </tr>`).join('')}
-                </tbody>
-            </table>
-        </div>`;
-
-    // Click to view details
-    document.querySelectorAll('#resultsArea tr.clickable').forEach(row => {
-        row.addEventListener('click', () => {
-            const tc = latestTestCases.find(t => t.id === row.dataset.tcid);
-            if (!tc) return;
-            const stepsHtml = tc.steps ? tc.steps.map((s, i) =>
-                `<div style="padding:6px 0;border-bottom:1px solid var(--border);">${typeof s === 'string' ? esc(s) : esc(s.step || s.action || JSON.stringify(s))}</div>`
-            ).join('') : '<p style="color:var(--text-muted)">No steps defined</p>';
-
-            openModal(tc.title, `
-                <div style="margin-bottom:12px;">
-                    <span class="priority-badge priority-${esc(tc.priority)}">${esc(tc.priority)}</span>
-                    ${statusBadge(tc.status)}
-                </div>
-                <h4 style="margin:16px 0 8px;color:var(--text-muted);font-size:13px;">STEPS</h4>
-                ${stepsHtml}
-                <h4 style="margin:16px 0 8px;color:var(--text-muted);font-size:13px;">EXPECTED RESULT</h4>
-                <p>${esc(tc.expected || tc.expectedResult || 'Not specified')}</p>
-            `);
-        });
-    });
-}
+});
 
 // ============================================================
-// EXPORTS
+// EXPORT — JSON
 // ============================================================
-function exportJSON() {
+document.getElementById("exportJson").addEventListener("click", () => {
     if (!latestTestCases.length) return;
-    downloadBlob(
-        new Blob([JSON.stringify(latestTestCases, null, 2)], { type: 'application/json' }),
-        'test-cases.json'
-    );
-}
+    dlBlob(new Blob([JSON.stringify(latestTestCases, null, 2)], { type: "application/json" }), "test-cases.json");
+});
 
-function exportCSV() {
+// ============================================================
+// EXPORT — CSV
+// ============================================================
+document.getElementById("exportCsv").addEventListener("click", () => {
     if (!latestTestCases.length) return;
-    const headers = ['ID','Title','Priority','Steps','Expected','Status'];
-    const rows = latestTestCases.map(tc => [
-        tc.id,
-        `"${(tc.title || '').replace(/"/g, '""')}"`,
-        tc.priority,
-        `"${(tc.steps || []).join(' | ').replace(/"/g, '""')}"`,
-        `"${(tc.expected || tc.expectedResult || '').replace(/"/g, '""')}"`,
-        tc.status || 'Untested'
-    ].join(','));
-    downloadBlob(
-        new Blob([headers.join(',') + '\n' + rows.join('\n')], { type: 'text/csv' }),
-        'test-cases.csv'
-    );
-}
+    const header = ["ID","Title","Description","Steps","Expected","Priority","Tags","Risk","Status"];
+    const rows   = latestTestCases.map(tc => [
+        tc.id, tc.title, tc.description,
+        tc.steps.join(" | "), tc.expected,
+        tc.priority, tc.tags.join(" | "), tc.risk,
+        tc.status || "Untested",
+    ]);
+    const csv = [header, ...rows]
+        .map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+    dlBlob(new Blob([csv], { type: "text/csv" }), "test-cases.csv");
+});
 
-function exportExcel() {
-    // Simple HTML table export that Excel can open
+// ============================================================
+// EXPORT — EXCEL (SheetJS)
+// ============================================================
+document.getElementById("exportExcel").addEventListener("click", () => {
     if (!latestTestCases.length) return;
-    let html = '<table><tr><th>ID</th><th>Title</th><th>Priority</th><th>Steps</th><th>Expected</th><th>Status</th></tr>';
-    latestTestCases.forEach(tc => {
-        html += `<tr>
-            <td>${esc(tc.id)}</td>
-            <td>${esc(tc.title)}</td>
-            <td>${esc(tc.priority)}</td>
-            <td>${esc((tc.steps || []).join('\n'))}</td>
-            <td>${esc(tc.expected || tc.expectedResult || '')}</td>
-            <td>${tc.status || 'Untested'}</td>
-        </tr>`;
-    });
-    html += '</table>';
-    downloadBlob(
-        new Blob([`<html><head><meta charset="UTF-8"></head><body>${html}</body></html>`], { type: 'application/vnd.ms-excel' }),
-        'test-cases.xls'
-    );
-}
+    const wsData = [
+        ["ID","Title","Description","Steps","Expected","Priority","Tags","Risk","Status"],
+        ...latestTestCases.map(tc => [
+            tc.id, tc.title, tc.description,
+            tc.steps.join(" | "), tc.expected,
+            tc.priority, tc.tags.join(", "), tc.risk,
+            tc.status || "Untested",
+        ]),
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws["!cols"] = [8, 30, 40, 48, 40, 12, 22, 40, 12].map(w => ({ wch: w }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Test Cases");
+    XLSX.writeFile(wb, "test-cases.xlsx");
+});
 
-function exportWord() {
+// ============================================================
+// EXPORT — WORD (.doc via HTML-to-Word)
+// ============================================================
+document.getElementById("exportWord").addEventListener("click", () => {
     if (!latestTestCases.length) return;
-    let html = '<h1>Test Cases</h1>';
-    latestTestCases.forEach(tc => {
-        html += `<h2>${esc(tc.id)} — ${esc(tc.title)}</h2>`;
-        html += `<p><strong>Priority:</strong> ${esc(tc.priority)}</p>`;
-        if (tc.steps && tc.steps.length) {
-            html += '<p><strong>Steps:</strong></p><ol>';
-            tc.steps.forEach(s => { html += `<li>${esc(typeof s === 'string' ? s : s.step || JSON.stringify(s))}</li>`; });
-            html += '</ol>';
-        }
-        html += `<p><strong>Expected:</strong> ${esc(tc.expected || tc.expectedResult || 'N/A')}</p><hr>`;
-    });
-    downloadBlob(
-        new Blob([`<html><head><meta charset="UTF-8"></head><body>${html}</body></html>`], { type: 'application/msword' }),
-        'test-cases.doc'
-    );
-}
+    const tableRows = latestTestCases.map(tc => `
+        <tr>
+            <td>${tc.id}</td>
+            <td>${tc.title}</td>
+            <td>${tc.description}</td>
+            <td>${tc.steps.map(s => `• ${s}`).join("<br>")}</td>
+            <td>${tc.expected}</td>
+            <td>${tc.priority}</td>
+            <td>${tc.tags.join(", ")}</td>
+            <td>${tc.risk}</td>
+            <td>${tc.status || "Untested"}</td>
+        </tr>`).join("");
+
+    const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office'
+        xmlns:w='urn:schemas-microsoft-com:office:word'
+        xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='UTF-8'>
+        <style>
+            body  { font-family: Calibri, sans-serif; font-size: 11pt; }
+            h1    { font-size: 16pt; color: #1f2937; }
+            table { border-collapse: collapse; width: 100%; }
+            th    { background: #3b82f6; color: white; padding: 8px; font-size: 10pt; border: 1px solid #2563eb; }
+            td    { padding: 7px 8px; border: 1px solid #e5e7eb; font-size: 10pt; vertical-align: top; }
+            tr:nth-child(even) td { background: #f9fafb; }
+        </style></head>
+        <body>
+        <h1>Test Cases — ${new Date().toLocaleDateString()}</h1>
+        <table>
+            <thead><tr>
+                <th>ID</th><th>Title</th><th>Description</th><th>Steps</th>
+                <th>Expected</th><th>Priority</th><th>Tags</th><th>Risk</th><th>Status</th>
+            </tr></thead>
+            <tbody>${tableRows}</tbody>
+        </table>
+        </body></html>`;
+
+    dlBlob(new Blob(["\uFEFF" + html], { type: "application/msword" }), "test-cases.doc");
+});
 
 // ============================================================
 // DASHBOARD
 // ============================================================
 function renderDashboard() {
-    const pass = latestTestCases.filter(tc => tc.status === "pass").length;
-    const fail = latestTestCases.filter(tc => tc.status === "fail").length;
-    const blocked = latestTestCases.filter(tc => tc.status === "blocked").length;
+    const pass     = latestTestCases.filter(tc => tc.status === "pass").length;
+    const fail     = latestTestCases.filter(tc => tc.status === "fail").length;
+    const blocked  = latestTestCases.filter(tc => tc.status === "blocked").length;
     const untested = latestTestCases.filter(tc => !tc.status).length;
-    const session = latestTestCases.length;
+    const session  = latestTestCases.length;
 
     const pCounts = {};
-    latestTestCases.forEach(tc => {
-        if (tc.priority) pCounts[tc.priority] = (pCounts[tc.priority] || 0) + 1;
-    });
+    latestTestCases.forEach(tc => { pCounts[tc.priority] = (pCounts[tc.priority] || 0) + 1; });
 
     const pCards = ["Critical","High","Medium","Low","Trivial"]
         .filter(p => pCounts[p])
         .map(p => `
             <div class="dash-card">
                 <div class="dash-value" style="color:${priorityColors[p]}">${pCounts[p]}</div>
-                <div class="dash-label"><span class="dash-dot" style="background:${priorityColors[p]}"></span>${p}</div>
+                <div class="dash-label">
+                    <span class="dash-dot" style="background:${priorityColors[p]}"></span>${p}
+                </div>
             </div>`).join("");
 
     document.getElementById("dashContent").innerHTML = `
@@ -800,18 +1224,33 @@ function renderDashboard() {
         </div>
         <p class="dash-section-title">${t("dashSession")}</p>
         <div class="dash-grid">
-            <div class="dash-card"><div class="dash-value">${session}</div><div class="dash-label">Total</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:#10b981">${pass}</div><div class="dash-label"><span class="dash-dot" style="background:#10b981"></span>${t("dashPass")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:#dc2626">${fail}</div><div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:#f97316">${blocked}</div><div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:var(--text-muted)">${untested}</div><div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div></div>
+            <div class="dash-card">
+                <div class="dash-value">${session}</div>
+                <div class="dash-label">Total</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-value" style="color:#10b981">${pass}</div>
+                <div class="dash-label"><span class="dash-dot" style="background:#10b981"></span>${t("dashPass")}</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-value" style="color:#dc2626">${fail}</div>
+                <div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-value" style="color:#f97316">${blocked}</div>
+                <div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-value" style="color:var(--text-muted)">${untested}</div>
+                <div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div>
+            </div>
         </div>
         ${pCards ? `<p class="dash-section-title">${t("priorityBreakdown")}</p><div class="dash-grid">${pCards}</div>` : ""}
     `;
 }
 
 // ============================================================
-// HISTORY
+// HISTORY (localStorage-backed)
 // ============================================================
 function renderHistory() {
     const el = document.getElementById("historyContent");
@@ -821,15 +1260,25 @@ function renderHistory() {
     }
     el.innerHTML = `
         <table>
-            <thead><tr><th>${t("colFeature")}</th><th>${t("colGenerated")}</th><th>${t("colCount")}</th></tr></thead>
+            <thead><tr>
+                <th>${t("colFeature")}</th>
+                <th>${t("colGenerated")}</th>
+                <th>${t("colCount")}</th>
+            </tr></thead>
             <tbody>${state.history.map(h =>
                 `<tr><td>${esc(h.feature)}</td><td>${h.date}</td><td>${h.count}</td></tr>`
             ).join("")}</tbody>
         </table>`;
 }
 
+document.getElementById("clearHistoryBtn").addEventListener("click", () => {
+    state.history = [];
+    saveState();
+    renderHistory();
+});
+
 // ============================================================
-// PROJECTS
+// PROJECTS (localStorage-backed)
 // ============================================================
 function renderProjects() {
     const el = document.getElementById("projectsContent");
@@ -839,39 +1288,45 @@ function renderProjects() {
     }
     el.innerHTML = `
         <table>
-            <thead><tr><th>${t("colName")}</th><th>${t("colDesc")}</th><th>${t("colCreated")}</th><th></th></tr></thead>
+            <thead><tr>
+                <th>${t("colName")}</th>
+                <th>${t("colDesc")}</th>
+                <th>${t("colCreated")}</th>
+                <th></th>
+            </tr></thead>
             <tbody>${state.projects.map(p => `
                 <tr class="clickable" data-pid="${p.id}">
                     <td><strong>${esc(p.name)}</strong></td>
                     <td style="color:var(--text-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.description)}</td>
                     <td>${p.created}</td>
-                    <td style="color:var(--text-muted);font-size:13px;">${(p.testCases||[]).length} tests</td>
+                    <td style="color:var(--text-muted);font-size:13px;">${p.testCases.length} tests</td>
                 </tr>`).join("")}
             </tbody>
         </table>`;
 
     el.querySelectorAll("tr.clickable").forEach(row => {
         row.addEventListener("click", () => {
-            const proj = state.projects.find(p => String(p.id) === row.dataset.pid);
-            if (!proj) return;
-            const tcs = proj.testCases || [];
-            openModal(proj.name, `
-                <p style="color:var(--text-muted);font-size:13px;">${esc(proj.description)}</p>
-                ${tcs.length ? `<table style="font-size:14px;margin-top:12px;">
+            const project = state.projects.find(p => String(p.id) === row.dataset.pid);
+            if (!project) return;
+            const rows = project.testCases.map(tc => `
+                <tr>
+                    <td>${esc(tc.id)}</td>
+                    <td>${esc(tc.title)}</td>
+                    <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(tc.priority)}</span></td>
+                    <td style="color:var(--text-muted)">${tc.status || "Untested"}</td>
+                </tr>`).join("");
+            openModal(project.name, `
+                <p style="color:var(--text-muted);font-size:13px;margin-top:0;">${esc(project.description)}</p>
+                <table style="font-size:14px">
                     <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th></tr></thead>
-                    <tbody>${tcs.map(tc => `<tr>
-                        <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td>
-                        <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(tc.priority)}</span></td>
-                        <td>${statusBadge(tc.status)}</td>
-                    </tr>`).join('')}</tbody>
-                </table>` : '<p style="color:var(--text-muted);margin-top:12px;">No test cases yet.</p>'}
-            `);
+                    <tbody>${rows}</tbody>
+                </table>`);
         });
     });
 }
 
 // ============================================================
-// SUITES
+// SUITES (test cases grouped by project)
 // ============================================================
 function renderSuites() {
     const el = document.getElementById("suitesContent");
@@ -879,107 +1334,31 @@ function renderSuites() {
         el.innerHTML = `<div class="table-card"><div class="empty-state">${t("emptyProjects")}</div></div>`;
         return;
     }
-    el.innerHTML = state.projects.map(p => {
-        const tcs = p.testCases || [];
-        return `
+    el.innerHTML = state.projects.map(p => `
         <div class="table-card" style="margin-bottom:20px;">
             <div class="section-header">
                 <h2>${esc(p.name)}</h2>
                 <span style="color:var(--text-muted);font-size:13px;">${p.created}</span>
             </div>
-            ${tcs.length ? `<table>
+            <table>
                 <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th></tr></thead>
-                <tbody>${tcs.map(tc => `<tr>
-                    <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td>
-                    <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(tc.priority)}</span></td>
-                    <td>${statusBadge(tc.status)}</td>
-                </tr>`).join('')}</tbody>
-            </table>` : '<p style="color:var(--text-muted);padding:20px 0;">No test cases in this suite.</p>'}
-        </div>`;
-    }).join("");
+                <tbody>${p.testCases.map(tc => `
+                    <tr>
+                        <td>${esc(tc.id)}</td>
+                        <td>${esc(tc.title)}</td>
+                        <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(tc.priority)}</span></td>
+                        <td style="color:var(--text-muted)">${tc.status || "Untested"}</td>
+                    </tr>`).join("")}
+                </tbody>
+            </table>
+        </div>`).join("");
 }
 
 // ============================================================
-// EVENT LISTENERS
+// INIT
 // ============================================================
-document.addEventListener("DOMContentLoaded", () => {
-    loadState();
-    initNav();
-    updateUsage();
-
-    // Character count
-    const input = document.getElementById('featureInput');
-    input.addEventListener('input', () => {
-        document.getElementById('charCount').textContent = input.value.length;
-    });
-
-    // Quick tags
-    document.querySelectorAll('.quick-tag').forEach(tag => {
-        tag.addEventListener('click', () => {
-            input.value = tag.dataset.feature;
-            document.getElementById('charCount').textContent = input.value.length;
-        });
-    });
-
-    // Generate
-    document.getElementById('generateBtn').addEventListener('click', generateTestCases);
-
-    // Exports
-    document.getElementById('exportJsonBtn').addEventListener('click', exportJSON);
-    document.getElementById('exportCsvBtn').addEventListener('click', exportCSV);
-    document.getElementById('exportExcelBtn').addEventListener('click', exportExcel);
-    document.getElementById('exportWordBtn').addEventListener('click', exportWord);
-
-    // Save to project
-    document.getElementById('saveProjectBtn').addEventListener('click', () => {
-        if (!latestTestCases.length) return;
-        const name = prompt('Save to project name:');
-        if (!name) return;
-        const existing = state.projects.find(p => p.name === name);
-        if (existing) {
-            existing.testCases = [...(existing.testCases || []), ...latestTestCases];
-        } else {
-            state.projects.push({
-                id: Date.now(), name,
-                description: `Generated from: ${input.value}`,
-                created: formatDate(new Date()),
-                testCases: [...latestTestCases]
-            });
-        }
-        saveState();
-        showStatus(`✅ Saved ${latestTestCases.length} test cases to "${name}"`, 'success');
-    });
-
-    // Clear history
-    document.getElementById('clearHistoryBtn').addEventListener('click', () => {
-        if (confirm('Clear all history?')) {
-            state.history = [];
-            saveState();
-            renderHistory();
-        }
-    });
-
-    // Add project
-    document.getElementById('addProjectBtn').addEventListener('click', () => {
-        const name = prompt('Project name:');
-        if (!name) return;
-        state.projects.push({
-            id: Date.now(), name,
-            description: prompt('Description:') || '',
-            created: formatDate(new Date()),
-            testCases: []
-        });
-        saveState();
-        renderProjects();
-    });
-
-    // Modal
-    document.getElementById('modalClose').addEventListener('click', closeModal);
-    document.getElementById('modalOverlay').addEventListener('click', e => {
-        if (e.target.id === 'modalOverlay') closeModal();
-    });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-});
+applyLang();
+updateUsageCounter();
 </script>
 </body>
 </html>
