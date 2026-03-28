@@ -133,7 +133,15 @@
         .topbar {
             font-size: 24px;
             font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        /* ✅ NEW: Subtitle style */
+        .page-subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
             margin-bottom: 24px;
+            font-weight: 400;
         }
 
         .generator-panel {
@@ -167,6 +175,12 @@
             border-color: #3b82f6;
             color: #3b82f6;
             background: rgba(59,130,246,0.08);
+        }
+        .chip.active-chip {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background: rgba(59,130,246,0.12);
+            font-weight: 500;
         }
 
         textarea {
@@ -482,6 +496,8 @@
 
     <main class="main-content">
         <header class="topbar" id="pageTitle">AI Test Case Generator</header>
+        <!-- ✅ NEW: Subtitle -->
+        <p class="page-subtitle" id="pageSubtitle">Generate, save, and track test cases by project.</p>
 
         <section id="view-generator">
             <div class="generator-panel">
@@ -589,13 +605,14 @@
 const WORKER_URL = "https://qa-proxy.eng-milo.workers.dev";
 
 // ============================================================
-// I18N — ✅ FIXED: Added documentTitle for all languages
+// I18N — ✅ Added: documentTitle, subtitle, chipStories
 // ============================================================
 const i18n = {
     en: {
-        documentTitle:"QA Studio — AI Test Case Generator",
+        documentTitle:      "QA Studio — AI Test Case Generator",
         generatorPageTitle: "AI Test Case Generator",
-        appName: "QA Studio",
+        pageSubtitle:       "Generate, save, and track test cases by project.",
+        appName:      "QA Studio",
         generator:    "Generator",
         dashboard:    "Dashboard",
         projects:     "Projects",
@@ -629,14 +646,30 @@ const i18n = {
         dashUntested:     "Untested",
         priorityBreakdown:"Priority Breakdown",
         pass: "Pass", fail: "Fail", blocked: "Blocked",
-        chips: ["Login flow","Password reset","File upload","Search & filter","User registration","Checkout"],
+        chips: [
+            "Login flow",
+            "Password reset",
+            "File upload",
+            "Search & filter",
+            "User registration",
+            "Checkout"
+        ],
+        chipStories: [
+            "As a registered user, I want to log in with my email and password so that I can access my account dashboard. The system should support 'Remember me', show/hide password toggle, account lockout after 5 failed attempts, and display clear error messages for invalid credentials.",
+            "As a user who forgot my password, I want to reset it via a link sent to my email so that I can regain access to my account. The reset link should expire after 30 minutes, enforce strong password rules, and confirm the change with a success notification.",
+            "As a user, I want to upload documents (PDF, DOCX, JPG, PNG) up to 10MB so that I can attach them to my profile or project. The system should show an upload progress bar, validate file type and size before upload, and display a preview of the uploaded file.",
+            "As a user, I want to search products by keyword and filter results by category, price range, rating, and availability so that I can quickly find what I need. The search should support auto-suggestions, highlight matching terms, and remember recent searches.",
+            "As a new visitor, I want to create an account using my name, email, and password so that I can access the platform. The system should validate email format, enforce password strength (min 8 chars, uppercase, number, symbol), check for duplicate accounts, and send a verification email.",
+            "As a customer, I want to review my cart, enter shipping details, select a delivery method, and complete payment so that I can place my order. The system should support credit card, PayPal, and Apple Pay, apply discount codes, calculate tax and shipping, and send an order confirmation email."
+        ],
         usageFn: n => `${n} test case${n !== 1 ? "s" : ""} generated`,
         dir: "ltr",
     },
     fi: {
-        documentTitle:"QA Studio — Tekoälytestitapausgeneraattori",
+        documentTitle:      "QA Studio — Tekoälytestitapausgeneraattori",
         generatorPageTitle: "Tekoälytestitapausgeneraattori",
-        appName: "QA Studio",
+        pageSubtitle:       "Luo, tallenna ja seuraa testitapauksia projekteittain.",
+        appName:      "QA Studio",
         generator:    "Generaattori",
         dashboard:    "Kojelauta",
         projects:     "Projektit",
@@ -670,14 +703,30 @@ const i18n = {
         dashUntested:     "Testaamaton",
         priorityBreakdown:"Prioriteettijakauma",
         pass: "Hyväksytty", fail: "Hylätty", blocked: "Estetty",
-        chips: ["Kirjautuminen","Salasanan palautus","Tiedostolataus","Haku & suodatus","Rekisteröinti","Kassaprosessi"],
+        chips: [
+            "Kirjautuminen",
+            "Salasanan palautus",
+            "Tiedoston lataus",
+            "Haku ja suodatus",
+            "Rekisteröinti",
+            "Kassaprosessi"
+        ],
+        chipStories: [
+            "Rekisteröityneenä käyttäjänä haluan kirjautua sisään sähköpostilla ja salasanalla päästäkseni tilini hallintapaneeliin. Järjestelmän tulee tukea 'Muista minut' -toimintoa, salasanan näyttämistä/piilottamista, tilin lukitsemista 5 epäonnistuneen yrityksen jälkeen ja selkeiden virheilmoitusten näyttämistä.",
+            "Salasanansa unohtaneena käyttäjänä haluan palauttaa sen sähköpostiini lähetetyn linkin kautta päästäkseni takaisin tililleni. Palautuslinkin tulee vanhentua 30 minuutin jälkeen, vaatia vahva uusi salasana ja vahvistaa muutos onnistumisilmoituksella.",
+            "Käyttäjänä haluan ladata asiakirjoja (PDF, DOCX, JPG, PNG) enintään 10 Mt koossa liittääkseni ne profiiliini tai projektiini. Järjestelmän tulee näyttää latauksen edistymispalkki, vahvistaa tiedostotyyppi ja koko ennen latausta sekä näyttää esikatselu ladatusta tiedostosta.",
+            "Käyttäjänä haluan hakea tuotteita avainsanalla ja suodattaa tuloksia kategorian, hintaluokan, arvosanan ja saatavuuden mukaan löytääkseni tarvitsemani nopeasti. Haun tulee tukea automaattisia ehdotuksia, korostaa vastaavia termejä ja muistaa viimeisimmät haut.",
+            "Uutena vierailijana haluan luoda tilin nimellä, sähköpostilla ja salasanalla päästäkseni alustalle. Järjestelmän tulee vahvistaa sähköpostin muoto, vaatia vahva salasana (vähintään 8 merkkiä, iso kirjain, numero, erikoismerkki), tarkistaa päällekkäiset tilit ja lähettää vahvistussähköposti.",
+            "Asiakkaana haluan tarkistaa ostoskorini, syöttää toimitustiedot, valita toimitustavan ja suorittaa maksun tilatakseni. Järjestelmän tulee tukea luottokorttia, PayPalia ja Apple Payta, hyväksyä alennuskoodit, laskea vero ja toimituskulut sekä lähettää tilausvahvistus sähköpostitse."
+        ],
         usageFn: n => `${n} testitapausta luotu`,
         dir: "ltr",
     },
     dz: {
-        documentTitle:"QA Studio — مولّد حالات الاختبار بالذكاء الاصطناعي",
+        documentTitle:      "QA Studio — مولّد حالات الاختبار بالذكاء الاصطناعي",
         generatorPageTitle: "مولّد حالات الاختبار بالذكاء الاصطناعي",
-        appName: "QA Studio",
+        pageSubtitle:       "ولّد، احفظ، وتابع حالات الاختبار حسب المشروع.",
+        appName:      "QA Studio",
         generator:    "المولّد",
         dashboard:    "لوحة القيادة",
         projects:     "المشاريع",
@@ -711,7 +760,22 @@ const i18n = {
         dashUntested:     "ما تختبرش",
         priorityBreakdown:"توزيع الأولوية",
         pass: "نجح", fail: "فشل", blocked: "محظور",
-        chips: ["تسجيل الدخول","استرجاع كلمة السر","رفع الملفات","البحث والتصفية","تسجيل المستخدم","الدفع"],
+        chips: [
+            "تسجيل الدخول",
+            "استرجاع كلمة السر",
+            "رفع الملفات",
+            "البحث والتصفية",
+            "تسجيل المستخدم",
+            "الدفع"
+        ],
+        chipStories: [
+            "كمستخدم مسجّل، نحب ندخل بالإيميل والباسوورد باش نوصل للوحة التحكم تاعي. النظام لازم يدعم 'تذكرني'، إظهار/إخفاء الباسوورد، قفل الحساب بعد 5 محاولات فاشلة، وعرض رسائل خطأ واضحة للبيانات الغالطة.",
+            "كمستخدم نسيت الباسوورد تاعي، نحب نرجعها عن طريق رابط يتبعتلي على الإيميل باش نرجع للحساب تاعي. الرابط لازم ينتهي بعد 30 دقيقة، يفرض باسوورد قوية جديدة، ويأكد التغيير برسالة نجاح.",
+            "كمستخدم، نحب نرفع ملفات (PDF، DOCX، JPG، PNG) حتى 10 ميغا باش نربطهم بالبروفايل ولا المشروع تاعي. النظام لازم يوري شريط تقدم الرفع، يتحقق من نوع وحجم الملف قبل الرفع، ويعرض معاينة للملف المرفوع.",
+            "كمستخدم، نحب نلقى المنتجات بكلمة مفتاحية ونفلتر النتائج حسب الفئة، نطاق السعر، التقييم، والتوفر باش نلقى اللي نحتاجه بسرعة. البحث لازم يدعم اقتراحات تلقائية، يبرز المصطلحات المطابقة، ويتذكر عمليات البحث الأخيرة.",
+            "كزائر جديد، نحب نخلق حساب بالاسم، الإيميل، والباسوورد باش نقدر نوصل للمنصة. النظام لازم يتحقق من صيغة الإيميل، يفرض باسوورد قوية (8 حروف على الأقل، حرف كبير، رقم، رمز)، يتحقق من الحسابات المكررة، ويبعث إيميل تأكيد.",
+            "كعميل، نحب نراجع السلة تاعي، ندخل تفاصيل التوصيل، نختار طريقة التوصيل، ونكمل الدفع باش نطلب. النظام لازم يدعم الكارت البنكية، PayPal، وApple Pay، يقبل كودات التخفيض، يحسب الضريبة ومصاريف التوصيل، ويبعث إيميل تأكيد الطلبية."
+        ],
         usageFn: n => `${n} حالات اختبار تولّدت`,
         dir: "rtl",
     }
@@ -721,13 +785,16 @@ let lang = localStorage.getItem("qa_lang") || "en";
 const t = key => (i18n[lang] && i18n[lang][key] !== undefined) ? i18n[lang][key] : (i18n.en[key] || key);
 
 // ============================================================
-// ✅ FIXED: applyLang now updates document.title + topbar
+// applyLang — ✅ FIXED: updates title, subtitle, and html lang
 // ============================================================
 function applyLang() {
-    // 1. Update browser tab title
+    // Browser tab title
     document.title = t("documentTitle");
 
-    // 2. Update the topbar header based on the currently active view
+    // HTML lang attribute
+    document.documentElement.lang = lang === "dz" ? "ar" : lang;
+
+    // Topbar title — show generator title or view name
     const activeView = document.querySelector(".sidebar-nav .nav-item.active")?.dataset.view;
     if (activeView === "generator") {
         document.getElementById("pageTitle").textContent = t("generatorPageTitle");
@@ -735,19 +802,21 @@ function applyLang() {
         document.getElementById("pageTitle").textContent = t(activeView);
     }
 
-    // 3. Update the HTML lang attribute
-    document.documentElement.lang = lang === "dz" ? "ar" : lang;
+    // ✅ Subtitle — only visible on generator
+    const subtitleEl = document.getElementById("pageSubtitle");
+    subtitleEl.textContent = t("pageSubtitle");
+    subtitleEl.style.display = (activeView === "generator") ? "block" : "none";
 
-    // 4. Update all data-i18n elements
+    // data-i18n elements
     document.querySelectorAll("[data-i18n]").forEach(el => {
         const val = t(el.dataset.i18n);
         if (typeof val === "string") el.textContent = val;
     });
 
-    // 5. Set text direction
+    // Text direction
     document.body.dir = t("dir");
 
-    // 6. Update textarea placeholder
+    // Textarea placeholder
     if (lang === "dz") {
         testInput.setAttribute("placeholder", "وصف الميزة اللي تحب تولّد ليها حالات الاختبار…");
         testInput.dir = "rtl";
@@ -816,7 +885,7 @@ if (savedTheme === "dark") {
 }
 
 // ============================================================
-// LANGUAGE SELECTOR — ✅ FIXED: now updates title on change
+// LANGUAGE SELECTOR
 // ============================================================
 document.getElementById("langSelect").value = lang;
 document.getElementById("langSelect").addEventListener("change", e => {
@@ -831,7 +900,7 @@ document.getElementById("langSelect").addEventListener("change", e => {
 });
 
 // ============================================================
-// ROUTING — ✅ FIXED: uses generatorPageTitle for generator
+// ROUTING — ✅ FIXED: shows/hides subtitle per view
 // ============================================================
 const views = {
     generator:  document.getElementById("view-generator"),
@@ -850,12 +919,16 @@ document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
         document.querySelectorAll(".sidebar-nav .nav-item").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
 
-        // ✅ Use the full title for generator, short name for others
+        // Title
         if (view === "generator") {
             document.getElementById("pageTitle").textContent = t("generatorPageTitle");
         } else {
             document.getElementById("pageTitle").textContent = t(view);
         }
+
+        // ✅ Subtitle only on generator
+        document.getElementById("pageSubtitle").style.display =
+            (view === "generator") ? "block" : "none";
 
         if (view === "dashboard") renderDashboard();
         if (view === "projects")  renderProjects();
@@ -865,7 +938,7 @@ document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
 });
 
 // ============================================================
-// MODAL — Detail
+// MODALS
 // ============================================================
 const modalOverlay = document.getElementById("modalOverlay");
 function openModal(title, contentHTML) {
@@ -878,9 +951,6 @@ function closeModal() { modalOverlay.classList.remove("visible"); }
 document.getElementById("modalClose").addEventListener("click", closeModal);
 modalOverlay.addEventListener("click", e => { if (e.target === modalOverlay) closeModal(); });
 
-// ============================================================
-// MODAL — Save to Project
-// ============================================================
 const saveModalOverlay = document.getElementById("saveModalOverlay");
 document.getElementById("saveModalClose").addEventListener("click",
     () => saveModalOverlay.classList.remove("visible"));
@@ -914,18 +984,30 @@ document.getElementById("projectNameInput").addEventListener("keydown", e => {
 });
 
 // ============================================================
-// PROMPT CHIPS
+// ✅ CHIPS — Now inserts full user stories
 // ============================================================
 function buildChips() {
     const row = document.getElementById("chipsRow");
     row.innerHTML = "";
-    (t("chips") || []).forEach(label => {
+    const labels  = t("chips")  || [];
+    const stories = t("chipStories") || [];
+
+    labels.forEach((label, idx) => {
         const btn = document.createElement("button");
         btn.className = "chip";
         btn.textContent = label;
         btn.addEventListener("click", () => {
-            testInput.value = label;
-            charCounter.textContent = `${label.length} characters`;
+            // Deselect all chips, highlight clicked one
+            row.querySelectorAll(".chip").forEach(c => c.classList.remove("active-chip"));
+            btn.classList.add("active-chip");
+
+            // Insert the full user story into textarea
+            const story = stories[idx] || label;
+            testInput.value = story;
+            charCounter.textContent = `${story.length} characters`;
+
+            // Auto-focus the textarea
+            testInput.focus();
         });
         row.appendChild(btn);
     });
@@ -985,7 +1067,7 @@ testInput.addEventListener("input", () => {
     charCounter.textContent = `${testInput.value.length} characters`;
 });
 
-const priorityOrder = { Critical: 1, High: 2, Medium: 3, Low: 4, Trivial: 5 };
+const priorityOrder  = { Critical: 1, High: 2, Medium: 3, Low: 4, Trivial: 5 };
 const priorityColors = { Critical: "#dc2626", High: "#f97316", Medium: "#3b82f6", Low: "#10b981", Trivial: "#6b7280" };
 
 function createTestCard(tc) {
@@ -1070,9 +1152,9 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
             }),
         });
 
-        const data   = await res.json();
-        const raw    = data.content.map(b => b.text || "").join("").trim();
-        const clean  = raw.replace(/^```json\s*/i, "").replace(/```$/g, "").trim();
+        const data  = await res.json();
+        const raw   = data.content.map(b => b.text || "").join("").trim();
+        const clean = raw.replace(/^```json\s*/i, "").replace(/```$/g, "").trim();
         latestTestCases = JSON.parse(clean);
         latestTestCases.sort((a, b) => (priorityOrder[a.priority] || 9) - (priorityOrder[b.priority] || 9));
 
@@ -1152,14 +1234,10 @@ document.getElementById("exportWord").addEventListener("click", () => {
     if (!latestTestCases.length) return;
     const tableRows = latestTestCases.map(tc => `
         <tr>
-            <td>${tc.id}</td>
-            <td>${tc.title}</td>
-            <td>${tc.description}</td>
+            <td>${tc.id}</td><td>${tc.title}</td><td>${tc.description}</td>
             <td>${tc.steps.map(s => `• ${s}`).join("<br>")}</td>
-            <td>${tc.expected}</td>
-            <td>${tc.priority}</td>
-            <td>${tc.tags.join(", ")}</td>
-            <td>${tc.risk}</td>
+            <td>${tc.expected}</td><td>${tc.priority}</td>
+            <td>${tc.tags.join(", ")}</td><td>${tc.risk}</td>
             <td>${tc.status || "Untested"}</td>
         </tr>`).join("");
 
@@ -1207,9 +1285,7 @@ function renderDashboard() {
         .map(p => `
             <div class="dash-card">
                 <div class="dash-value" style="color:${priorityColors[p]}">${pCounts[p]}</div>
-                <div class="dash-label">
-                    <span class="dash-dot" style="background:${priorityColors[p]}"></span>${p}
-                </div>
+                <div class="dash-label"><span class="dash-dot" style="background:${priorityColors[p]}"></span>${p}</div>
             </div>`).join("");
 
     document.getElementById("dashContent").innerHTML = `
