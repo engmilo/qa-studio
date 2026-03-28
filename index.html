@@ -47,7 +47,6 @@
             overflow: hidden;
         }
 
-        /* ── SIDEBAR ── */
         .sidebar {
             width: 240px;
             background: var(--sidebar-bg);
@@ -122,7 +121,6 @@
             font-family: "Inter", sans-serif;
         }
 
-        /* ── MAIN ── */
         .main-content {
             flex: 1;
             margin-left: 240px;
@@ -138,7 +136,6 @@
             margin-bottom: 24px;
         }
 
-        /* ── GENERATOR PANEL ── */
         .generator-panel {
             background: var(--card-bg);
             padding: 20px;
@@ -148,7 +145,6 @@
             margin-bottom: 24px;
         }
 
-        /* Prompt chips */
         .chips-row {
             display: flex;
             flex-wrap: wrap;
@@ -194,11 +190,7 @@
             margin-top: 6px;
         }
 
-        /* Progress bar */
-        .progress-wrap {
-            display: none;
-            margin-top: 14px;
-        }
+        .progress-wrap { display: none; margin-top: 14px; }
         .progress-track {
             background: var(--border);
             border-radius: 999px;
@@ -218,7 +210,6 @@
             margin-top: 6px;
         }
 
-        /* Button row */
         .btn-row {
             display: flex;
             gap: 8px;
@@ -260,7 +251,6 @@
         .secondary-btn:hover { background: rgba(0,0,0,0.05); }
         body.dark .secondary-btn:hover { background: rgba(255,255,255,0.05); }
 
-        /* ── RESULTS ── */
         .results { display: flex; flex-direction: column; gap: 16px; }
 
         .test-card {
@@ -293,7 +283,6 @@
         .priority-Low      { background: #10b981; }
         .priority-Trivial  { background: #6b7280; }
 
-        /* Status buttons */
         .test-card-actions {
             display: flex;
             align-items: center;
@@ -320,7 +309,6 @@
 
         .status-msg { color: var(--text-muted); font-size: 15px; padding: 8px 0; }
 
-        /* ── TABLE CARD ── */
         .table-card {
             background: var(--card-bg);
             padding: 20px;
@@ -336,7 +324,6 @@
         tr.clickable { cursor: pointer; }
         tr.clickable:hover td { background: rgba(59,130,246,0.05); }
 
-        /* ── DASHBOARD ── */
         .dash-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
@@ -355,7 +342,6 @@
         .dash-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
         .dash-section-title { font-size: 16px; font-weight: 600; margin: 0 0 14px; }
 
-        /* ── SECTION HEADER ── */
         .section-header {
             display: flex;
             justify-content: space-between;
@@ -364,7 +350,6 @@
         }
         .section-header h2 { margin: 0; font-size: 18px; }
 
-        /* ── EMPTY STATE ── */
         .empty-state {
             padding: 48px 20px;
             text-align: center;
@@ -372,7 +357,6 @@
             font-size: 15px;
         }
 
-        /* ── MODAL ── */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -423,7 +407,6 @@
         }
         .close-btn:hover { background: rgba(0,0,0,0.06); }
 
-        /* RTL support for Arabic */
         body[dir="rtl"] .sidebar {
             left: auto;
             right: 0;
@@ -441,7 +424,6 @@
         body[dir="rtl"] .section-header { flex-direction: row-reverse; }
         body[dir="rtl"] textarea { text-align: right; }
 
-        /* Inline text input for save modal */
         .text-input {
             padding: 12px;
             border-radius: 10px;
@@ -501,7 +483,6 @@
     <main class="main-content">
         <header class="topbar" id="pageTitle">AI Test Case Generator</header>
 
-        <!-- ── GENERATOR ── -->
         <section id="view-generator">
             <div class="generator-panel">
                 <div class="chips-row" id="chipsRow"></div>
@@ -543,12 +524,10 @@
             <div id="results" class="results"></div>
         </section>
 
-        <!-- ── DASHBOARD ── -->
         <section id="view-dashboard" style="display:none;">
             <div id="dashContent"></div>
         </section>
 
-        <!-- ── PROJECTS ── -->
         <section id="view-projects" style="display:none;">
             <div class="table-card">
                 <div class="section-header">
@@ -558,12 +537,10 @@
             </div>
         </section>
 
-        <!-- ── SUITES ── -->
         <section id="view-suites" style="display:none;">
             <div id="suitesContent"></div>
         </section>
 
-        <!-- ── HISTORY ── -->
         <section id="view-history" style="display:none;">
             <div class="table-card">
                 <div class="section-header">
@@ -579,7 +556,6 @@
     </main>
 </div>
 
-<!-- ── DETAIL MODAL ── -->
 <div id="modalOverlay" class="modal-overlay">
     <div class="modal">
         <div class="modal-header">
@@ -590,7 +566,6 @@
     </div>
 </div>
 
-<!-- ── SAVE-TO-PROJECT MODAL ── -->
 <div id="saveModalOverlay" class="modal-overlay">
     <div class="modal" style="max-width:380px;">
         <div class="modal-header">
@@ -609,16 +584,17 @@
 
 <script>
 // ============================================================
-// CONFIG — replace with your Cloudflare Worker URL
+// CONFIG
 // ============================================================
 const WORKER_URL = "https://qa-proxy.eng-milo.workers.dev";
-// ============================================================
 
 // ============================================================
-// I18N
+// I18N — ✅ FIXED: Added documentTitle for all languages
 // ============================================================
 const i18n = {
     en: {
+        documentTitle:"QA Studio — AI Test Case Generator",
+        generatorPageTitle: "AI Test Case Generator",
         appName: "QA Studio",
         generator:    "Generator",
         dashboard:    "Dashboard",
@@ -658,6 +634,8 @@ const i18n = {
         dir: "ltr",
     },
     fi: {
+        documentTitle:"QA Studio — Tekoälytestitapausgeneraattori",
+        generatorPageTitle: "Tekoälytestitapausgeneraattori",
         appName: "QA Studio",
         generator:    "Generaattori",
         dashboard:    "Kojelauta",
@@ -697,6 +675,8 @@ const i18n = {
         dir: "ltr",
     },
     dz: {
+        documentTitle:"QA Studio — مولّد حالات الاختبار بالذكاء الاصطناعي",
+        generatorPageTitle: "مولّد حالات الاختبار بالذكاء الاصطناعي",
         appName: "QA Studio",
         generator:    "المولّد",
         dashboard:    "لوحة القيادة",
@@ -740,12 +720,34 @@ const i18n = {
 let lang = localStorage.getItem("qa_lang") || "en";
 const t = key => (i18n[lang] && i18n[lang][key] !== undefined) ? i18n[lang][key] : (i18n.en[key] || key);
 
+// ============================================================
+// ✅ FIXED: applyLang now updates document.title + topbar
+// ============================================================
 function applyLang() {
+    // 1. Update browser tab title
+    document.title = t("documentTitle");
+
+    // 2. Update the topbar header based on the currently active view
+    const activeView = document.querySelector(".sidebar-nav .nav-item.active")?.dataset.view;
+    if (activeView === "generator") {
+        document.getElementById("pageTitle").textContent = t("generatorPageTitle");
+    } else if (activeView) {
+        document.getElementById("pageTitle").textContent = t(activeView);
+    }
+
+    // 3. Update the HTML lang attribute
+    document.documentElement.lang = lang === "dz" ? "ar" : lang;
+
+    // 4. Update all data-i18n elements
     document.querySelectorAll("[data-i18n]").forEach(el => {
         const val = t(el.dataset.i18n);
         if (typeof val === "string") el.textContent = val;
     });
+
+    // 5. Set text direction
     document.body.dir = t("dir");
+
+    // 6. Update textarea placeholder
     if (lang === "dz") {
         testInput.setAttribute("placeholder", "وصف الميزة اللي تحب تولّد ليها حالات الاختبار…");
         testInput.dir = "rtl";
@@ -756,6 +758,7 @@ function applyLang() {
         testInput.setAttribute("placeholder", "Describe the feature you want test cases for…");
         testInput.dir = "ltr";
     }
+
     buildChips();
     updateUsageCounter();
     lucide.createIcons();
@@ -808,36 +811,34 @@ document.getElementById("themeToggle").addEventListener("click", () => {
     lucide.createIcons();
 });
 
-// Sync icon on load
 if (savedTheme === "dark") {
     document.getElementById("themeIcon").setAttribute("data-lucide", "sun");
 }
 
 // ============================================================
-// LANGUAGE SELECTOR
+// LANGUAGE SELECTOR — ✅ FIXED: now updates title on change
 // ============================================================
 document.getElementById("langSelect").value = lang;
 document.getElementById("langSelect").addEventListener("change", e => {
     lang = e.target.value;
     localStorage.setItem("qa_lang", lang);
     applyLang();
-    // Re-render current active view in new language
     const activeView = document.querySelector(".sidebar-nav .nav-item.active")?.dataset.view;
-    if (activeView === "history")  renderHistory();
-    if (activeView === "projects") renderProjects();
-    if (activeView === "suites")   renderSuites();
+    if (activeView === "history")   renderHistory();
+    if (activeView === "projects")  renderProjects();
+    if (activeView === "suites")    renderSuites();
     if (activeView === "dashboard") renderDashboard();
 });
 
 // ============================================================
-// ROUTING
+// ROUTING — ✅ FIXED: uses generatorPageTitle for generator
 // ============================================================
 const views = {
-    generator: document.getElementById("view-generator"),
+    generator:  document.getElementById("view-generator"),
     dashboard:  document.getElementById("view-dashboard"),
-    projects:  document.getElementById("view-projects"),
-    suites:    document.getElementById("view-suites"),
-    history:   document.getElementById("view-history"),
+    projects:   document.getElementById("view-projects"),
+    suites:     document.getElementById("view-suites"),
+    history:    document.getElementById("view-history"),
 };
 
 document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
@@ -848,7 +849,14 @@ document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
         views[view].style.display = "block";
         document.querySelectorAll(".sidebar-nav .nav-item").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        document.getElementById("pageTitle").textContent = t(view);
+
+        // ✅ Use the full title for generator, short name for others
+        if (view === "generator") {
+            document.getElementById("pageTitle").textContent = t("generatorPageTitle");
+        } else {
+            document.getElementById("pageTitle").textContent = t(view);
+        }
+
         if (view === "dashboard") renderDashboard();
         if (view === "projects")  renderProjects();
         if (view === "suites")    renderSuites();
@@ -906,7 +914,7 @@ document.getElementById("projectNameInput").addEventListener("keydown", e => {
 });
 
 // ============================================================
-// EXAMPLE PROMPT CHIPS
+// PROMPT CHIPS
 // ============================================================
 function buildChips() {
     const row = document.getElementById("chipsRow");
@@ -1013,7 +1021,6 @@ function createTestCard(tc) {
         div.querySelector(".pass-btn").classList.toggle("active-pass", tc.status === "pass");
         div.querySelector(".fail-btn").classList.toggle("active-fail", tc.status === "fail");
         div.querySelector(".blocked-btn").classList.toggle("active-blocked", tc.status === "blocked");
-        // Live-refresh dashboard if open
         if (document.getElementById("view-dashboard").style.display !== "none") renderDashboard();
     }
 
@@ -1028,7 +1035,6 @@ generateBtn.addEventListener("click", async () => {
     const feature = testInput.value.trim();
     if (!feature) return;
 
-    // Guard against unconfigured worker URL
     if (!WORKER_URL || WORKER_URL.includes("YOUR-WORKER")) {
         resultsEl.innerHTML = `<p class="status-msg" style="color:#dc2626;">
             ⚠️ Please set your WORKER_URL in the config at the top of the &lt;script&gt; block.
@@ -1075,7 +1081,6 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
         lucide.createIcons();
         finishProgress(true);
 
-        // 🎉 Confetti
         confetti({
             particleCount: 130,
             spread: 80,
@@ -1083,7 +1088,6 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
             colors: ["#3b82f6", "#8b5cf6", "#10b981", "#f97316"],
         });
 
-        // Persist usage + history
         state.usageTotal += latestTestCases.length;
         state.history.unshift({
             feature: feature.slice(0, 60),
@@ -1104,16 +1108,13 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
 });
 
 // ============================================================
-// EXPORT — JSON
+// EXPORTS
 // ============================================================
 document.getElementById("exportJson").addEventListener("click", () => {
     if (!latestTestCases.length) return;
     dlBlob(new Blob([JSON.stringify(latestTestCases, null, 2)], { type: "application/json" }), "test-cases.json");
 });
 
-// ============================================================
-// EXPORT — CSV
-// ============================================================
 document.getElementById("exportCsv").addEventListener("click", () => {
     if (!latestTestCases.length) return;
     const header = ["ID","Title","Description","Steps","Expected","Priority","Tags","Risk","Status"];
@@ -1129,9 +1130,6 @@ document.getElementById("exportCsv").addEventListener("click", () => {
     dlBlob(new Blob([csv], { type: "text/csv" }), "test-cases.csv");
 });
 
-// ============================================================
-// EXPORT — EXCEL (SheetJS)
-// ============================================================
 document.getElementById("exportExcel").addEventListener("click", () => {
     if (!latestTestCases.length) return;
     const wsData = [
@@ -1150,9 +1148,6 @@ document.getElementById("exportExcel").addEventListener("click", () => {
     XLSX.writeFile(wb, "test-cases.xlsx");
 });
 
-// ============================================================
-// EXPORT — WORD (.doc via HTML-to-Word)
-// ============================================================
 document.getElementById("exportWord").addEventListener("click", () => {
     if (!latestTestCases.length) return;
     const tableRows = latestTestCases.map(tc => `
@@ -1224,33 +1219,18 @@ function renderDashboard() {
         </div>
         <p class="dash-section-title">${t("dashSession")}</p>
         <div class="dash-grid">
-            <div class="dash-card">
-                <div class="dash-value">${session}</div>
-                <div class="dash-label">Total</div>
-            </div>
-            <div class="dash-card">
-                <div class="dash-value" style="color:#10b981">${pass}</div>
-                <div class="dash-label"><span class="dash-dot" style="background:#10b981"></span>${t("dashPass")}</div>
-            </div>
-            <div class="dash-card">
-                <div class="dash-value" style="color:#dc2626">${fail}</div>
-                <div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div>
-            </div>
-            <div class="dash-card">
-                <div class="dash-value" style="color:#f97316">${blocked}</div>
-                <div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div>
-            </div>
-            <div class="dash-card">
-                <div class="dash-value" style="color:var(--text-muted)">${untested}</div>
-                <div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div>
-            </div>
+            <div class="dash-card"><div class="dash-value">${session}</div><div class="dash-label">Total</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:#10b981">${pass}</div><div class="dash-label"><span class="dash-dot" style="background:#10b981"></span>${t("dashPass")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:#dc2626">${fail}</div><div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:#f97316">${blocked}</div><div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:var(--text-muted)">${untested}</div><div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div></div>
         </div>
         ${pCards ? `<p class="dash-section-title">${t("priorityBreakdown")}</p><div class="dash-grid">${pCards}</div>` : ""}
     `;
 }
 
 // ============================================================
-// HISTORY (localStorage-backed)
+// HISTORY
 // ============================================================
 function renderHistory() {
     const el = document.getElementById("historyContent");
@@ -1278,7 +1258,7 @@ document.getElementById("clearHistoryBtn").addEventListener("click", () => {
 });
 
 // ============================================================
-// PROJECTS (localStorage-backed)
+// PROJECTS
 // ============================================================
 function renderProjects() {
     const el = document.getElementById("projectsContent");
@@ -1326,7 +1306,7 @@ function renderProjects() {
 }
 
 // ============================================================
-// SUITES (test cases grouped by project)
+// SUITES
 // ============================================================
 function renderSuites() {
     const el = document.getElementById("suitesContent");
