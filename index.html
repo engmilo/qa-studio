@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Studio — AI Test Case Generator</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --success: #10b981;
+            --danger: #dc2626;
+            --warning: #f97316;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* ===== LAYOUT ===== */
+        .app-layout { display: flex; min-height: 100vh; }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 220px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            font-size: 20px;
+            font-weight: 700;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-nav { list-style: none; padding: 12px 0; flex: 1; }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav a:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .sidebar-nav a.active {
+            background: #eef2ff;
+            color: var(--primary);
+            border-left-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .sidebar-nav a .icon { font-size: 18px; width: 24px; text-align: center; }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .sidebar-footer select {
+            width: 100%;
+            margin-top: 8px;
+            padding: 6px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 30px 40px;
+            max-width: 1100px;
+        }
+
+        .page-title { font-size: 24px; font-weight: 700; margin-bottom: 24px; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ===== GENERATOR ===== */
+        .generator-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .quick-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+
+        .quick-tag {
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--card-bg);
+            color: var(--text-muted);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-tag:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #eef2ff;
+        }
+
+        .feature-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .feature-input:focus { border-color: var(--primary); }
+
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 6px 0 16px;
+        }
+
+        .action-buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--card-bg);
+            color: var(--text);
+        }
+
+        .btn:hover { background: var(--bg); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+
+        .btn-danger {
+            background: #fef2f2;
+            color: var(--danger);
+            border-color: #fecaca;
+        }
+
+        .btn-danger:hover { background: #fee2e2; }
+
+        /* ===== STATUS MESSAGES ===== */
+        .status-msg {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status-msg.show { display: block; }
+        .status-msg.error { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+        .status-msg.success { background: #f0fdf4; color: var(--success); border: 1px solid #bbf7d0; }
+        .status-msg.loading { background: #eef2ff; color: var(--primary); border: 1px solid #c7d2fe; }
+
+        /* ===== DASHBOARD ===== */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .dash-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .dash-value { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
+
+        .dash-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .dash-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dash-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== TABLES ===== */
+        .table-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        tr.clickable { cursor: pointer; transition: background 0.2s; }
+        tr.clickable:hover { background: var(--bg); }
+
+        /* ===== PRIORITY BADGES ===== */
+        .priority-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .priority-Critical { background: #fef2f2; color: #dc2626; }
+        .priority-High { background: #fff7ed; color: #f97316; }
+        .priority-Medium { background: #fffbeb; color: #d97706; }
+        .priority-Low { background: #f0fdf4; color: #16a34a; }
+        .priority-Trivial { background: #f1f5f9; color: #64748b; }
+
+        /* ===== STATUS BADGES ===== */
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .status-pass { background: #f0fdf4; color: #16a34a; }
+        .status-fail { background: #fef2f2; color: #dc2626; }
+        .status-blocked { background: #fff7ed; color: #f97316; }
+        .status-untested { background: #f1f5f9; color: #64748b; }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        /* ===== SECTION HEADER ===== */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-header h2 { font-size: 18px; }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-header h3 { font-size: 20px; }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 4px 8px;
+        }
+
+        .modal-close:hover { color: var(--text); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar-logo span, .sidebar-nav a span:not(.icon) { display: none; }
+            .sidebar-nav a { justify-content: center; padding: 14px; }
+            .sidebar-footer { display: none; }
+            .main-content { margin-left: 60px; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">🧪 <span>QA Studio</span></div>
+            <ul class="sidebar-nav">
+                <li><a class="active" data-tab="generator"><span class="icon">✨</span><span>Generator</span></a></li>
+                <li><a data-tab="dashboard"><span class="icon">📊</span><span>Dashboard</span></a></li>
+                <li><a data-tab="projects"><span class="icon">📁</span><span>Projects</span></a></li>
+                <li><a data-tab="suites"><span class="icon">🗂️</span><span>Suites</span></a></li>
+                <li><a data-tab="history"><span class="icon">🕐</span><span>History</span></a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div id="usageDisplay">0 test cases generated</div>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <main class="main-content">
+
+            <!-- Generator -->
+            <div id="generator" class="tab-content active">
+                <h1 class="page-title">Generator</h1>
+                <div class="generator-card">
+                    <div class="quick-tags">
+                        <button class="quick-tag" data-feature="Login flow">Login flow</button>
+                        <button class="quick-tag" data-feature="Password reset">Password reset</button>
+                        <button class="quick-tag" data-feature="File upload">File upload</button>
+                        <button class="quick-tag" data-feature="Search & filter">Search & filter</button>
+                        <button class="quick-tag" data-feature="User registration">User registration</button>
+                        <button class="quick-tag" data-feature="Checkout">Checkout</button>
+                    </div>
+                    <textarea id="featureInput" class="feature-input" placeholder="Describe the feature you want to test..."></textarea>
+                    <div class="char-count"><span id="charCount">0</span> characters</div>
+                    <div class="action-buttons">
+                        <button id="generateBtn" class="btn btn-primary">✨ Generate Test Cases</button>
+                        <button id="exportJsonBtn" class="btn" disabled>{ } Export JSON</button>
+                        <button id="exportCsvBtn" class="btn" disabled>📋 Export CSV</button>
+                        <button id="exportExcelBtn" class="btn" disabled>📊 Export Excel</button>
+                        <button id="exportWordBtn" class="btn" disabled>📄 Export Word</button>
+                        <button id="saveProjectBtn" class="btn" disabled>💾 Save to Project</button>
+                    </div>
+                    <div id="statusMsg" class="status-msg"></div>
+                </div>
+                <div id="resultsArea"></div>
+            </div>
+
+            <!-- Dashboard -->
+            <div id="dashboard" class="tab-content">
+                <h1 class="page-title">Dashboard</h1>
+                <div id="dashContent"></div>
+            </div>
+
+            <!-- History -->
+            <div id="history" class="tab-content">
+                <div class="section-header">
+                    <h1 class="page-title" style="margin-bottom:0;">History</h1>
+                    <button id="clearHistoryBtn" class="btn btn-danger">🗑️ Clear History</button>
+                </div>
+                <div class="table-card" style="margin-top:20px;">
+                    <div id="historyContent"></div>
+                </div>
+            </div>
+
+            <!-- Projects -->
+            <div id="projects" class="tab-content">
+                <div class="section-header">
+                    <h1 class="page-title" style="margin-bottom:0;">Projects</h1>
+                    <button id="addProjectBtn" class="btn btn-primary">+ Add Project</button>
+                </div>
+                <div class="table-card" style="margin-top:20px;">
+                    <div id="projectsContent"></div>
+                </div>
+            </div>
+
+            <!-- Test Suites -->
+            <div id="suites" class="tab-content">
+                <h1 class="page-title">Test Suites</h1>
+                <div id="suitesContent"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle"></h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+<script>
+// ============================================================
+// ✅ CONFIG — YOUR WORKER URL (FIXED)
+// ============================================================
+const WORKER_URL = "https://qa-proxy.eng-milo.workers.dev";
+
+// ============================================================
+// STATE
+// ============================================================
+let state = { usageTotal: 0, history: [], projects: [], language: 'en' };
+let latestTestCases = [];
+
+const priorityColors = {
+    Critical: "#dc2626", High: "#f97316", Medium: "#f59e0b",
+    Low: "#10b981", Trivial: "#6b7280"
+};
+
+const translations = {
+    en: {
+        dashTotalAll: "Total Test Cases Generated",
+        dashSession: "Current Session",
+        dashPass: "Pass", dashFail: "Fail",
+        dashBlocked: "Blocked", dashUntested: "Untested",
+        priorityBreakdown: "Priority Breakdown",
+        emptyHistory: "No history yet. Generate some test cases to see them here.",
+        emptyProjects: "No projects yet. Create a project to get started.",
+        colFeature: "Feature", colGenerated: "Generated", colCount: "Count",
+        colName: "Name", colDesc: "Description", colCreated: "Created"
+    }
+};
+
+// ============================================================
+// HELPERS
+// ============================================================
+function t(key) {
+    return translations[state.language || 'en']?.[key] || key;
+}
+
+function esc(str) {
+    if (str == null) return '';
+    const d = document.createElement('div');
+    d.textContent = String(str);
+    return d.innerHTML;
+}
+
+function saveState() {
+    try { localStorage.setItem('qaStudioState', JSON.stringify(state)); } catch(e) {}
+}
+
+function loadState() {
+    try {
+        const s = localStorage.getItem('qaStudioState');
+        if (s) state = { ...state, ...JSON.parse(s) };
+    } catch(e) {}
+}
+
+function formatDate(d) {
+    return new Date(d).toLocaleDateString('en-US', {
+        year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'
+    });
+}
+
+function updateUsage() {
+    document.getElementById('usageDisplay').textContent = `${state.usageTotal} test cases generated`;
+}
+
+function showStatus(msg, type) {
+    const el = document.getElementById('statusMsg');
+    el.textContent = msg;
+    el.className = 'status-msg show ' + type;
+}
+
+function clearStatus() {
+    document.getElementById('statusMsg').className = 'status-msg';
+}
+
+function openModal(title, html) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').innerHTML = html;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+}
+
+function downloadBlob(blob, name) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+
+function statusBadge(s) {
+    const cls = s ? `status-${s}` : 'status-untested';
+    const label = s ? s.charAt(0).toUpperCase() + s.slice(1) : 'Untested';
+    return `<span class="status-badge ${cls}">${label}</span>`;
+}
+
+// ============================================================
+// NAV
+// ============================================================
+function initNav() {
+    const links = document.querySelectorAll('.sidebar-nav a');
+    const tabs = document.querySelectorAll('.tab-content');
+    links.forEach(link => {
+        link.addEventListener('click', () => {
+            links.forEach(l => l.classList.remove('active'));
+            tabs.forEach(t => t.classList.remove('active'));
+            link.classList.add('active');
+            document.getElementById(link.dataset.tab).classList.add('active');
+            const id = link.dataset.tab;
+            if (id === 'dashboard') renderDashboard();
+            if (id === 'history') renderHistory();
+            if (id === 'projects') renderProjects();
+            if (id === 'suites') renderSuites();
+        });
+    });
+}
+
+// ============================================================
+// GENERATOR — CALLS YOUR WORKER
+// ============================================================
+async function generateTestCases() {
+    const feature = document.getElementById('featureInput').value.trim();
+    if (!feature) { showStatus('Please enter a feature description.', 'error'); return; }
+
+    const btn = document.getElementById('generateBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Generating...';
+    showStatus('Contacting AI to generate test cases...', 'loading');
+
+    try {
+        const res = await fetch(WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ feature })
+        });
+
+        if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(`Server responded with ${res.status}: ${errText}`);
+        }
+
+        const data = await res.json();
+        const testCases = data.testCases || data.test_cases || data;
+
+        if (!Array.isArray(testCases) || testCases.length === 0) {
+            throw new Error('No test cases returned from the API.');
+        }
+
+        latestTestCases = testCases;
+        state.usageTotal += testCases.length;
+        state.history.unshift({ feature, date: formatDate(new Date()), count: testCases.length });
+        saveState();
+        updateUsage();
+
+        showStatus(`✅ Generated ${testCases.length} test cases successfully!`, 'success');
+
+        // Enable export buttons
+        document.getElementById('exportJsonBtn').disabled = false;
+        document.getElementById('exportCsvBtn').disabled = false;
+        document.getElementById('exportExcelBtn').disabled = false;
+        document.getElementById('exportWordBtn').disabled = false;
+        document.getElementById('saveProjectBtn').disabled = false;
+
+        renderResults(testCases);
+
+    } catch (err) {
+        console.error('Generation error:', err);
+        showStatus(`❌ ${err.message}`, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '✨ Generate Test Cases';
+    }
+}
+
+function renderResults(tcs) {
+    document.getElementById('resultsArea').innerHTML = `
+        <div class="table-card">
+            <div class="section-header">
+                <h2>Generated Test Cases (${tcs.length})</h2>
+            </div>
+            <table>
+                <thead><tr>
+                    <th>ID</th><th>Title</th><th>Priority</th>
+                    <th>Steps</th><th>Expected</th>
+                </tr></thead>
+                <tbody>${tcs.map(tc => `
+                    <tr class="clickable" data-tcid="${esc(tc.id)}">
+                        <td><strong>${esc(tc.id)}</strong></td>
+                        <td>${esc(tc.title)}</td>
+                        <td><span class="priority-badge priority-${esc(tc.priority)}">${esc(tc.priority)}</span></td>
+                        <td style="color:var(--text-muted);font-size:13px;">${tc.steps ? tc.steps.length + ' steps' : '—'}</td>
+                        <td style="color:var(--text-muted);font-size:13px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(tc.expected || tc.expectedResult || '')}</td>
+                    </tr>`).join('')}
+                </tbody>
+            </table>
+        </div>`;
+
+    // Click to view details
+    document.querySelectorAll('#resultsArea tr.clickable').forEach(row => {
+        row.addEventListener('click', () => {
+            const tc = latestTestCases.find(t => t.id === row.dataset.tcid);
+            if (!tc) return;
+            const stepsHtml = tc.steps ? tc.steps.map((s, i) =>
+                `<div style="padding:6px 0;border-bottom:1px solid var(--border);">${typeof s === 'string' ? esc(s) : esc(s.step || s.action || JSON.stringify(s))}</div>`
+            ).join('') : '<p style="color:var(--text-muted)">No steps defined</p>';
+
+            openModal(tc.title, `
+                <div style="margin-bottom:12px;">
+                    <span class="priority-badge priority-${esc(tc.priority)}">${esc(tc.priority)}</span>
+                    ${statusBadge(tc.status)}
+                </div>
+                <h4 style="margin:16px 0 8px;color:var(--text-muted);font-size:13px;">STEPS</h4>
+                ${stepsHtml}
+                <h4 style="margin:16px 0 8px;color:var(--text-muted);font-size:13px;">EXPECTED RESULT</h4>
+                <p>${esc(tc.expected || tc.expectedResult || 'Not specified')}</p>
+            `);
+        });
+    });
+}
+
+// ============================================================
+// EXPORTS
+// ============================================================
+function exportJSON() {
+    if (!latestTestCases.length) return;
+    downloadBlob(
+        new Blob([JSON.stringify(latestTestCases, null, 2)], { type: 'application/json' }),
+        'test-cases.json'
+    );
+}
+
+function exportCSV() {
+    if (!latestTestCases.length) return;
+    const headers = ['ID','Title','Priority','Steps','Expected','Status'];
+    const rows = latestTestCases.map(tc => [
+        tc.id,
+        `"${(tc.title || '').replace(/"/g, '""')}"`,
+        tc.priority,
+        `"${(tc.steps || []).join(' | ').replace(/"/g, '""')}"`,
+        `"${(tc.expected || tc.expectedResult || '').replace(/"/g, '""')}"`,
+        tc.status || 'Untested'
+    ].join(','));
+    downloadBlob(
+        new Blob([headers.join(',') + '\n' + rows.join('\n')], { type: 'text/csv' }),
+        'test-cases.csv'
+    );
+}
+
+function exportExcel() {
+    // Simple HTML table export that Excel can open
+    if (!latestTestCases.length) return;
+    let html = '<table><tr><th>ID</th><th>Title</th><th>Priority</th><th>Steps</th><th>Expected</th><th>Status</th></tr>';
+    latestTestCases.forEach(tc => {
+        html += `<tr>
+            <td>${esc(tc.id)}</td>
+            <td>${esc(tc.title)}</td>
+            <td>${esc(tc.priority)}</td>
+            <td>${esc((tc.steps || []).join('\n'))}</td>
+            <td>${esc(tc.expected || tc.expectedResult || '')}</td>
+            <td>${tc.status || 'Untested'}</td>
+        </tr>`;
+    });
+    html += '</table>';
+    downloadBlob(
+        new Blob([`<html><head><meta charset="UTF-8"></head><body>${html}</body></html>`], { type: 'application/vnd.ms-excel' }),
+        'test-cases.xls'
+    );
+}
+
+function exportWord() {
+    if (!latestTestCases.length) return;
+    let html = '<h1>Test Cases</h1>';
+    latestTestCases.forEach(tc => {
+        html += `<h2>${esc(tc.id)} — ${esc(tc.title)}</h2>`;
+        html += `<p><strong>Priority:</strong> ${esc(tc.priority)}</p>`;
+        if (tc.steps && tc.steps.length) {
+            html += '<p><strong>Steps:</strong></p><ol>';
+            tc.steps.forEach(s => { html += `<li>${esc(typeof s === 'string' ? s : s.step || JSON.stringify(s))}</li>`; });
+            html += '</ol>';
+        }
+        html += `<p><strong>Expected:</strong> ${esc(tc.expected || tc.expectedResult || 'N/A')}</p><hr>`;
+    });
+    downloadBlob(
+        new Blob([`<html><head><meta charset="UTF-8"></head><body>${html}</body></html>`], { type: 'application/msword' }),
+        'test-cases.doc'
+    );
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+    const pass = latestTestCases.filter(tc => tc.status === "pass").length;
+    const fail = latestTestCases.filter(tc => tc.status === "fail").length;
+    const blocked = latestTestCases.filter(tc => tc.status === "blocked").length;
+    const untested = latestTestCases.filter(tc => !tc.status).length;
+    const session = latestTestCases.length;
+
+    const pCounts = {};
+    latestTestCases.forEach(tc => {
+        if (tc.priority) pCounts[tc.priority] = (pCounts[tc.priority] || 0) + 1;
+    });
+
+    const pCards = ["Critical","High","Medium","Low","Trivial"]
+        .filter(p => pCounts[p])
+        .map(p => `
+            <div class="dash-card">
+                <div class="dash-value" style="color:${priorityColors[p]}">${pCounts[p]}</div>
+                <div class="dash-label"><span class="dash-dot" style="background:${priorityColors[p]}"></span>${p}</div>
+            </div>`).join("");
+
+    document.getElementById("dashContent").innerHTML = `
+        <div class="dash-card" style="margin-bottom:20px;display:flex;align-items:center;gap:16px;padding:16px 20px;">
+            <div style="font-size:36px;font-weight:600;">${state.usageTotal}</div>
+            <div style="color:var(--text-muted);font-size:14px;">${t("dashTotalAll")}</div>
+        </div>
+        <p class="dash-section-title">${t("dashSession")}</p>
+        <div class="dash-grid">
+            <div class="dash-card"><div class="dash-value">${session}</div><div class="dash-label">Total</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:#10b981">${pass}</div><div class="dash-label"><span class="dash-dot" style="background:#10b981"></span>${t("dashPass")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:#dc2626">${fail}</div><div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:#f97316">${blocked}</div><div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:var(--text-muted)">${untested}</div><div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div></div>
+        </div>
+        ${pCards ? `<p class="dash-section-title">${t("priorityBreakdown")}</p><div class="dash-grid">${pCards}</div>` : ""}
+    `;
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+function renderHistory() {
+    const el = document.getElementById("historyContent");
+    if (!state.history.length) {
+        el.innerHTML = `<div class="empty-state">${t("emptyHistory")}</div>`;
+        return;
+    }
+    el.innerHTML = `
+        <table>
+            <thead><tr><th>${t("colFeature")}</th><th>${t("colGenerated")}</th><th>${t("colCount")}</th></tr></thead>
+            <tbody>${state.history.map(h =>
+                `<tr><td>${esc(h.feature)}</td><td>${h.date}</td><td>${h.count}</td></tr>`
+            ).join("")}</tbody>
+        </table>`;
+}
+
+// ============================================================
+// PROJECTS
+// ============================================================
+function renderProjects() {
+    const el = document.getElementById("projectsContent");
+    if (!state.projects.length) {
+        el.innerHTML = `<div class="empty-state">${t("emptyProjects")}</div>`;
+        return;
+    }
+    el.innerHTML = `
+        <table>
+            <thead><tr><th>${t("colName")}</th><th>${t("colDesc")}</th><th>${t("colCreated")}</th><th></th></tr></thead>
+            <tbody>${state.projects.map(p => `
+                <tr class="clickable" data-pid="${p.id}">
+                    <td><strong>${esc(p.name)}</strong></td>
+                    <td style="color:var(--text-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.description)}</td>
+                    <td>${p.created}</td>
+                    <td style="color:var(--text-muted);font-size:13px;">${(p.testCases||[]).length} tests</td>
+                </tr>`).join("")}
+            </tbody>
+        </table>`;
+
+    el.querySelectorAll("tr.clickable").forEach(row => {
+        row.addEventListener("click", () => {
+            const proj = state.projects.find(p => String(p.id) === row.dataset.pid);
+            if (!proj) return;
+            const tcs = proj.testCases || [];
+            openModal(proj.name, `
+                <p style="color:var(--text-muted);font-size:13px;">${esc(proj.description)}</p>
+                ${tcs.length ? `<table style="font-size:14px;margin-top:12px;">
+                    <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th></tr></thead>
+                    <tbody>${tcs.map(tc => `<tr>
+                        <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td>
+                        <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(tc.priority)}</span></td>
+                        <td>${statusBadge(tc.status)}</td>
+                    </tr>`).join('')}</tbody>
+                </table>` : '<p style="color:var(--text-muted);margin-top:12px;">No test cases yet.</p>'}
+            `);
+        });
+    });
+}
+
+// ============================================================
+// SUITES
+// ============================================================
+function renderSuites() {
+    const el = document.getElementById("suitesContent");
+    if (!state.projects.length) {
+        el.innerHTML = `<div class="table-card"><div class="empty-state">${t("emptyProjects")}</div></div>`;
+        return;
+    }
+    el.innerHTML = state.projects.map(p => {
+        const tcs = p.testCases || [];
+        return `
+        <div class="table-card" style="margin-bottom:20px;">
+            <div class="section-header">
+                <h2>${esc(p.name)}</h2>
+                <span style="color:var(--text-muted);font-size:13px;">${p.created}</span>
+            </div>
+            ${tcs.length ? `<table>
+                <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th></tr></thead>
+                <tbody>${tcs.map(tc => `<tr>
+                    <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td>
+                    <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(tc.priority)}</span></td>
+                    <td>${statusBadge(tc.status)}</td>
+                </tr>`).join('')}</tbody>
+            </table>` : '<p style="color:var(--text-muted);padding:20px 0;">No test cases in this suite.</p>'}
+        </div>`;
+    }).join("");
+}
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+document.addEventListener("DOMContentLoaded", () => {
+    loadState();
+    initNav();
+    updateUsage();
+
+    // Character count
+    const input = document.getElementById('featureInput');
+    input.addEventListener('input', () => {
+        document.getElementById('charCount').textContent = input.value.length;
+    });
+
+    // Quick tags
+    document.querySelectorAll('.quick-tag').forEach(tag => {
+        tag.addEventListener('click', () => {
+            input.value = tag.dataset.feature;
+            document.getElementById('charCount').textContent = input.value.length;
+        });
+    });
+
+    // Generate
+    document.getElementById('generateBtn').addEventListener('click', generateTestCases);
+
+    // Exports
+    document.getElementById('exportJsonBtn').addEventListener('click', exportJSON);
+    document.getElementById('exportCsvBtn').addEventListener('click', exportCSV);
+    document.getElementById('exportExcelBtn').addEventListener('click', exportExcel);
+    document.getElementById('exportWordBtn').addEventListener('click', exportWord);
+
+    // Save to project
+    document.getElementById('saveProjectBtn').addEventListener('click', () => {
+        if (!latestTestCases.length) return;
+        const name = prompt('Save to project name:');
+        if (!name) return;
+        const existing = state.projects.find(p => p.name === name);
+        if (existing) {
+            existing.testCases = [...(existing.testCases || []), ...latestTestCases];
+        } else {
+            state.projects.push({
+                id: Date.now(), name,
+                description: `Generated from: ${input.value}`,
+                created: formatDate(new Date()),
+                testCases: [...latestTestCases]
+            });
+        }
+        saveState();
+        showStatus(`✅ Saved ${latestTestCases.length} test cases to "${name}"`, 'success');
+    });
+
+    // Clear history
+    document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+        if (confirm('Clear all history?')) {
+            state.history = [];
+            saveState();
+            renderHistory();
+        }
+    });
+
+    // Add project
+    document.getElementById('addProjectBtn').addEventListener('click', () => {
+        const name = prompt('Project name:');
+        if (!name) return;
+        state.projects.push({
+            id: Date.now(), name,
+            description: prompt('Description:') || '',
+            created: formatDate(new Date()),
+            testCases: []
+        });
+        saveState();
+        renderProjects();
+    });
+
+    // Modal
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+        if (e.target.id === 'modalOverlay') closeModal();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+});
+</script>
+</body>
+</html>
