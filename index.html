@@ -1,1306 +1,2327 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QA Studio — AI Test Case Generator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            overflow: hidden;
-            font-family: "Inter", sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Studio — AI Test Case Generator</title>
+<style>
+/* ═══════════════════════════════════════
+   THEME VARIABLES
+   ═══════════════════════════════════════ */
+:root[data-theme="light"] {
+  --bg-primary: #f5f6fa;
+  --bg-secondary: #ffffff;
+  --bg-sidebar: #1a1a2e;
+  --bg-sidebar-hover: #252542;
+  --bg-sidebar-active: #4f46e5;
+  --bg-input: #ffffff;
+  --bg-card: #ffffff;
+  --bg-tag: #f0f0f5;
+  --bg-tag-hover: #e0e0ee;
+  --bg-code: #f8f9fc;
+  --text-primary: #1a1a2e;
+  --text-secondary: #6b7280;
+  --text-sidebar: #a0a0b8;
+  --text-sidebar-active: #ffffff;
+  --text-on-primary: #ffffff;
+  --border-color: #e5e7eb;
+  --border-light: #f0f0f5;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-light: #eef2ff;
+  --success: #10b981;
+  --success-bg: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-bg: #fffbeb;
+  --danger: #ef4444;
+  --danger-bg: #fef2f2;
+  --danger-hover: #dc2626;
+  --info: #3b82f6;
+  --info-bg: #eff6ff;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.1);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 14px;
+}
 
-        body.light {
-            --body-bg: #f5f6f8;
-            --card-bg: #ffffff;
-            --text: #1f2937;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
-            --sidebar-bg: #ffffff;
-        }
+:root[data-theme="dark"] {
+  --bg-primary: #0f0f1a;
+  --bg-secondary: #1a1a2e;
+  --bg-sidebar: #0d0d1a;
+  --bg-sidebar-hover: #1a1a30;
+  --bg-sidebar-active: #4f46e5;
+  --bg-input: #252540;
+  --bg-card: #1e1e35;
+  --bg-tag: #252542;
+  --bg-tag-hover: #30304a;
+  --bg-code: #151528;
+  --text-primary: #e5e5f0;
+  --text-secondary: #8888a0;
+  --text-sidebar: #7070a0;
+  --text-sidebar-active: #ffffff;
+  --text-on-primary: #ffffff;
+  --border-color: #2a2a45;
+  --border-light: #222240;
+  --accent: #6366f1;
+  --accent-hover: #5558e8;
+  --accent-light: #1e1b4b;
+  --success: #34d399;
+  --success-bg: #0d3320;
+  --warning: #fbbf24;
+  --warning-bg: #3d2e00;
+  --danger: #f87171;
+  --danger-bg: #3b1010;
+  --danger-hover: #ef4444;
+  --info: #60a5fa;
+  --info-bg: #0c2340;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.5);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 14px;
+}
 
-        body.dark {
-            --body-bg: #111827;
-            --card-bg: #1f2937;
-            --text: #e5e7eb;
-            --text-muted: #9ca3af;
-            --border: #374151;
-            --sidebar-bg: #1a1a1d;
-        }
+/* ═══════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            background: var(--body-bg);
-            color: var(--text);
-            transition: background 0.25s ease, color 0.25s ease;
-        }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  display: flex;
+  min-height: 100vh;
+  overflow: hidden;
+}
 
-        .app-layout {
-            display: flex;
-            height: 100vh;
-            width: 100%;
-            overflow: hidden;
-        }
+/* ═══════════════════════════════════════
+   SIDEBAR
+   ═══════════════════════════════════════ */
+.sidebar {
+  width: 210px;
+  background: var(--bg-sidebar);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
 
-        .sidebar {
-            width: 240px;
-            background: var(--sidebar-bg);
-            border-right: 1px solid var(--border);
-            padding: 20px 0;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            left: 0; top: 0; bottom: 0;
-            z-index: 10;
-        }
+.sidebar-logo {
+  padding: 20px 22px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-        .sidebar-header {
-            padding: 0 24px 20px;
-            font-size: 20px;
-            font-weight: 600;
-        }
+.sidebar-logo .logo-icon {
+  width: 26px;
+  height: 26px;
+  background: var(--accent);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-        .sidebar-nav {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            padding: 0 12px;
-        }
+.sidebar-nav {
+  flex: 1;
+  padding: 0 10px;
+}
 
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 14px;
-            border-radius: 10px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 15px;
-            color: var(--text);
-            transition: background 0.2s ease;
-            width: 100%;
-            text-align: left;
-            font-family: "Inter", sans-serif;
-        }
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-sidebar);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s;
+  text-align: left;
+  margin-bottom: 2px;
+}
 
-        .nav-item:hover { background: rgba(0,0,0,0.06); }
-        body.dark .nav-item:hover { background: rgba(255,255,255,0.06); }
-        .nav-item.active { background: #3b82f6; color: white; }
+.nav-btn:hover {
+  background: var(--bg-sidebar-hover);
+  color: #d0d0e8;
+}
 
-        .sidebar-footer {
-            padding: 12px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+.nav-btn.active {
+  background: var(--bg-sidebar-active);
+  color: var(--text-sidebar-active);
+  font-weight: 600;
+}
 
-        .usage-counter {
-            font-size: 12px;
-            color: var(--text-muted);
-            text-align: center;
-            padding: 2px 4px;
-        }
+.nav-btn svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  stroke-width: 1.8;
+}
 
-        .lang-select {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            border-radius: 8px;
-            padding: 8px 10px;
-            font-size: 13px;
-            cursor: pointer;
-            width: 100%;
-            font-family: "Inter", sans-serif;
-        }
+.sidebar-footer {
+  padding: 14px 16px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
 
-        .main-content {
-            flex: 1;
-            margin-left: 240px;
-            height: 100vh;
-            overflow-y: auto;
-            padding: 24px 36px 48px 24px;
-            box-sizing: border-box;
-        }
+.sidebar-stat {
+  font-size: 0.78rem;
+  color: var(--text-sidebar);
+  margin-bottom: 10px;
+  text-align: center;
+}
 
-        .topbar {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
+.lang-select {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-sm);
+  background: var(--bg-sidebar-hover);
+  color: var(--text-sidebar);
+  font-size: 0.82rem;
+  cursor: pointer;
+  margin-bottom: 8px;
+  appearance: auto;
+}
 
-        .page-subtitle {
-            font-size: 15px;
-            color: var(--text-muted);
-            margin-bottom: 24px;
-            font-weight: 400;
-        }
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-sidebar);
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s;
+}
 
-        /* ── Live Preview Banner ── */
-        .live-preview-banner {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 14px 20px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .live-preview-label {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: #3b82f6;
-            white-space: nowrap;
-            background: rgba(59,130,246,0.10);
-            border: 1px solid rgba(59,130,246,0.25);
-            border-radius: 6px;
-            padding: 3px 8px;
-            font-family: monospace;
-        }
-        .live-preview-text {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-family: "Inter", sans-serif;
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .live-preview-cursor {
-            display: inline-block;
-            width: 2px;
-            height: 13px;
-            background: #3b82f6;
-            vertical-align: middle;
-            margin-left: 1px;
-            animation: blink 0.75s step-end infinite;
-        }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.theme-toggle:hover {
+  background: var(--bg-sidebar-hover);
+}
 
-        .generator-panel {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            margin-bottom: 24px;
-        }
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+}
 
-        .chips-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
+/* ═══════════════════════════════════════
+   MAIN
+   ═══════════════════════════════════════ */
+.main-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
 
-        .chip {
-            padding: 5px 14px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-            font-family: "Inter", sans-serif;
-        }
-        .chip:hover { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,0.08); }
-        .chip.active-chip { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,0.12); font-weight: 500; }
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 36px 20px;
+}
 
-        textarea {
-            width: 100%;
-            min-height: 120px;
-            padding: 14px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            resize: vertical;
-            font-size: 15px;
-            background: var(--card-bg);
-            color: var(--text);
-            box-sizing: border-box;
-            font-family: "Inter", sans-serif;
-        }
-        textarea:focus { outline: 2px solid #3b82f6; outline-offset: -1px; }
+/* ═══════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════ */
+.app-footer {
+  background: var(--bg-sidebar);
+  color: rgba(255,255,255,0.65);
+  text-align: center;
+  padding: 12px 24px;
+  font-size: 0.8rem;
+  font-weight: 400;
+  flex-shrink: 0;
+  letter-spacing: 0.2px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
 
-        .char-counter { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+.app-footer strong {
+  color: #fff;
+  font-weight: 700;
+}
 
-        .progress-wrap { display: none; margin-top: 14px; }
-        .progress-track { background: var(--border); border-radius: 999px; height: 8px; overflow: hidden; }
-        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg,#3b82f6,#8b5cf6); border-radius: 999px; transition: width 0.35s ease; }
-        .progress-label { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+.app-footer .sep {
+  color: var(--accent);
+  margin: 0 2px;
+}
 
-        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+/* ═══════════════════════════════════════
+   PAGE HEADERS
+   ═══════════════════════════════════════ */
+.page-header {
+  margin-bottom: 6px;
+}
 
-        .primary-btn {
-            padding: 10px 16px; background: #3b82f6; color: white; border: none;
-            border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center;
-            gap: 8px; font-size: 14px; font-family: "Inter", sans-serif; transition: background 0.2s ease;
-        }
-        .primary-btn:hover { background: #2563eb; }
-        .primary-btn:disabled { background: #93c5fd; cursor: not-allowed; }
+.page-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
 
-        .secondary-btn {
-            padding: 10px 16px; background: transparent; color: var(--text); border: 1px solid var(--border);
-            border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center;
-            gap: 8px; font-size: 14px; font-family: "Inter", sans-serif; transition: background 0.2s ease;
-        }
-        .secondary-btn:hover { background: rgba(0,0,0,0.05); }
-        body.dark .secondary-btn:hover { background: rgba(255,255,255,0.05); }
+.page-desc {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  margin-bottom: 20px;
+}
 
-        /* ── Danger / Delete button ── */
-        .danger-btn {
-            padding: 6px 12px; background: transparent; color: #dc2626;
-            border: 1px solid rgba(220,38,38,0.3); border-radius: 8px; cursor: pointer;
-            display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
-            font-family: "Inter", sans-serif; transition: all 0.2s; white-space: nowrap;
-        }
-        .danger-btn:hover { background: rgba(220,38,38,0.08); border-color: #dc2626; }
+/* ═══════════════════════════════════════
+   LIVE PREVIEW BAR
+   ═══════════════════════════════════════ */
+.preview-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 10px 18px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
 
-        .results { display: flex; flex-direction: column; gap: 16px; }
+.preview-badge {
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 
-        .test-card {
-            background: var(--card-bg); padding: 20px; border-radius: 10px;
-            border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        .test-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .test-card h3 { margin: 0; font-size: 17px; }
+.preview-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-family: 'Courier New', monospace;
+}
 
-        .priority-badge { padding: 2px 10px; border-radius: 999px; font-size: 12px; color: white; white-space: nowrap; font-weight: 500; }
-        .priority-Critical { background: #dc2626; }
-        .priority-High     { background: #f97316; }
-        .priority-Medium   { background: #3b82f6; }
-        .priority-Low      { background: #10b981; }
-        .priority-Trivial  { background: #6b7280; }
+/* ═══════════════════════════════════════
+   GENERATOR CARD
+   ═══════════════════════════════════════ */
+.gen-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+}
 
-        .test-card-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.quick-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
 
-        .status-btn {
-            padding: 5px 14px; border-radius: 999px; border: 1px solid var(--border);
-            background: transparent; cursor: pointer; font-size: 12px; color: var(--text-muted);
-            font-family: "Inter", sans-serif; transition: all 0.18s;
-        }
-        .status-btn:hover { opacity: 0.8; }
-        .status-btn.active-pass    { background: #10b981; color: white; border-color: #10b981; }
-        .status-btn.active-fail    { background: #dc2626; color: white; border-color: #dc2626; }
-        .status-btn.active-blocked { background: #f97316; color: white; border-color: #f97316; }
+.quick-tag {
+  padding: 6px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--bg-tag);
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
 
-        .status-msg { color: var(--text-muted); font-size: 15px; padding: 8px 0; }
+.quick-tag:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
 
-        .table-card {
-            background: var(--card-bg); padding: 20px; border-radius: 10px;
-            border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
+.gen-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius);
+  font-size: 0.92rem;
+  font-family: inherit;
+  resize: vertical;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  transition: border-color 0.2s;
+  line-height: 1.6;
+}
 
-        table { width: 100%; border-collapse: collapse; font-size: 15px; }
-        th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
-        th { font-weight: 600; color: var(--text-muted); font-size: 13px; }
-        tr.clickable { cursor: pointer; }
-        tr.clickable:hover td { background: rgba(59,130,246,0.05); }
+.gen-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
 
-        .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px,1fr)); gap: 16px; margin-bottom: 24px; }
-        .dash-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .dash-value { font-size: 32px; font-weight: 600; margin-bottom: 6px; line-height: 1; }
-        .dash-label { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
-        .dash-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-        .dash-section-title { font-size: 16px; font-weight: 600; margin: 0 0 14px; }
+.char-count {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  margin-bottom: 16px;
+}
 
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .section-header h2 { margin: 0; font-size: 18px; }
+.gen-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 
-        .empty-state { padding: 48px 20px; text-align: center; color: var(--text-muted); font-size: 15px; }
+/* ═══════════════════════════════════════
+   BUTTONS
+   ═══════════════════════════════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 18px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
 
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex;
-            align-items: center; justify-content: center; backdrop-filter: blur(3px);
-            opacity: 0; pointer-events: none; transition: opacity 0.25s ease; z-index: 1000;
-        }
-        .modal-overlay.visible { opacity: 1; pointer-events: auto; }
-        .modal { width: 560px; max-width: 92%; max-height: 82vh; overflow-y: auto; background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 18px 40px rgba(0,0,0,0.25); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .modal-header h2 { margin: 0; font-size: 18px; }
-        .modal-content { font-size: 15px; line-height: 1.6; }
-        .modal-content ol { padding-left: 20px; margin: 8px 0; }
-        .modal-content li { margin-bottom: 4px; }
-        .close-btn { padding: 6px 10px; background: transparent; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; color: var(--text); display: flex; align-items: center; }
-        .close-btn:hover { background: rgba(0,0,0,0.06); }
+.btn svg { width: 16px; height: 16px; }
 
-        /* RTL */
-        body[dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border); }
-        body[dir="rtl"] .main-content { margin-left: 0; margin-right: 240px; }
-        body[dir="rtl"] .nav-item { text-align: right; flex-direction: row-reverse; }
-        body[dir="rtl"] .test-card-header { flex-direction: row-reverse; }
-        body[dir="rtl"] .test-card-actions { flex-direction: row-reverse; }
-        body[dir="rtl"] .btn-row { flex-direction: row-reverse; }
-        body[dir="rtl"] .section-header { flex-direction: row-reverse; }
-        body[dir="rtl"] textarea { text-align: right; }
+.btn:hover {
+  background: var(--bg-tag-hover);
+  box-shadow: var(--shadow-sm);
+}
 
-        .text-input { padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 15px; font-family: "Inter", sans-serif; width: 100%; box-sizing: border-box; }
-        .text-input:focus { outline: 2px solid #3b82f6; outline-offset: -1px; }
+.btn-primary {
+  background: var(--accent);
+  color: var(--text-on-primary);
+  border-color: var(--accent);
+}
 
-        /* Time badge */
-        .time-badge { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--text-muted); background: rgba(0,0,0,0.05); border-radius: 5px; padding: 2px 7px; font-family: "Inter", sans-serif; }
-        body.dark .time-badge { background: rgba(255,255,255,0.07); }
-    </style>
+.btn-primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(79,70,229,0.35);
+}
+
+.btn-success {
+  background: var(--success);
+  color: #fff;
+  border-color: var(--success);
+}
+
+.btn-success:hover {
+  opacity: 0.9;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+
+.btn-danger:hover {
+  background: var(--danger-hover);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+  background: var(--bg-tag);
+  color: var(--text-primary);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.btn-xs {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+}
+
+.btn-icon {
+  padding: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover { background: var(--bg-tag); color: var(--text-primary); }
+.btn-icon.danger:hover { background: var(--danger-bg); color: var(--danger); }
+
+/* ═══════════════════════════════════════
+   RESULTS TABLE
+   ═══════════════════════════════════════ */
+.results-section {
+  margin-top: 28px;
+}
+
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.results-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.results-count {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  background: var(--bg-tag);
+  padding: 3px 12px;
+  border-radius: 12px;
+  margin-left: 10px;
+  font-weight: 500;
+}
+
+.results-table-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.results-table th {
+  text-align: left;
+  font-size: 0.73rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-secondary);
+  padding: 12px 14px;
+  border-bottom: 2px solid var(--border-color);
+  font-weight: 700;
+  background: var(--bg-tag);
+}
+
+.results-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.86rem;
+  vertical-align: top;
+}
+
+.results-table tr:last-child td { border-bottom: none; }
+.results-table tr:hover td { background: var(--accent-light); }
+
+.results-table .id-col { width: 60px; font-weight: 600; color: var(--accent); }
+.results-table .priority-col { width: 85px; }
+.results-table .type-col { width: 100px; }
+.results-table .actions-col { width: 70px; text-align: right; }
+
+/* ═══════════════════════════════════════
+   BADGES
+   ═══════════════════════════════════════ */
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.badge-high, .badge-critical { background: var(--danger-bg); color: var(--danger); }
+.badge-medium { background: var(--warning-bg); color: var(--warning); }
+.badge-low { background: var(--success-bg); color: var(--success); }
+.badge-positive { background: var(--success-bg); color: var(--success); }
+.badge-negative { background: var(--danger-bg); color: var(--danger); }
+.badge-edge { background: var(--warning-bg); color: var(--warning); }
+.badge-security { background: var(--info-bg); color: var(--info); }
+.badge-pass { background: var(--success-bg); color: var(--success); }
+.badge-fail { background: var(--danger-bg); color: var(--danger); }
+.badge-pending { background: var(--warning-bg); color: var(--warning); }
+.badge-blocked { background: var(--bg-tag); color: var(--text-secondary); }
+
+/* ═══════════════════════════════════════
+   DASHBOARD
+   ═══════════════════════════════════════ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon svg { width: 22px; height: 22px; }
+.stat-icon.purple { background: var(--accent-light); color: var(--accent); }
+.stat-icon.green { background: var(--success-bg); color: var(--success); }
+.stat-icon.orange { background: var(--warning-bg); color: var(--warning); }
+.stat-icon.red { background: var(--danger-bg); color: var(--danger); }
+.stat-icon.blue { background: var(--info-bg); color: var(--info); }
+
+.stat-value {
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+@media (max-width: 960px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.card-body { padding: 16px 18px; }
+.card-body.no-pad { padding: 0; }
+
+/* ═══════════════════════════════════════
+   PROJECTS & SUITES LIST
+   ═══════════════════════════════════════ */
+.list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-light);
+  transition: background 0.1s;
+}
+
+.list-item:last-child { border-bottom: none; }
+.list-item:hover { background: var(--accent-light); }
+
+.list-item-info { flex: 1; min-width: 0; }
+.list-item-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.list-item-meta {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.list-item-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.list-item:hover .list-item-actions { opacity: 1; }
+
+/* ═══════════════════════════════════════
+   PROGRESS BAR
+   ═══════════════════════════════════════ */
+.progress-bar {
+  height: 7px;
+  background: var(--bg-tag);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+}
+
+.progress-seg { height: 100%; transition: width 0.4s; }
+.progress-seg.pass { background: var(--success); }
+.progress-seg.fail { background: var(--danger); }
+.progress-seg.pending { background: var(--warning); }
+.progress-seg.blocked { background: #aaa; }
+
+/* ═══════════════════════════════════════
+   MODAL
+   ═══════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.hidden { display: none; }
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 92%;
+  max-width: 500px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h3 { font-size: 1.1rem; font-weight: 700; }
+
+.modal-body { padding: 22px; }
+
+.modal-footer {
+  padding: 14px 22px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-family: inherit;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  transition: border-color 0.15s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+
+textarea.form-control { resize: vertical; min-height: 70px; }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ═══════════════════════════════════════
+   EMPTY STATE
+   ═══════════════════════════════════════ */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+
+.empty-state svg { width: 56px; height: 56px; opacity: 0.3; margin-bottom: 14px; }
+.empty-state h3 { font-size: 1.05rem; color: var(--text-primary); margin-bottom: 6px; }
+.empty-state p { font-size: 0.88rem; margin-bottom: 16px; }
+
+/* ═══════════════════════════════════════
+   TOAST
+   ═══════════════════════════════════════ */
+.toast-wrap {
+  position: fixed;
+  bottom: 50px;
+  right: 24px;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--bg-sidebar);
+  color: #fff;
+  padding: 11px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: toastIn 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toast.success { border-left: 4px solid var(--success); }
+.toast.error { border-left: 4px solid var(--danger); }
+.toast.info { border-left: 4px solid var(--accent); }
+
+@keyframes toastIn {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ═══════════════════════════════════════
+   HISTORY
+   ═══════════════════════════════════════ */
+.history-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.history-item:last-child { border-bottom: none; }
+
+.history-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.history-dot.green { background: var(--success); }
+.history-dot.purple { background: var(--accent); }
+.history-dot.red { background: var(--danger); }
+.history-dot.orange { background: var(--warning); }
+.history-dot.blue { background: var(--info); }
+
+.history-text { font-size: 0.87rem; line-height: 1.45; }
+.history-time { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
+
+/* ═══════════════════════════════════════
+   SCROLLBAR
+   ═══════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+/* ═══════════════════════════════════════
+   SUITE ACCORDION
+   ═══════════════════════════════════════ */
+.suite-accordion {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.suite-acc-header {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.suite-acc-header:hover { background: var(--bg-tag); }
+
+.suite-acc-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.suite-acc-toggle {
+  transition: transform 0.2s;
+  color: var(--text-secondary);
+  width: 16px;
+  height: 16px;
+}
+
+.suite-acc-toggle.open { transform: rotate(90deg); }
+
+.suite-acc-body {
+  border-top: 1px solid var(--border-color);
+  display: none;
+}
+
+.suite-acc-body.open { display: block; }
+</style>
 </head>
+<body>
 
-<body class="light">
-<div class="app-layout">
-
-    <aside class="sidebar">
-        <div class="sidebar-header">QA Studio</div>
-        <nav class="sidebar-nav">
-            <button class="nav-item active" data-view="generator">
-                <i data-lucide="sparkles"></i><span data-i18n="generator">Generator</span>
-            </button>
-            <button class="nav-item" data-view="dashboard">
-                <i data-lucide="bar-chart-2"></i><span data-i18n="dashboard">Dashboard</span>
-            </button>
-            <button class="nav-item" data-view="projects">
-                <i data-lucide="folder"></i><span data-i18n="projects">Projects</span>
-            </button>
-            <button class="nav-item" data-view="suites">
-                <i data-lucide="layers"></i><span data-i18n="suites">Suites</span>
-            </button>
-            <button class="nav-item" data-view="history">
-                <i data-lucide="clock"></i><span data-i18n="history">History</span>
-            </button>
-        </nav>
-        <div class="sidebar-footer">
-            <div class="usage-counter" id="usageCounter">0</div>
-            <select id="langSelect" class="lang-select">
-                <option value="en">🇬🇧 English</option>
-                <option value="fi">🇫🇮 Suomi</option>
-                <option value="dz">🇩🇿 دارجة</option>
-            </select>
-            <button id="themeToggle" class="nav-item">
-                <i data-lucide="moon" id="themeIcon"></i><span data-i18n="theme">Theme</span>
-            </button>
-        </div>
-    </aside>
-
-    <main class="main-content">
-        <header class="topbar" id="pageTitle">AI Test Case Generator</header>
-        <p class="page-subtitle" id="pageSubtitle">Generate, save, and track test cases by project.</p>
-
-        <section id="view-generator">
-            <!-- Live Preview Banner -->
-            <div class="live-preview-banner">
-                <span class="live-preview-label">// live preview</span>
-                <span class="live-preview-text" id="livePreviewText"><span class="live-preview-cursor"></span></span>
-            </div>
-
-            <div class="generator-panel">
-                <div class="chips-row" id="chipsRow"></div>
-                <textarea id="testInput" placeholder="Describe the feature you want test cases for…"></textarea>
-                <div class="char-counter" id="charCounter">0 characters</div>
-                <div class="progress-wrap" id="progressWrap">
-                    <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
-                    <div class="progress-label" id="progressLabel" data-i18n="generating">Generating…</div>
-                </div>
-                <div class="btn-row">
-                    <button id="generateBtn" class="primary-btn">
-                        <i data-lucide="wand-2"></i><span data-i18n="generate">Generate Test Cases</span>
-                    </button>
-                    <button id="exportJson" class="secondary-btn">
-                        <i data-lucide="braces"></i><span data-i18n="exportJson">Export JSON</span>
-                    </button>
-                    <button id="exportCsv" class="secondary-btn">
-                        <i data-lucide="file-text"></i><span data-i18n="exportCsv">Export CSV</span>
-                    </button>
-                    <button id="exportExcel" class="secondary-btn">
-                        <i data-lucide="table-2"></i><span data-i18n="exportExcel">Export Excel</span>
-                    </button>
-                    <button id="exportWord" class="secondary-btn">
-                        <i data-lucide="file"></i><span data-i18n="exportWord">Export Word</span>
-                    </button>
-                    <button id="saveProjectBtn" class="secondary-btn">
-                        <i data-lucide="save"></i><span data-i18n="saveProject">Save to Project</span>
-                    </button>
-                </div>
-            </div>
-            <div id="results" class="results"></div>
-        </section>
-
-        <section id="view-dashboard" style="display:none;"><div id="dashContent"></div></section>
-
-        <section id="view-projects" style="display:none;">
-            <div class="table-card">
-                <div class="section-header"><h2 data-i18n="projects">Projects</h2></div>
-                <div id="projectsContent"></div>
-            </div>
-        </section>
-
-        <section id="view-suites" style="display:none;"><div id="suitesContent"></div></section>
-
-        <section id="view-history" style="display:none;">
-            <div class="table-card">
-                <div class="section-header">
-                    <h2 data-i18n="history">History</h2>
-                    <button id="clearHistoryBtn" class="secondary-btn">
-                        <i data-lucide="trash-2"></i><span data-i18n="clearHistory">Clear History</span>
-                    </button>
-                </div>
-                <div id="historyContent"></div>
-            </div>
-        </section>
-    </main>
-</div>
-
-<!-- Details modal -->
-<div id="modalOverlay" class="modal-overlay">
-    <div class="modal">
-        <div class="modal-header">
-            <h2 id="modalTitle">Details</h2>
-            <button id="modalClose" class="close-btn"><i data-lucide="x"></i></button>
-        </div>
-        <div id="modalContent" class="modal-content"></div>
+<!-- ═══════ SIDEBAR ═══════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 10.5L9 14.5L15 6.5"/></svg>
     </div>
+    QA Studio
+  </div>
+
+  <nav class="sidebar-nav">
+    <button class="nav-btn active" data-page="generator" onclick="navigate('generator')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Generator
+    </button>
+    <button class="nav-btn" data-page="dashboard" onclick="navigate('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-6"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-btn" data-page="projects" onclick="navigate('projects')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l6-3 12 5v10l-12 4-6-4V7z"/><path d="M9 4v14"/></svg>
+      Projects
+    </button>
+    <button class="nav-btn" data-page="suites" onclick="navigate('suites')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Suites
+    </button>
+    <button class="nav-btn" data-page="history" onclick="navigate('history')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      History
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-stat" id="sidebar-stat">0 test cases generated</div>
+    <select class="lang-select" id="lang-select">
+      <option value="en">🌐 English</option>
+      <option value="fr">🇫🇷 Français</option>
+      <option value="es">🇪🇸 Español</option>
+      <option value="de">🇩🇪 Deutsch</option>
+      <option value="ar">🇸🇦 العربية</option>
+    </select>
+    <button class="theme-toggle" onclick="toggleTheme()">
+      <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      Theme
+    </button>
+  </div>
+</aside>
+
+<!-- ═══════ MAIN ═══════ -->
+<div class="main-wrap">
+  <main class="main-content" id="main-content"></main>
+  <footer class="app-footer">
+    <strong>QA Studio</strong> by Milo Haireche <span class="sep">—</span> 20+ years of QA expertise
+  </footer>
 </div>
 
-<!-- Save-to-project modal -->
-<div id="saveModalOverlay" class="modal-overlay">
-    <div class="modal" style="max-width:380px;">
-        <div class="modal-header">
-            <h2 data-i18n="saveProject">Save to Project</h2>
-            <button id="saveModalClose" class="close-btn"><i data-lucide="x"></i></button>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
-            <input id="projectNameInput" type="text" class="text-input" placeholder="Project name…" />
-            <button id="confirmSaveBtn" class="primary-btn" style="justify-content:center;">
-                <i data-lucide="check"></i><span data-i18n="save">Save</span>
-            </button>
-        </div>
-    </div>
+<!-- ═══════ MODAL ═══════ -->
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
 </div>
+
+<!-- ═══════ TOAST ═══════ -->
+<div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
-// ============================================================
-// CONFIG
-// ============================================================
-const WORKER_URL = "https://qa-proxy.eng-milo.workers.dev";
+// ════════════════════════════════════════════
+// DATA LAYER
+// ════════════════════════════════════════════
+const STORE_KEY = 'qa_studio_data_v2';
 
-// ============================================================
-// I18N
-// ============================================================
-const i18n = {
-    en: {
-        documentTitle: "QA Studio — AI Test Case Generator",
-        generatorPageTitle: "AI Test Case Generator",
-        pageSubtitle: "Generate, save, and track test cases by project.",
-        appName: "QA Studio", generator: "Generator", dashboard: "Dashboard",
-        projects: "Projects", suites: "Suites", history: "History", theme: "Theme",
-        generate: "Generate Test Cases", generating: "Generating…",
-        exportJson: "Export JSON", exportCsv: "Export CSV", exportExcel: "Export Excel",
-        exportWord: "Export Word", saveProject: "Save to Project", save: "Save",
-        clearHistory: "Clear History", viewDetails: "View Details",
-        noResults: "Describe a feature above and hit Generate.",
-        colFeature: "Feature", colGenerated: "Date", colTime: "Time", colCount: "Tests",
-        colName: "Name", colDesc: "Description", colCreated: "Created",
-        emptyHistory: "No history yet.", emptyProjects: "No saved projects yet.",
-        dashTotalAll: "All-time generated", dashSession: "Current Session",
-        dashPass: "Passed", dashFail: "Failed", dashBlocked: "Blocked",
-        dashUntested: "Untested", dashTotal: "Total",
-        priorityBreakdown: "Priority Breakdown",
-        dashEmpty: "No test cases yet. Generate some to see stats here.",
-        pass: "Pass", fail: "Fail", blocked: "Blocked",
-        confirmDelete: "Delete this project? This cannot be undone.",
-        chips: ["Login flow","Password reset","File upload","Search & filter","User registration","Checkout"],
-        chipStories: [
-            "As a registered user, I want to log in with my email and password so that I can access my account dashboard. The system should support 'Remember me', show/hide password toggle, account lockout after 5 failed attempts, and display clear error messages for invalid credentials.",
-            "As a user who forgot my password, I want to reset it via a link sent to my email so that I can regain access to my account. The reset link should expire after 30 minutes, enforce strong password rules, and confirm the change with a success notification.",
-            "As a user, I want to upload documents (PDF, DOCX, JPG, PNG) up to 10MB so that I can attach them to my profile or project. The system should show an upload progress bar, validate file type and size before upload, and display a preview of the uploaded file.",
-            "As a user, I want to search products by keyword and filter results by category, price range, rating, and availability so that I can quickly find what I need. The search should support auto-suggestions, highlight matching terms, and remember recent searches.",
-            "As a new visitor, I want to create an account using my name, email, and password so that I can access the platform. The system should validate email format, enforce password strength (min 8 chars, uppercase, number, symbol), check for duplicate accounts, and send a verification email.",
-            "As a customer, I want to review my cart, enter shipping details, select a delivery method, and complete payment so that I can place my order. The system should support credit card, PayPal, and Apple Pay, apply discount codes, calculate tax and shipping, and send an order confirmation email."
-        ],
-        usageFn: n => `${n} test case${n !== 1 ? "s" : ""} generated`,
-        dir: "ltr",
-    },
-    fi: {
-        documentTitle: "QA Studio — Tekoälytestitapausgeneraattori",
-        generatorPageTitle: "Tekoälytestitapausgeneraattori",
-        pageSubtitle: "Luo, tallenna ja seuraa testitapauksia projekteittain.",
-        appName: "QA Studio", generator: "Generaattori", dashboard: "Kojelauta",
-        projects: "Projektit", suites: "Testipaketit", history: "Historia", theme: "Teema",
-        generate: "Luo testitapaukset", generating: "Luodaan…",
-        exportJson: "Vie JSON", exportCsv: "Vie CSV", exportExcel: "Vie Excel",
-        exportWord: "Vie Word", saveProject: "Tallenna projektiin", save: "Tallenna",
-        clearHistory: "Tyhjennä historia", viewDetails: "Näytä tiedot",
-        noResults: "Kuvaile ominaisuus yllä ja paina Luo.",
-        colFeature: "Ominaisuus", colGenerated: "Päivämäärä", colTime: "Aika", colCount: "Tapauksia",
-        colName: "Nimi", colDesc: "Kuvaus", colCreated: "Luotu",
-        emptyHistory: "Ei historiaa vielä.", emptyProjects: "Ei tallennettuja projekteja.",
-        dashTotalAll: "Luotu yhteensä", dashSession: "Nykyinen sessio",
-        dashPass: "Hyväksytty", dashFail: "Hylätty", dashBlocked: "Estetty",
-        dashUntested: "Testaamaton", dashTotal: "Yhteensä",
-        priorityBreakdown: "Prioriteettijakauma",
-        dashEmpty: "Ei testitapauksia vielä. Luo niitä nähdäksesi tilastot.",
-        pass: "Hyväksytty", fail: "Hylätty", blocked: "Estetty",
-        confirmDelete: "Poistetaanko tämä projekti? Toimintoa ei voi peruuttaa.",
-        chips: ["Kirjautuminen","Salasanan palautus","Tiedoston lataus","Haku ja suodatus","Rekisteröinti","Kassaprosessi"],
-        chipStories: [
-            "Rekisteröityneenä käyttäjänä haluan kirjautua sisään sähköpostilla ja salasanalla päästäkseni tilini hallintapaneeliin. Järjestelmän tulee tukea 'Muista minut' -toimintoa, salasanan näyttämistä/piilottamista, tilin lukitsemista 5 epäonnistuneen yrityksen jälkeen ja selkeiden virheilmoitusten näyttämistä.",
-            "Salasanansa unohtaneena käyttäjänä haluan palauttaa sen sähköpostiini lähetetyn linkin kautta päästäkseni takaisin tililleni. Palautuslinkin tulee vanhentua 30 minuutin jälkeen, vaatia vahva uusi salasana ja vahvistaa muutos onnistumisilmoituksella.",
-            "Käyttäjänä haluan ladata asiakirjoja (PDF, DOCX, JPG, PNG) enintään 10 Mt koossa liittääkseni ne profiiliini tai projektiini. Järjestelmän tulee näyttää latauksen edistymispalkki, vahvistaa tiedostotyyppi ja koko ennen latausta sekä näyttää esikatselu ladatusta tiedostosta.",
-            "Käyttäjänä haluan hakea tuotteita avainsanalla ja suodattaa tuloksia kategorian, hintaluokan, arvosanan ja saatavuuden mukaan löytääkseni tarvitsemani nopeasti. Haun tulee tukea automaattisia ehdotuksia, korostaa vastaavia termejä ja muistaa viimeisimmät haut.",
-            "Uutena vierailijana haluan luoda tilin nimellä, sähköpostilla ja salasanalla päästäkseni alustalle. Järjestelmän tulee vahvistaa sähköpostin muoto, vaatia vahva salasana (vähintään 8 merkkiä, iso kirjain, numero, erikoismerkki), tarkistaa päällekkäiset tilit ja lähettää vahvistussähköposti.",
-            "Asiakkaana haluan tarkistaa ostoskorini, syöttää toimitustiedot, valita toimitustavan ja suorittaa maksun tilatakseni. Järjestelmän tulee tukea luottokorttia, PayPalia ja Apple Payta, hyväksyä alennuskoodit, laskea vero ja toimituskulut sekä lähettää tilausvahvistus sähköpostitse."
-        ],
-        usageFn: n => `${n} testitapausta luotu`,
-        dir: "ltr",
-    },
-    dz: {
-        documentTitle: "QA Studio — مولّد حالات الاختبار بالذكاء الاصطناعي",
-        generatorPageTitle: "مولّد حالات الاختبار بالذكاء الاصطناعي",
-        pageSubtitle: "ولّد، احفظ، وتابع حالات الاختبار حسب المشروع.",
-        appName: "QA Studio", generator: "المولّد", dashboard: "لوحة القيادة",
-        projects: "المشاريع", suites: "الحزم", history: "السجل", theme: "المظهر",
-        generate: "ولّد حالات الاختبار", generating: "جاري التوليد…",
-        exportJson: "صدّر JSON", exportCsv: "صدّر CSV", exportExcel: "صدّر Excel",
-        exportWord: "صدّر Word", saveProject: "احفظ في مشروع", save: "احفظ",
-        clearHistory: "امسح السجل", viewDetails: "شوف التفاصيل",
-        noResults: "وصف الميزة فوق وأضغط ولّد.",
-        colFeature: "الميزة", colGenerated: "التاريخ", colTime: "الوقت", colCount: "الحالات",
-        colName: "الاسم", colDesc: "الوصف", colCreated: "تاريخ الإنشاء",
-        emptyHistory: "ما كاين سجل بعد.", emptyProjects: "ما كاين مشاريع بعد.",
-        dashTotalAll: "مجموع ما تولّد", dashSession: "الجلسة الحالية",
-        dashPass: "نجح", dashFail: "فشل", dashBlocked: "محظور",
-        dashUntested: "ما تختبرش", dashTotal: "المجموع",
-        priorityBreakdown: "توزيع الأولوية",
-        dashEmpty: "ما كاين حالات اختبار بعد. ولّد باش تشوف الإحصائيات.",
-        pass: "نجح", fail: "فشل", blocked: "محظور",
-        confirmDelete: "تحذف هذا المشروع؟ ما تقدرش ترجع.",
-        chips: ["تسجيل الدخول","استرجاع كلمة السر","رفع الملفات","البحث والتصفية","تسجيل المستخدم","الدفع"],
-        chipStories: [
-            "كمستخدم مسجّل، نحب ندخل بالإيميل والباسوورد باش نوصل للوحة التحكم تاعي. النظام لازم يدعم 'تذكرني'، إظهار/إخفاء الباسوورد، قفل الحساب بعد 5 محاولات فاشلة، وعرض رسائل خطأ واضحة للبيانات الغالطة.",
-            "كمستخدم نسيت الباسوورد تاعي، نحب نرجعها عن طريق رابط يتبعتلي على الإيميل باش نرجع للحساب تاعي. الرابط لازم ينتهي بعد 30 دقيقة، يفرض باسوورد قوية جديدة، ويأكد التغيير برسالة نجاح.",
-            "كمستخدم، نحب نرفع ملفات (PDF، DOCX، JPG، PNG) حتى 10 ميغا باش نربطهم بالبروفايل ولا المشروع تاعي. النظام لازم يوري شريط تقدم الرفع، يتحقق من نوع وحجم الملف قبل الرفع، ويعرض معاينة للملف المرفوع.",
-            "كمستخدم، نحب نلقى المنتجات بكلمة مفتاحية ونفلتر النتائج حسب الفئة، نطاق السعر، التقييم، والتوفر باش نلقى اللي نحتاجه بسرعة. البحث لازم يدعم اقتراحات تلقائية، يبرز المصطلحات المطابقة، ويتذكر عمليات البحث الأخيرة.",
-            "كزائر جديد، نحب نخلق حساب بالاسم، الإيميل، والباسوورد باش نقدر نوصل للمنصة. النظام لازم يتحقق من صيغة الإيميل، يفرض باسوورد قوية (8 حروف على الأقل، حرف كبير، رقم، رمز)، يتحقق من الحسابات المكررة، ويبعث إيميل تأكيد.",
-            "كعميل، نحب نراجع السلة تاعي، ندخل تفاصيل التوصيل، نختار طريقة التوصيل، ونكمل الدفع باش نطلب. النظام لازم يدعم الكارت البنكية، PayPal، وApple Pay، يقبل كودات التخفيض، يحسب الضريبة ومصاريف التوصيل، ويبعث إيميل تأكيد الطلبية."
-        ],
-        usageFn: n => `${n} حالات اختبار تولّدت`,
-        dir: "rtl",
-    }
-};
-
-let lang = localStorage.getItem("qa_lang") || "en";
-const t = key => (i18n[lang] && i18n[lang][key] !== undefined) ? i18n[lang][key] : (i18n.en[key] || key);
-
-// ============================================================
-// applyLang
-// ============================================================
-function applyLang() {
-    document.title = t("documentTitle");
-    document.documentElement.lang = lang === "dz" ? "ar" : lang;
-    const activeView = document.querySelector(".sidebar-nav .nav-item.active")?.dataset.view;
-    if (activeView === "generator") {
-        document.getElementById("pageTitle").textContent = t("generatorPageTitle");
-    } else if (activeView) {
-        document.getElementById("pageTitle").textContent = t(activeView);
-    }
-    const subtitleEl = document.getElementById("pageSubtitle");
-    subtitleEl.textContent = t("pageSubtitle");
-    subtitleEl.style.display = (activeView === "generator") ? "block" : "none";
-    document.querySelectorAll("[data-i18n]").forEach(el => {
-        const val = t(el.dataset.i18n);
-        if (typeof val === "string") el.textContent = val;
-    });
-    document.body.dir = t("dir");
-    if (lang === "dz") {
-        testInput.setAttribute("placeholder", "وصف الميزة اللي تحب تولّد ليها حالات الاختبار…");
-        testInput.dir = "rtl";
-    } else if (lang === "fi") {
-        testInput.setAttribute("placeholder", "Kuvaile ominaisuus, jolle haluat testitapaukset…");
-        testInput.dir = "ltr";
-    } else {
-        testInput.setAttribute("placeholder", "Describe the feature you want test cases for…");
-        testInput.dir = "ltr";
-    }
-    buildChips();
-    updateUsageCounter();
-    lucide.createIcons();
+function defaultData() {
+  return {
+    projects: [],
+    generatedCases: [],
+    history: [],
+    idSeq: 1,
+    totalGenerated: 0
+  };
 }
 
-// ============================================================
-// STATE
-// ============================================================
-const state = {
-    usageTotal: parseInt(localStorage.getItem("qa_usage_total") || "0"),
-    history:    JSON.parse(localStorage.getItem("qa_history")   || "[]"),
-    projects:   JSON.parse(localStorage.getItem("qa_projects")  || "[]"),
-};
-
-function saveState() {
-    localStorage.setItem("qa_usage_total", String(state.usageTotal));
-    localStorage.setItem("qa_history",     JSON.stringify(state.history));
-    localStorage.setItem("qa_projects",    JSON.stringify(state.projects));
+function loadStore() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return defaultData();
+    const d = JSON.parse(raw);
+    if (!d || !Array.isArray(d.projects)) return defaultData();
+    // Ensure all needed arrays exist
+    if (!Array.isArray(d.generatedCases)) d.generatedCases = [];
+    if (!Array.isArray(d.history)) d.history = [];
+    if (!d.idSeq) d.idSeq = 1;
+    if (!d.totalGenerated) d.totalGenerated = 0;
+    return d;
+  } catch(e) {
+    return defaultData();
+  }
 }
 
-function saveLatestTestCases() {
-    try { localStorage.setItem("qa_latest_tests", JSON.stringify(latestTestCases)); } catch(e) {}
-}
-function loadLatestTestCases() {
-    try {
-        const saved = localStorage.getItem("qa_latest_tests");
-        if (saved) latestTestCases = JSON.parse(saved);
-    } catch(e) {}
+function saveStore() {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify(store));
+  } catch(e) {
+    console.error('Save failed', e);
+  }
 }
 
-// ============================================================
-// HELPERS
-// ============================================================
-function esc(str) {
-    const d = document.createElement("div");
-    d.textContent = String(str);
-    return d.innerHTML;
-}
-function dlBlob(blob, filename) {
-    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: filename });
-    a.click();
-    URL.revokeObjectURL(a.href);
-}
-/** Returns HH:MM in 24-hour format */
-function now24h() {
-    const d = new Date();
-    return d.getHours().toString().padStart(2,"0") + ":" + d.getMinutes().toString().padStart(2,"0");
+let store = loadStore();
+let currentPage = 'generator';
+
+function nextId() { return store.idSeq++; }
+
+function addHistory(text, type='purple') {
+  store.history.unshift({ text, type, time: new Date().toISOString() });
+  if (store.history.length > 100) store.history.length = 100;
 }
 
-// ============================================================
-// JSON REPAIR
-// ============================================================
-function repairJSON(raw) {
-    let clean = raw.replace(/^```json\s*/i,"").replace(/```\s*$/g,"").trim();
-    try { const p = JSON.parse(clean); if(Array.isArray(p)&&p.length>0) return p; } catch(e){}
-    const as = clean.indexOf("[");
-    if(as !== -1) clean = clean.substring(as);
-    try { const p = JSON.parse(clean); if(Array.isArray(p)&&p.length>0) return p; } catch(e){}
-    let r = clean;
-    const lc = r.lastIndexOf("}");
-    if(lc !== -1){
-        r = r.substring(0,lc+1);
-        const lo = r.lastIndexOf("{"), lcb = r.lastIndexOf("}");
-        if(lo > lcb){ r = r.substring(0,lo); r = r.replace(/,\s*$/,""); }
-        r = r.replace(/,\s*$/,"");
-        if(!r.endsWith("]")) r += "\n]";
-        if(!r.startsWith("[")) r = "[\n"+r;
-        try { const p = JSON.parse(r); if(Array.isArray(p)&&p.length>0) return p; } catch(e){}
-    }
-    const m = clean.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g);
-    if(m){
-        const objs = [];
-        for(const x of m){ try{ const o=JSON.parse(x); if(o.id&&o.title) objs.push(o); }catch(e){} }
-        if(objs.length>0) return objs;
-    }
-    throw new Error("Could not parse AI response. Please try again.");
+function getProject(id) {
+  return store.projects.find(p => p.id === id);
 }
 
-// ============================================================
+function getSuite(projectId, suiteId) {
+  const p = getProject(projectId);
+  return p ? p.suites.find(s => s.id === suiteId) : null;
+}
+
+function updateSidebarStat() {
+  document.getElementById('sidebar-stat').textContent = store.totalGenerated + ' test cases generated';
+}
+
+// ════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════
+function toast(msg, type='info') {
+  const c = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(100%)';
+    t.style.transition = 'all 0.3s';
+    setTimeout(() => t.remove(), 300);
+  }, 3000);
+}
+
+// ════════════════════════════════════════════
+// MODAL
+// ════════════════════════════════════════════
+function openModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+}
+
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+function navigate(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.page === page);
+  });
+  renderPage();
+}
+
+function renderPage() {
+  const main = document.getElementById('main-content');
+  main.scrollTop = 0;
+  switch(currentPage) {
+    case 'generator':  renderGenerator(main); break;
+    case 'dashboard':  renderDashboard(main); break;
+    case 'projects':   renderProjects(main); break;
+    case 'suites':     renderSuites(main); break;
+    case 'history':    renderHistory(main); break;
+    default:           renderGenerator(main);
+  }
+  updateSidebarStat();
+}
+
+// ════════════════════════════════════════════
+// HELPER
+// ════════════════════════════════════════════
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function timeAgo(iso) {
+  const sec = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (sec < 60) return 'just now';
+  const min = Math.floor(sec / 60);
+  if (min < 60) return min + 'm ago';
+  const hrs = Math.floor(min / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  const days = Math.floor(hrs / 24);
+  if (days < 30) return days + 'd ago';
+  return new Date(iso).toLocaleDateString();
+}
+
+// ════════════════════════════════════════════
 // THEME
-// ============================================================
-const savedTheme = localStorage.getItem("qa_theme") || "light";
-document.body.className = savedTheme;
-document.getElementById("themeToggle").addEventListener("click", () => {
-    const isDark = document.body.classList.contains("dark");
-    document.body.className = isDark ? "light" : "dark";
-    localStorage.setItem("qa_theme", isDark ? "light" : "dark");
-    document.getElementById("themeIcon").setAttribute("data-lucide", isDark ? "moon" : "sun");
-    lucide.createIcons();
-});
-if(savedTheme === "dark") document.getElementById("themeIcon").setAttribute("data-lucide","sun");
-
-// ============================================================
-// LANGUAGE
-// ============================================================
-document.getElementById("langSelect").value = lang;
-document.getElementById("langSelect").addEventListener("change", e => {
-    lang = e.target.value;
-    localStorage.setItem("qa_lang", lang);
-    applyLang();
-    const v = document.querySelector(".sidebar-nav .nav-item.active")?.dataset.view;
-    if(v === "history")   renderHistory();
-    if(v === "projects")  renderProjects();
-    if(v === "suites")    renderSuites();
-    if(v === "dashboard") renderDashboard();
-});
-
-// ============================================================
-// ROUTING
-// ============================================================
-const views = {
-    generator: document.getElementById("view-generator"),
-    dashboard: document.getElementById("view-dashboard"),
-    projects:  document.getElementById("view-projects"),
-    suites:    document.getElementById("view-suites"),
-    history:   document.getElementById("view-history"),
-};
-document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
-    btn.addEventListener("click", () => {
-        const view = btn.dataset.view;
-        if(!view) return;
-        Object.values(views).forEach(v => (v.style.display = "none"));
-        views[view].style.display = "block";
-        document.querySelectorAll(".sidebar-nav .nav-item").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        document.getElementById("pageTitle").textContent =
-            view === "generator" ? t("generatorPageTitle") : t(view);
-        document.getElementById("pageSubtitle").style.display =
-            (view === "generator") ? "block" : "none";
-        if(view === "dashboard") renderDashboard();
-        if(view === "projects")  renderProjects();
-        if(view === "suites")    renderSuites();
-        if(view === "history")   renderHistory();
-    });
-});
-
-// ============================================================
-// MODALS
-// ============================================================
-const modalOverlay = document.getElementById("modalOverlay");
-function openModal(title, contentHTML) {
-    document.getElementById("modalTitle").textContent = title;
-    document.getElementById("modalContent").innerHTML = contentHTML;
-    modalOverlay.classList.add("visible");
-    lucide.createIcons();
-}
-function closeModal() { modalOverlay.classList.remove("visible"); }
-document.getElementById("modalClose").addEventListener("click", closeModal);
-modalOverlay.addEventListener("click", e => { if(e.target === modalOverlay) closeModal(); });
-
-const saveModalOverlay = document.getElementById("saveModalOverlay");
-document.getElementById("saveModalClose").addEventListener("click",
-    () => saveModalOverlay.classList.remove("visible"));
-saveModalOverlay.addEventListener("click",
-    e => { if(e.target === saveModalOverlay) saveModalOverlay.classList.remove("visible"); });
-
-document.getElementById("saveProjectBtn").addEventListener("click", () => {
-    if(!latestTestCases.length) return;
-    document.getElementById("projectNameInput").value = "";
-    saveModalOverlay.classList.add("visible");
-    lucide.createIcons();
-    setTimeout(() => document.getElementById("projectNameInput").focus(), 80);
-});
-
-document.getElementById("confirmSaveBtn").addEventListener("click", () => {
-    const name = document.getElementById("projectNameInput").value.trim();
-    if(!name) return;
-    state.projects.unshift({
-        id: Date.now(),
-        name,
-        description: testInput.value.trim().slice(0, 90),
-        created: new Date().toISOString().slice(0, 10),
-        testCases: JSON.parse(JSON.stringify(latestTestCases)),
-    });
-    saveState();
-    saveModalOverlay.classList.remove("visible");
-
-    // ── Reset form after saving ──
-    testInput.value = "";
-    charCounter.textContent = "0 characters";
-    latestTestCases = [];
-    saveLatestTestCases();
-    document.getElementById("results").innerHTML = "";
-    document.getElementById("chipsRow").querySelectorAll(".chip")
-        .forEach(c => c.classList.remove("active-chip"));
-});
-
-document.getElementById("projectNameInput").addEventListener("keydown", e => {
-    if(e.key === "Enter") document.getElementById("confirmSaveBtn").click();
-});
-
-// ============================================================
-// CHIPS
-// ============================================================
-function buildChips() {
-    const row = document.getElementById("chipsRow");
-    row.innerHTML = "";
-    const labels  = t("chips") || [];
-    const stories = t("chipStories") || [];
-    labels.forEach((label, idx) => {
-        const btn = document.createElement("button");
-        btn.className = "chip";
-        btn.textContent = label;
-        btn.addEventListener("click", () => {
-            row.querySelectorAll(".chip").forEach(c => c.classList.remove("active-chip"));
-            btn.classList.add("active-chip");
-            const story = stories[idx] || label;
-            testInput.value = story;
-            charCounter.textContent = `${story.length} characters`;
-            testInput.focus();
-        });
-        row.appendChild(btn);
-    });
+// ════════════════════════════════════════════
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('qa_theme', next);
 }
 
-// ============================================================
-// USAGE COUNTER
-// ============================================================
-function updateUsageCounter() {
-    const fn = i18n[lang]?.usageFn;
-    document.getElementById("usageCounter").textContent =
-        typeof fn === "function" ? fn(state.usageTotal) : `${state.usageTotal}`;
-}
-
-// ============================================================
-// LIVE PREVIEW TYPING ANIMATION
-// ============================================================
-(function initLivePreview() {
-    const phrases = [
-        "As a user, I want to log in with email and password…",
-        "As a manager, I want to track team progress by sprint…",
-        "User can upload PDF, DOCX, PNG files up to 10 MB…",
-        "Shopping cart should persist across browser sessions…",
-        "Password reset link expires after 30 minutes…",
-        "Search results filter by category, price and rating…",
-    ];
-    const el = document.getElementById("livePreviewText");
-    let phraseIdx = 0, charIdx = 0, deleting = false;
-    function tick() {
-        const phrase = phrases[phraseIdx];
-        if(!deleting) {
-            charIdx++;
-            el.innerHTML = esc(phrase.slice(0, charIdx)) + '<span class="live-preview-cursor"></span>';
-            if(charIdx >= phrase.length) {
-                deleting = true;
-                setTimeout(tick, 1800);
-                return;
-            }
-            setTimeout(tick, 40);
-        } else {
-            charIdx--;
-            el.innerHTML = esc(phrase.slice(0, charIdx)) + '<span class="live-preview-cursor"></span>';
-            if(charIdx === 0) {
-                deleting = false;
-                phraseIdx = (phraseIdx + 1) % phrases.length;
-                setTimeout(tick, 350);
-                return;
-            }
-            setTimeout(tick, 18);
-        }
-    }
-    setTimeout(tick, 800);
+(function initTheme() {
+  const saved = localStorage.getItem('qa_theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
 })();
 
-// ============================================================
-// PROGRESS BAR
-// ============================================================
-let progressInterval;
-function startProgress() {
-    const wrap = document.getElementById("progressWrap");
-    const bar  = document.getElementById("progressBar");
-    wrap.style.display = "block";
-    bar.style.width = "0%";
-    bar.style.background = "linear-gradient(90deg,#3b82f6,#8b5cf6)";
-    let pct = 0;
-    progressInterval = setInterval(() => {
-        pct += Math.random() * 9 + 2;
-        if(pct > 85) pct = 85;
-        bar.style.width = pct + "%";
-    }, 320);
-}
-function finishProgress(success = true) {
-    clearInterval(progressInterval);
-    const bar  = document.getElementById("progressBar");
-    const wrap = document.getElementById("progressWrap");
-    if(!success) bar.style.background = "#dc2626";
-    bar.style.width = "100%";
-    setTimeout(() => {
-        wrap.style.display = "none";
-        bar.style.width = "0%";
-        bar.style.background = "";
-    }, 650);
-}
+// ════════════════════════════════════════════
+// GENERATOR PAGE
+// ════════════════════════════════════════════
+const QUICK_TAGS = ['Login flow', 'Password reset', 'File upload', 'Search & filter', 'User registration', 'Checkout', 'API CRUD', 'Form validation', 'Pagination', 'Profile edit'];
 
-// ============================================================
-// GENERATOR
-// ============================================================
-const resultsEl   = document.getElementById("results");
-const generateBtn = document.getElementById("generateBtn");
-const testInput   = document.getElementById("testInput");
-const charCounter = document.getElementById("charCounter");
-let latestTestCases = [];
+const TEST_TEMPLATES = {
+  positive: [
+    { suffix: 'with valid data', priority: 'high', type: 'positive' },
+    { suffix: 'with all required fields filled', priority: 'high', type: 'positive' },
+    { suffix: 'successfully completes flow', priority: 'critical', type: 'positive' },
+    { suffix: 'shows success confirmation', priority: 'medium', type: 'positive' },
+  ],
+  negative: [
+    { suffix: 'with empty required fields', priority: 'high', type: 'negative' },
+    { suffix: 'with invalid format data', priority: 'high', type: 'negative' },
+    { suffix: 'with SQL injection attempt', priority: 'critical', type: 'security' },
+    { suffix: 'with XSS payload', priority: 'critical', type: 'security' },
+    { suffix: 'with unauthorized access', priority: 'high', type: 'security' },
+    { suffix: 'with expired session', priority: 'medium', type: 'negative' },
+  ],
+  edge: [
+    { suffix: 'with maximum length input', priority: 'medium', type: 'edge' },
+    { suffix: 'with special characters', priority: 'medium', type: 'edge' },
+    { suffix: 'with concurrent requests', priority: 'low', type: 'edge' },
+    { suffix: 'with slow network connection', priority: 'low', type: 'edge' },
+    { suffix: 'on mobile viewport', priority: 'medium', type: 'edge' },
+  ]
+};
 
-testInput.addEventListener("input", () => {
-    charCounter.textContent = `${testInput.value.length} characters`;
-});
+function generateTestCases(feature) {
+  if (!feature.trim()) return [];
+  const cases = [];
+  const feat = feature.trim();
+  let id = 1;
 
-const priorityOrder  = { Critical:1, High:2, Medium:3, Low:4, Trivial:5 };
-const priorityColors = { Critical:"#dc2626", High:"#f97316", Medium:"#3b82f6", Low:"#10b981", Trivial:"#6b7280" };
-
-function createTestCard(tc) {
-    const div = document.createElement("div");
-    div.className = "test-card";
-    div.innerHTML = `
-        <div class="test-card-header">
-            <h3>${esc(tc.id)} — ${esc(tc.title)}</h3>
-            <span class="priority-badge priority-${esc(tc.priority)}">${esc(tc.priority)}</span>
-        </div>
-        <div class="test-card-actions">
-            <button class="primary-btn view-details-btn" style="padding:6px 14px;font-size:13px;">
-                <i data-lucide="eye"></i> ${t("viewDetails")}
-            </button>
-            <button class="status-btn pass-btn ${tc.status === "pass" ? "active-pass" : ""}">${t("pass")}</button>
-            <button class="status-btn fail-btn ${tc.status === "fail" ? "active-fail" : ""}">${t("fail")}</button>
-            <button class="status-btn blocked-btn ${tc.status === "blocked" ? "active-blocked" : ""}">${t("blocked")}</button>
-        </div>`;
-    div.querySelector(".view-details-btn").addEventListener("click", () => {
-        const steps = (tc.steps || []).map(s => `<li>${esc(s)}</li>`).join("");
-        openModal(tc.title,
-            `<p><strong>Description:</strong><br>${esc(tc.description || "")}</p>` +
-            `<p><strong>Steps:</strong><ol>${steps}</ol></p>` +
-            `<p><strong>Expected:</strong><br>${esc(tc.expected || "")}</p>` +
-            `<p><strong>Tags:</strong> ${(tc.tags || []).map(esc).join(", ")}</p>` +
-            `<p><strong>Risk:</strong> ${esc(tc.risk || "")}</p>`
-        );
+  // Generate from templates
+  Object.values(TEST_TEMPLATES).forEach(group => {
+    group.forEach(tmpl => {
+      const steps = generateSteps(feat, tmpl);
+      cases.push({
+        id: nextId(),
+        localId: 'TC-' + String(id++).padStart(3, '0'),
+        title: `Verify ${feat} ${tmpl.suffix}`,
+        steps: steps.steps,
+        expected: steps.expected,
+        priority: tmpl.priority,
+        type: tmpl.type,
+        status: 'pending',
+        feature: feat,
+        createdAt: new Date().toISOString()
+      });
     });
-    function setStatus(status) {
-        tc.status = tc.status === status ? null : status;
-        div.querySelector(".pass-btn").classList.toggle("active-pass", tc.status === "pass");
-        div.querySelector(".fail-btn").classList.toggle("active-fail", tc.status === "fail");
-        div.querySelector(".blocked-btn").classList.toggle("active-blocked", tc.status === "blocked");
-        saveLatestTestCases();
-        renderDashboard();
-    }
-    div.querySelector(".pass-btn").addEventListener("click",    () => setStatus("pass"));
-    div.querySelector(".fail-btn").addEventListener("click",    () => setStatus("fail"));
-    div.querySelector(".blocked-btn").addEventListener("click", () => setStatus("blocked"));
-    return div;
+  });
+
+  return cases;
 }
 
-function renderSavedTestCards() {
-    if(!latestTestCases.length) return;
-    resultsEl.innerHTML = "";
-    latestTestCases.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
-    lucide.createIcons();
+function generateSteps(feat, tmpl) {
+  const stepSets = {
+    positive: {
+      steps: `1. Navigate to the ${feat} page\n2. Enter valid data in all required fields\n3. Submit the form / trigger the action\n4. Verify the operation completes`,
+      expected: `The ${feat} operation should complete successfully with appropriate success message.`
+    },
+    negative: {
+      steps: `1. Navigate to the ${feat} page\n2. ${tmpl.suffix.includes('empty') ? 'Leave required fields empty' : 'Enter invalid / malicious data'}\n3. Attempt to submit\n4. Verify error handling`,
+      expected: `Appropriate error messages should be displayed. No data corruption should occur.`
+    },
+    edge: {
+      steps: `1. Navigate to the ${feat} page\n2. Set up edge case condition: ${tmpl.suffix}\n3. Perform the operation\n4. Verify behavior under edge condition`,
+      expected: `The system should handle the edge case gracefully without crashes or data loss.`
+    },
+    security: {
+      steps: `1. Navigate to the ${feat} page\n2. Attempt ${tmpl.suffix}\n3. Monitor system response\n4. Verify security controls`,
+      expected: `The system should block the attack vector and log the security event. No unauthorized access granted.`
+    }
+  };
+  return stepSets[tmpl.type] || stepSets.positive;
 }
 
-generateBtn.addEventListener("click", async () => {
-    const feature = testInput.value.trim();
-    if(!feature) return;
-    if(!WORKER_URL || WORKER_URL.includes("YOUR-WORKER")) {
-        resultsEl.innerHTML = `<p class="status-msg" style="color:#dc2626;">
-            ⚠️ Please set your WORKER_URL in the config at the top of the &lt;script&gt; block.</p>`;
-        return;
-    }
-    generateBtn.disabled = true;
-    generateBtn.querySelector("span").textContent = t("generating");
-    resultsEl.innerHTML = "";
-    latestTestCases = [];
-    startProgress();
-    try {
-        const res = await fetch(WORKER_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                model: "claude-sonnet-4-20250514",
-                max_tokens: 4096,
-                system: `You are a QA engineer. Given a feature description, generate 4-6 test cases as a JSON array.
-Each object must have exactly these fields:
-- id: string like "TC-001"
-- title: short string
-- description: one sentence
-- steps: array of 3-5 step strings
-- expected: string
-- priority: one of "Critical", "High", "Medium", "Low", "Trivial"
-- tags: array of 1-3 tag strings
-- risk: one sentence
-Return ONLY the raw JSON array, no markdown, no explanation.`,
-                messages: [{ role: "user", content: `Feature: ${feature}` }],
-            }),
-        });
-        if(!res.ok) {
-            const errText = await res.text();
-            throw new Error(`Server error ${res.status}: ${errText.slice(0,200)}`);
-        }
-        const data = await res.json();
-        const raw  = data.content.map(b => b.text || "").join("").trim();
-        latestTestCases = repairJSON(raw);
-        latestTestCases.sort((a,b) => (priorityOrder[a.priority]||9) - (priorityOrder[b.priority]||9));
-        latestTestCases.forEach(tc => { if(!tc.status) tc.status = null; });
-        saveLatestTestCases();
-        resultsEl.innerHTML = "";
-        latestTestCases.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
-        lucide.createIcons();
-        finishProgress(true);
-        confetti({ particleCount:130, spread:80, origin:{y:0.55}, colors:["#3b82f6","#8b5cf6","#10b981","#f97316"] });
-        state.usageTotal += latestTestCases.length;
-        state.history.unshift({
-            feature: feature.slice(0,60),
-            date: new Date().toISOString().slice(0,10),
-            time: now24h(),    // ← 24h time
-            count: latestTestCases.length,
-        });
-        if(state.history.length > 50) state.history.pop();
-        saveState();
-        updateUsageCounter();
-        renderDashboard();
-    } catch(err) {
-        finishProgress(false);
-        resultsEl.innerHTML = `<p class="status-msg" style="color:#dc2626;">Error: ${esc(err.message)}</p>`;
-    } finally {
-        generateBtn.disabled = false;
-        generateBtn.querySelector("span").textContent = t("generate");
-    }
-});
+function renderGenerator(el) {
+  const cases = store.generatedCases || [];
 
-// ============================================================
-// EXPORTS
-// ============================================================
-document.getElementById("exportJson").addEventListener("click", () => {
-    if(!latestTestCases.length) return;
-    dlBlob(new Blob([JSON.stringify(latestTestCases,null,2)],{type:"application/json"}),"test-cases.json");
-});
-document.getElementById("exportCsv").addEventListener("click", () => {
-    if(!latestTestCases.length) return;
-    const header = ["ID","Title","Description","Steps","Expected","Priority","Tags","Risk","Status"];
-    const rows = latestTestCases.map(tc => [
-        tc.id,tc.title,tc.description||"",
-        (tc.steps||[]).join(" | "),tc.expected||"",
-        tc.priority,(tc.tags||[]).join(" | "),tc.risk||"",tc.status||"Untested",
-    ]);
-    const csv = [header,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
-    dlBlob(new Blob([csv],{type:"text/csv"}),"test-cases.csv");
-});
-document.getElementById("exportExcel").addEventListener("click", () => {
-    if(!latestTestCases.length) return;
-    const wsData = [
-        ["ID","Title","Description","Steps","Expected","Priority","Tags","Risk","Status"],
-        ...latestTestCases.map(tc => [
-            tc.id,tc.title,tc.description||"",
-            (tc.steps||[]).join(" | "),tc.expected||"",
-            tc.priority,(tc.tags||[]).join(", "),tc.risk||"",tc.status||"Untested",
-        ]),
-    ];
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws["!cols"] = [8,30,40,48,40,12,22,40,12].map(w=>({wch:w}));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb,ws,"Test Cases");
-    XLSX.writeFile(wb,"test-cases.xlsx");
-});
-document.getElementById("exportWord").addEventListener("click", () => {
-    if(!latestTestCases.length) return;
-    const tableRows = latestTestCases.map(tc => `
-        <tr>
-            <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td><td>${esc(tc.description||"")}</td>
-            <td>${(tc.steps||[]).map(s=>`• ${esc(s)}`).join("<br>")}</td>
-            <td>${esc(tc.expected||"")}</td><td>${esc(tc.priority)}</td>
-            <td>${(tc.tags||[]).join(", ")}</td><td>${esc(tc.risk||"")}</td>
-            <td>${tc.status||"Untested"}</td>
-        </tr>`).join("");
-    const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office'
-        xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-        <head><meta charset='UTF-8'><style>
-            body{font-family:Calibri,sans-serif;font-size:11pt;}h1{font-size:16pt;color:#1f2937;}
-            table{border-collapse:collapse;width:100%;}
-            th{background:#3b82f6;color:white;padding:8px;font-size:10pt;border:1px solid #2563eb;}
-            td{padding:7px 8px;border:1px solid #e5e7eb;font-size:10pt;vertical-align:top;}
-            tr:nth-child(even) td{background:#f9fafb;}
-        </style></head><body>
-        <h1>Test Cases — ${new Date().toLocaleDateString()}</h1>
-        <table><thead><tr>
-            <th>ID</th><th>Title</th><th>Description</th><th>Steps</th>
-            <th>Expected</th><th>Priority</th><th>Tags</th><th>Risk</th><th>Status</th>
-        </tr></thead><tbody>${tableRows}</tbody></table>
-        </body></html>`;
-    dlBlob(new Blob(["\uFEFF"+html],{type:"application/msword"}),"test-cases.doc");
-});
+  el.innerHTML = `
+    <div class="page-header">
+      <h1 class="page-title">AI Test Case Generator</h1>
+    </div>
+    <p class="page-desc">Generate, save, and track test cases by project.</p>
 
-// ============================================================
+    <div class="preview-bar">
+      <span class="preview-badge">// LIVE PREVIEW</span>
+      <span class="preview-text" id="preview-text">AI</span>
+    </div>
+
+    <div class="gen-card">
+      <div class="quick-tags">
+        ${QUICK_TAGS.map(t => `<button class="quick-tag" onclick="insertTag('${esc(t)}')">${esc(t)}</button>`).join('')}
+      </div>
+      <textarea class="gen-textarea" id="gen-input" placeholder="Describe the feature you want test cases for..." oninput="updatePreview()">${cases.length > 0 && cases[0].feature ? esc(cases[0].feature) : ''}</textarea>
+      <div class="char-count" id="char-count">0 characters</div>
+      <div class="gen-actions">
+        <button class="btn btn-primary" onclick="handleGenerate()">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
+          Generate Test Cases
+        </button>
+        <button class="btn" onclick="handleExport('json')">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 13V5a2 2 0 012-2h5l4 4v6a2 2 0 01-2 2H6a2 2 0 01-2-2z"/><path d="M11 3v4h4"/></svg>
+          {} Export JSON
+        </button>
+        <button class="btn" onclick="handleExport('csv')">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="14" height="14" rx="2"/><path d="M2 7h14M2 12h14M7 2v14M12 2v14"/></svg>
+          Export CSV
+        </button>
+        <button class="btn" onclick="handleExport('excel')">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="14" height="14" rx="2"/><path d="M5 5l8 8M13 5l-8 8"/></svg>
+          Export Excel
+        </button>
+        <button class="btn" onclick="handleExport('word')">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 14V4a2 2 0 012-2h6a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2z"/><path d="M7 7h4M7 10h4M7 13h2"/></svg>
+          Export Word
+        </button>
+        <button class="btn" onclick="openSaveToProjectModal()">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 5l5-3 7 4v8l-7 3-5-4V5z"/><path d="M8 2v10"/></svg>
+          Save to Project
+        </button>
+      </div>
+    </div>
+
+    ${cases.length > 0 ? `
+    <div class="results-section">
+      <div class="results-header">
+        <div style="display:flex;align-items:center">
+          <span class="results-title">Generated Test Cases</span>
+          <span class="results-count">${cases.length}</span>
+        </div>
+        <button class="btn btn-sm btn-ghost" onclick="clearGenerated()" style="color:var(--danger)">Clear All</button>
+      </div>
+      <div class="results-table-wrap">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th class="id-col">ID</th>
+              <th>Title</th>
+              <th class="priority-col">Priority</th>
+              <th class="type-col">Type</th>
+              <th class="actions-col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${cases.map(c => `
+            <tr>
+              <td class="id-col">${esc(c.localId)}</td>
+              <td>
+                <div style="font-weight:500">${esc(c.title)}</div>
+                <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:3px;white-space:pre-line;max-height:40px;overflow:hidden">${esc(c.steps)}</div>
+              </td>
+              <td><span class="badge badge-${c.priority}">${c.priority}</span></td>
+              <td><span class="badge badge-${c.type}">${c.type}</span></td>
+              <td>
+                <button class="btn-icon" onclick="viewCase(${c.id})" title="View details">
+                  <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" style="width:16px;height:16px"><circle cx="9" cy="9" r="3"/><path d="M1 9s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z"/></svg>
+                </button>
+              </td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>` : ''}
+  `;
+
+  // Update char count
+  const input = document.getElementById('gen-input');
+  if (input) {
+    document.getElementById('char-count').textContent = input.value.length + ' characters';
+  }
+}
+
+function insertTag(tag) {
+  const input = document.getElementById('gen-input');
+  if (input) {
+    input.value = tag;
+    input.focus();
+    updatePreview();
+  }
+}
+
+function updatePreview() {
+  const input = document.getElementById('gen-input');
+  const preview = document.getElementById('preview-text');
+  const charCount = document.getElementById('char-count');
+  if (input && preview) {
+    preview.textContent = input.value || 'AI';
+  }
+  if (input && charCount) {
+    charCount.textContent = input.value.length + ' characters';
+  }
+}
+
+function handleGenerate() {
+  const input = document.getElementById('gen-input');
+  if (!input || !input.value.trim()) {
+    toast('Please describe a feature first', 'error');
+    return;
+  }
+
+  const cases = generateTestCases(input.value);
+  store.generatedCases = cases;
+  store.totalGenerated += cases.length;
+  addHistory(`Generated ${cases.length} test cases for "${input.value.trim()}"`, 'green');
+  saveStore();
+  toast(`Generated ${cases.length} test cases!`, 'success');
+  renderPage();
+}
+
+function clearGenerated() {
+  store.generatedCases = [];
+  saveStore();
+  renderPage();
+}
+
+function viewCase(id) {
+  const c = store.generatedCases.find(x => x.id === id);
+  if (!c) return;
+  openModal(`
+    <div class="modal-header">
+      <h3>${esc(c.localId)} — Details</h3>
+      <button class="btn-icon" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Title</label><div style="padding:8px 0">${esc(c.title)}</div></div>
+      <div class="form-group"><label>Steps</label><div style="padding:8px 0;white-space:pre-line;font-size:0.88rem">${esc(c.steps)}</div></div>
+      <div class="form-group"><label>Expected Result</label><div style="padding:8px 0;font-size:0.88rem">${esc(c.expected)}</div></div>
+      <div class="form-row">
+        <div class="form-group"><label>Priority</label><div style="padding:8px 0"><span class="badge badge-${c.priority}">${c.priority}</span></div></div>
+        <div class="form-group"><label>Type</label><div style="padding:8px 0"><span class="badge badge-${c.type}">${c.type}</span></div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Close</button>
+    </div>
+  `);
+}
+
+// ════════════════════════════════════════════
+// SAVE TO PROJECT
+// ════════════════════════════════════════════
+function openSaveToProjectModal() {
+  if (!store.generatedCases || store.generatedCases.length === 0) {
+    toast('Generate test cases first', 'error');
+    return;
+  }
+
+  const projOptions = store.projects.length === 0
+    ? '<option value="">— No projects. Create one first —</option>'
+    : store.projects.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+
+  openModal(`
+    <div class="modal-header">
+      <h3>Save to Project</h3>
+      <button class="btn-icon" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Select Project</label>
+        <select class="form-control" id="save-proj-id" onchange="updateSuiteSelect()">
+          ${projOptions}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Select Suite (or create new)</label>
+        <select class="form-control" id="save-suite-id">
+          <option value="__new__">+ Create New Suite</option>
+        </select>
+      </div>
+      <div class="form-group" id="new-suite-group">
+        <label>New Suite Name</label>
+        <input class="form-control" id="save-suite-name" placeholder="e.g. Regression Tests">
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-secondary)">${store.generatedCases.length} test cases will be saved.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="executeSaveToProject()">Save</button>
+    </div>
+  `);
+
+  updateSuiteSelect();
+}
+
+function updateSuiteSelect() {
+  const projSelect = document.getElementById('save-proj-id');
+  const suiteSelect = document.getElementById('save-suite-id');
+  if (!projSelect || !suiteSelect) return;
+
+  const projId = parseInt(projSelect.value);
+  const proj = getProject(projId);
+
+  let html = '<option value="__new__">+ Create New Suite</option>';
+  if (proj) {
+    proj.suites.forEach(s => {
+      html += `<option value="${s.id}">${esc(s.name)}</option>`;
+    });
+  }
+  suiteSelect.innerHTML = html;
+}
+
+function executeSaveToProject() {
+  const projId = parseInt(document.getElementById('save-proj-id').value);
+  const suiteVal = document.getElementById('save-suite-id').value;
+  const newSuiteName = document.getElementById('save-suite-name').value.trim();
+
+  const proj = getProject(projId);
+  if (!proj) {
+    toast('Please select a valid project', 'error');
+    return;
+  }
+
+  let suite;
+  if (suiteVal === '__new__') {
+    if (!newSuiteName) {
+      toast('Enter a suite name', 'error');
+      return;
+    }
+    suite = {
+      id: nextId(),
+      name: newSuiteName,
+      description: '',
+      cases: [],
+      createdAt: new Date().toISOString()
+    };
+    proj.suites.push(suite);
+  } else {
+    suite = proj.suites.find(s => s.id === parseInt(suiteVal));
+    if (!suite) {
+      toast('Suite not found', 'error');
+      return;
+    }
+  }
+
+  // Deep clone generated cases into the suite
+  const casesToSave = JSON.parse(JSON.stringify(store.generatedCases));
+  casesToSave.forEach(c => {
+    c.id = nextId(); // new unique IDs to avoid conflicts
+    suite.cases.push(c);
+  });
+
+  addHistory(`Saved ${casesToSave.length} cases to "${suite.name}" in "${proj.name}"`, 'green');
+  saveStore();
+  closeModal();
+  toast(`Saved ${casesToSave.length} cases to ${proj.name} / ${suite.name}!`, 'success');
+
+  // KEY FIX: Do NOT clear generatedCases or navigate away
+  // Just stay on the current page, dashboard data remains intact
+}
+
+// ════════════════════════════════════════════
+// EXPORT HANDLERS
+// ════════════════════════════════════════════
+function handleExport(format) {
+  const cases = store.generatedCases || [];
+  if (cases.length === 0) {
+    toast('Generate test cases first', 'error');
+    return;
+  }
+
+  let content, filename, mime;
+
+  switch(format) {
+    case 'json':
+      content = JSON.stringify(cases, null, 2);
+      filename = 'test-cases.json';
+      mime = 'application/json';
+      break;
+    case 'csv':
+      content = 'ID,Title,Steps,Expected,Priority,Type,Status\n' +
+        cases.map(c => `"${c.localId}","${c.title.replace(/"/g,'""')}","${(c.steps||'').replace(/"/g,'""')}","${(c.expected||'').replace(/"/g,'""')}","${c.priority}","${c.type}","${c.status}"`).join('\n');
+      filename = 'test-cases.csv';
+      mime = 'text/csv';
+      break;
+    case 'excel':
+      // Simple HTML table that Excel can open
+      content = '<html><head><meta charset="utf-8"></head><body><table border="1">' +
+        '<tr><th>ID</th><th>Title</th><th>Steps</th><th>Expected</th><th>Priority</th><th>Type</th></tr>' +
+        cases.map(c => `<tr><td>${esc(c.localId)}</td><td>${esc(c.title)}</td><td>${esc(c.steps)}</td><td>${esc(c.expected)}</td><td>${c.priority}</td><td>${c.type}</td></tr>`).join('') +
+        '</table></body></html>';
+      filename = 'test-cases.xls';
+      mime = 'application/vnd.ms-excel';
+      break;
+    case 'word':
+      content = '<html><head><meta charset="utf-8"><style>body{font-family:Arial;}h2{color:#4f46e5;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #ddd;padding:8px;text-align:left;}th{background:#f0f0f5;}</style></head><body>' +
+        '<h1>QA Studio — Test Cases</h1><p>Generated: ' + new Date().toLocaleDateString() + '</p>' +
+        '<table><tr><th>ID</th><th>Title</th><th>Steps</th><th>Expected</th><th>Priority</th><th>Type</th></tr>' +
+        cases.map(c => `<tr><td>${esc(c.localId)}</td><td>${esc(c.title)}</td><td>${esc(c.steps)}</td><td>${esc(c.expected)}</td><td>${c.priority}</td><td>${c.type}</td></tr>`).join('') +
+        '</table></body></html>';
+      filename = 'test-cases.doc';
+      mime = 'application/msword';
+      break;
+  }
+
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+  toast(`Exported as ${format.toUpperCase()}!`, 'success');
+}
+
+// ════════════════════════════════════════════
 // DASHBOARD
-// ============================================================
-function renderDashboard() {
-    const sessionTotal    = latestTestCases.length;
-    const sessionPass     = latestTestCases.filter(tc => tc.status === "pass").length;
-    const sessionFail     = latestTestCases.filter(tc => tc.status === "fail").length;
-    const sessionBlocked  = latestTestCases.filter(tc => tc.status === "blocked").length;
-    const sessionUntested = latestTestCases.filter(tc => !tc.status).length;
-    const pCounts = {};
-    latestTestCases.forEach(tc => { if(tc.priority) pCounts[tc.priority] = (pCounts[tc.priority]||0)+1; });
-    const pCards = ["Critical","High","Medium","Low","Trivial"].filter(p=>pCounts[p]).map(p=>`
-        <div class="dash-card">
-            <div class="dash-value" style="color:${priorityColors[p]}">${pCounts[p]}</div>
-            <div class="dash-label"><span class="dash-dot" style="background:${priorityColors[p]}"></span>${p}</div>
-        </div>`).join("");
-    if(sessionTotal === 0 && state.usageTotal === 0) {
-        document.getElementById("dashContent").innerHTML = `<div class="empty-state">${t("dashEmpty")}</div>`;
-        return;
-    }
-    document.getElementById("dashContent").innerHTML = `
-        <div class="dash-card" style="margin-bottom:20px;display:flex;align-items:center;gap:16px;padding:16px 20px;">
-            <div style="font-size:36px;font-weight:600;">${state.usageTotal}</div>
-            <div style="color:var(--text-muted);font-size:14px;">${t("dashTotalAll")}</div>
+// ════════════════════════════════════════════
+function getDashboardStats() {
+  let totalProjects = store.projects.length;
+  let totalSuites = 0;
+  let totalCases = 0;
+  let counts = { pass:0, fail:0, pending:0, blocked:0 };
+
+  store.projects.forEach(p => {
+    totalSuites += p.suites.length;
+    p.suites.forEach(s => {
+      totalCases += s.cases.length;
+      s.cases.forEach(c => {
+        if (counts.hasOwnProperty(c.status)) counts[c.status]++;
+      });
+    });
+  });
+
+  const passRate = totalCases > 0 ? Math.round((counts.pass / totalCases) * 100) : 0;
+  return { totalProjects, totalSuites, totalCases, counts, passRate };
+}
+
+function renderDashboard(el) {
+  const s = getDashboardStats();
+
+  el.innerHTML = `
+    <div class="page-header"><h1 class="page-title">Dashboard</h1></div>
+    <p class="page-desc">Overview of all testing activity across projects.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l6-3 12 5v10l-12 4-6-4V7z"/></svg></div>
+        <div><div class="stat-value">${s.totalProjects}</div><div class="stat-label">Projects</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+        <div><div class="stat-value">${s.totalSuites}</div><div class="stat-label">Test Suites</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg></div>
+        <div><div class="stat-value">${s.totalCases}</div><div class="stat-label">Test Cases</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12A10 10 0 1112 2"/><path d="M22 4L12 14.01l-3-3"/></svg></div>
+        <div><div class="stat-value">${s.passRate}%</div><div class="stat-label">Pass Rate</div></div>
+      </div>
+    </div>
+
+    ${s.totalCases > 0 ? `
+    <div style="margin-bottom:22px">
+      <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-secondary);margin-bottom:6px">
+        <span>Overall Progress</span>
+        <span>${s.counts.pass + s.counts.fail} / ${s.totalCases} executed</span>
+      </div>
+      <div class="progress-bar">
+        ${s.counts.pass > 0 ? `<div class="progress-seg pass" style="width:${(s.counts.pass/s.totalCases)*100}%"></div>` : ''}
+        ${s.counts.fail > 0 ? `<div class="progress-seg fail" style="width:${(s.counts.fail/s.totalCases)*100}%"></div>` : ''}
+        ${s.counts.pending > 0 ? `<div class="progress-seg pending" style="width:${(s.counts.pending/s.totalCases)*100}%"></div>` : ''}
+        ${s.counts.blocked > 0 ? `<div class="progress-seg blocked" style="width:${(s.counts.blocked/s.totalCases)*100}%"></div>` : ''}
+      </div>
+      <div style="display:flex;gap:16px;margin-top:7px;font-size:0.75rem;color:var(--text-secondary)">
+        <span>✅ Pass: ${s.counts.pass}</span>
+        <span>❌ Fail: ${s.counts.fail}</span>
+        <span>⏳ Pending: ${s.counts.pending}</span>
+        <span>🚫 Blocked: ${s.counts.blocked}</span>
+      </div>
+    </div>` : ''}
+
+    <div class="dashboard-grid">
+      <div class="card">
+        <div class="card-header">
+          <span>Projects</span>
+          <button class="btn btn-sm btn-primary" onclick="openProjectModal()">+ New</button>
         </div>
-        <p class="dash-section-title">${t("dashSession")} ${sessionTotal>0?`(${sessionTotal} ${t("dashTotal").toLowerCase()})`:""}
-        </p>
-        ${sessionTotal > 0 ? `
-        <div class="dash-grid">
-            <div class="dash-card"><div class="dash-value">${sessionTotal}</div><div class="dash-label">${t("dashTotal")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:#10b981">${sessionPass}</div><div class="dash-label"><span class="dash-dot" style="background:#10b981"></span>${t("dashPass")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:#dc2626">${sessionFail}</div><div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:#f97316">${sessionBlocked}</div><div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:var(--text-muted)">${sessionUntested}</div><div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div></div>
-        </div>` : `<div class="empty-state" style="padding:20px;">${t("dashEmpty")}</div>`}
-        ${pCards ? `<p class="dash-section-title">${t("priorityBreakdown")}</p><div class="dash-grid">${pCards}</div>` : ""}`;
-}
-
-// ============================================================
-// HISTORY — 24h time column
-// ============================================================
-function renderHistory() {
-    const el = document.getElementById("historyContent");
-    if(!state.history.length) {
-        el.innerHTML = `<div class="empty-state">${t("emptyHistory")}</div>`;
-        return;
-    }
-    el.innerHTML = `
-        <table>
-            <thead><tr>
-                <th>${t("colFeature")}</th>
-                <th>${t("colGenerated")}</th>
-                <th>${t("colTime")}</th>
-                <th>${t("colCount")}</th>
-            </tr></thead>
-            <tbody>${state.history.map(h => `
-                <tr>
-                    <td>${esc(h.feature)}</td>
-                    <td>${h.date}</td>
-                    <td>${h.time ? `<span class="time-badge">${esc(h.time)}</span>` : "—"}</td>
-                    <td>${h.count}</td>
-                </tr>`).join("")}
-            </tbody>
-        </table>`;
-}
-document.getElementById("clearHistoryBtn").addEventListener("click", () => {
-    state.history = [];
-    saveState();
-    renderHistory();
-});
-
-// ============================================================
-// PROJECTS — with Delete button
-// ============================================================
-function deleteProject(id, e) {
-    if(e) e.stopPropagation();
-    if(!confirm(t("confirmDelete"))) return;
-    state.projects = state.projects.filter(p => p.id !== id);
-    saveState();
-    renderProjects();
-    renderSuites();
-    renderDashboard();
-}
-
-function renderProjects() {
-    const el = document.getElementById("projectsContent");
-    if(!state.projects.length) {
-        el.innerHTML = `<div class="empty-state">${t("emptyProjects")}</div>`;
-        return;
-    }
-    el.innerHTML = `
-        <table>
-            <thead><tr>
-                <th>${t("colName")}</th>
-                <th>${t("colDesc")}</th>
-                <th>${t("colCreated")}</th>
-                <th></th>
-                <th></th>
-            </tr></thead>
-            <tbody>${state.projects.map(p => `
-                <tr class="clickable" data-pid="${p.id}">
-                    <td><strong>${esc(p.name)}</strong></td>
-                    <td style="color:var(--text-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.description)}</td>
-                    <td>${p.created}</td>
-                    <td style="color:var(--text-muted);font-size:13px;">${p.testCases.length} tests</td>
-                    <td>
-                        <button class="danger-btn delete-project-btn" data-pid="${p.id}">
-                            <i data-lucide="trash-2"></i> Delete
-                        </button>
-                    </td>
-                </tr>`).join("")}
-            </tbody>
-        </table>`;
-
-    el.querySelectorAll(".delete-project-btn").forEach(btn => {
-        btn.addEventListener("click", e => deleteProject(parseInt(btn.dataset.pid), e));
-    });
-    el.querySelectorAll("tr.clickable").forEach(row => {
-        row.addEventListener("click", e => {
-            if(e.target.closest(".delete-project-btn")) return;
-            const project = state.projects.find(p => String(p.id) === row.dataset.pid);
-            if(!project) return;
-            const rows = project.testCases.map(tc => `
-                <tr>
-                    <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td>
-                    <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(tc.priority)}</span></td>
-                    <td style="color:var(--text-muted)">${tc.status||"Untested"}</td>
-                </tr>`).join("");
-            openModal(project.name, `
-                <p style="color:var(--text-muted);font-size:13px;margin-top:0;">${esc(project.description)}</p>
-                <table style="font-size:14px">
-                    <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th></tr></thead>
-                    <tbody>${rows}</tbody>
-                </table>`);
-        });
-    });
-    lucide.createIcons();
-}
-
-// ============================================================
-// SUITES — with Delete button
-// ============================================================
-function renderSuites() {
-    const el = document.getElementById("suitesContent");
-    if(!state.projects.length) {
-        el.innerHTML = `<div class="table-card"><div class="empty-state">${t("emptyProjects")}</div></div>`;
-        return;
-    }
-    el.innerHTML = state.projects.map(p => `
-        <div class="table-card" style="margin-bottom:20px;">
-            <div class="section-header">
-                <h2>${esc(p.name)}</h2>
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <span style="color:var(--text-muted);font-size:13px;">${p.created}</span>
-                    <button class="danger-btn delete-suite-btn" data-pid="${p.id}">
-                        <i data-lucide="trash-2"></i> Delete
-                    </button>
-                </div>
+        <div class="card-body no-pad">
+          ${store.projects.length === 0 ? `
+            <div class="empty-state">
+              <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2"><rect x="10" y="14" width="44" height="36" rx="4"/><path d="M10 26h44"/></svg>
+              <h3>No projects yet</h3>
+              <p>Create a project to organize your test cases</p>
             </div>
-            <table>
-                <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th></tr></thead>
-                <tbody>${p.testCases.map(tc => `
-                    <tr>
-                        <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td>
-                        <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(tc.priority)}</span></td>
-                        <td style="color:var(--text-muted)">${tc.status||"Untested"}</td>
-                    </tr>`).join("")}
-                </tbody>
-            </table>
-        </div>`).join("");
+          ` : store.projects.map(p => {
+            const tc = p.suites.reduce((a,s) => a + s.cases.length, 0);
+            const pass = p.suites.reduce((a,s) => a + s.cases.filter(c => c.status==='pass').length, 0);
+            const rate = tc > 0 ? Math.round((pass/tc)*100) : 0;
+            return `
+              <div class="list-item">
+                <div class="list-item-info">
+                  <div class="list-item-name">${esc(p.name)}</div>
+                  <div class="list-item-meta">${p.suites.length} suite${p.suites.length!==1?'s':''} · ${tc} case${tc!==1?'s':''} · ${rate}% pass</div>
+                </div>
+                <div class="list-item-actions">
+                  <button class="btn-icon" onclick="editProject(${p.id})" title="Edit"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:15px;height:15px"><path d="M11.5 1.5l3 3L5 14H2v-3L11.5 1.5z"/></svg></button>
+                  <button class="btn-icon danger" onclick="deleteProject(${p.id})" title="Delete"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:15px;height:15px"><path d="M2 4h12M5 4V2.5a.5.5 0 01.5-.5h5a.5.5 0 01.5.5V4M13 4v9.5a1 1 0 01-1 1H4a1 1 0 01-1-1V4"/></svg></button>
+                </div>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>
 
-    el.querySelectorAll(".delete-suite-btn").forEach(btn => {
-        btn.addEventListener("click", e => deleteProject(parseInt(btn.dataset.pid), e));
-    });
-    lucide.createIcons();
+      <div class="card">
+        <div class="card-header">Recent Activity</div>
+        <div class="card-body">
+          ${store.history.length === 0
+            ? '<div style="text-align:center;color:var(--text-secondary);font-size:0.85rem;padding:20px">No activity yet</div>'
+            : store.history.slice(0,8).map(h => `
+              <div class="history-item">
+                <div class="history-dot ${h.type}"></div>
+                <div>
+                  <div class="history-text">${esc(h.text)}</div>
+                  <div class="history-time">${timeAgo(h.time)}</div>
+                </div>
+              </div>
+            `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
 }
 
-// ============================================================
+// ════════════════════════════════════════════
+// PROJECTS PAGE
+// ════════════════════════════════════════════
+function renderProjects(el) {
+  el.innerHTML = `
+    <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <h1 class="page-title">Projects</h1>
+        <p class="page-desc">Manage your QA projects and their test suites.</p>
+      </div>
+      <button class="btn btn-primary" onclick="openProjectModal()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg>
+        New Project
+      </button>
+    </div>
+
+    ${store.projects.length === 0 ? `
+      <div class="card"><div class="card-body">
+        <div class="empty-state">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2"><rect x="10" y="14" width="44" height="36" rx="4"/><path d="M10 26h44"/></svg>
+          <h3>No projects yet</h3>
+          <p>Create your first project to get started.</p>
+          <button class="btn btn-primary" onclick="openProjectModal()">Create Project</button>
+        </div>
+      </div></div>
+    ` : `
+      <div class="card">
+        <div class="card-body no-pad">
+          ${store.projects.map(p => {
+            const tc = p.suites.reduce((a,s) => a + s.cases.length, 0);
+            const pass = p.suites.reduce((a,s) => a + s.cases.filter(c => c.status==='pass').length, 0);
+            const rate = tc > 0 ? Math.round((pass/tc)*100) : 0;
+            return `
+              <div class="list-item" style="cursor:pointer" onclick="viewProject(${p.id})">
+                <div class="list-item-info">
+                  <div class="list-item-name">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="var(--accent)" stroke-width="1.5" style="width:16px;height:16px"><path d="M2 4l5-2 7 3v8l-7 2-5-3V4z"/></svg>
+                    ${esc(p.name)}
+                  </div>
+                  <div class="list-item-meta">${p.description ? esc(p.description) + ' · ' : ''}${p.suites.length} suites · ${tc} cases · ${rate}% pass rate</div>
+                </div>
+                <div class="list-item-actions">
+                  <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation(); editProject(${p.id})">Edit</button>
+                  <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation(); deleteProject(${p.id})" style="color:var(--danger)">Delete</button>
+                </div>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>
+    `}
+  `;
+}
+
+let viewingProjectId = null;
+
+function viewProject(id) {
+  viewingProjectId = id;
+  currentPage = 'project-detail';
+  renderPage();
+}
+
+function renderProjectDetail(el) {
+  const p = getProject(viewingProjectId);
+  if (!p) { navigate('projects'); return; }
+
+  const totalCases = p.suites.reduce((a,s) => a + s.cases.length, 0);
+  const counts = { pass:0, fail:0, pending:0, blocked:0 };
+  p.suites.forEach(s => s.cases.forEach(c => { if (counts.hasOwnProperty(c.status)) counts[c.status]++; }));
+
+  el.innerHTML = `
+    <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="btn btn-ghost btn-sm" onclick="navigate('projects')">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M10 13L5 8l5-5"/></svg>
+          Back
+        </button>
+        <div>
+          <h1 class="page-title">${esc(p.name)}</h1>
+          ${p.description ? `<p class="page-desc" style="margin-bottom:0">${esc(p.description)}</p>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm" onclick="editProject(${p.id})">Edit</button>
+        <button class="btn btn-sm btn-primary" onclick="openSuiteModal(${p.id})">+ New Suite</button>
+      </div>
+    </div>
+
+    ${totalCases > 0 ? `
+    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-top:8px">
+      <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 5L8 14l-4-4"/></svg></div><div><div class="stat-value" style="color:var(--success)">${counts.pass}</div><div class="stat-label">Passed</div></div></div>
+      <div class="stat-card"><div class="stat-icon red"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5L5 15M5 5l10 10"/></svg></div><div><div class="stat-value" style="color:var(--danger)">${counts.fail}</div><div class="stat-label">Failed</div></div></div>
+      <div class="stat-card"><div class="stat-icon orange"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="8"/><path d="M10 5v5l3 2"/></svg></div><div><div class="stat-value" style="color:var(--warning)">${counts.pending}</div><div class="stat-label">Pending</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:var(--bg-tag);color:var(--text-secondary)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="9" width="14" height="2" rx="1"/></svg></div><div><div class="stat-value">${counts.blocked}</div><div class="stat-label">Blocked</div></div></div>
+    </div>` : ''}
+
+    <div style="margin-top:16px">
+    ${p.suites.length === 0 ? `
+      <div class="card"><div class="card-body">
+        <div class="empty-state">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2"><rect x="14" y="8" width="36" height="48" rx="4"/><path d="M24 22h16M24 30h16M24 38h10"/></svg>
+          <h3>No suites yet</h3>
+          <p>Add a test suite to start organizing test cases.</p>
+          <button class="btn btn-primary" onclick="openSuiteModal(${p.id})">Create Suite</button>
+        </div>
+      </div></div>
+    ` : p.suites.map(s => {
+      const sc = s.cases.length;
+      const sp = s.cases.filter(c=>c.status==='pass').length;
+      const sf = s.cases.filter(c=>c.status==='fail').length;
+      return `
+        <div class="suite-accordion" id="suite-${s.id}">
+          <div class="suite-acc-header" onclick="toggleAccordion(${s.id})">
+            <div class="suite-acc-left">
+              <svg class="suite-acc-toggle" id="toggle-${s.id}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3l5 5-5 5"/></svg>
+              <strong style="font-size:0.95rem">${esc(s.name)}</strong>
+              <span style="font-size:0.75rem;color:var(--text-secondary);background:var(--bg-tag);padding:2px 8px;border-radius:10px">${sc} case${sc!==1?'s':''}</span>
+              ${sp > 0 ? `<span class="badge badge-pass">${sp} ✓</span>` : ''}
+              ${sf > 0 ? `<span class="badge badge-fail">${sf} ✗</span>` : ''}
+            </div>
+            <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
+              <button class="btn btn-sm btn-primary" onclick="openCaseModal(${p.id}, ${s.id})">+ Case</button>
+              <button class="btn-icon" onclick="openSuiteModal(${p.id}, ${s.id})" title="Edit"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px"><path d="M10 1.5l2.5 2.5L4 12.5H1.5V10L10 1.5z"/></svg></button>
+              <button class="btn-icon danger" onclick="deleteSuite(${p.id}, ${s.id})" title="Delete"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px"><path d="M2 4h10M5 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4M11 4v7.5a1 1 0 01-1 1H4a1 1 0 01-1-1V4"/></svg></button>
+            </div>
+          </div>
+          <div class="suite-acc-body" id="body-${s.id}">
+            ${sc === 0 ? '<div style="padding:20px;text-align:center;color:var(--text-secondary);font-size:0.85rem">No test cases. <a href="#" onclick="event.preventDefault();openCaseModal('+p.id+','+s.id+')" style="color:var(--accent)">Add one</a></div>' : `
+              <table class="results-table">
+                <thead><tr><th>Title</th><th style="width:80px">Priority</th><th style="width:110px">Status</th><th style="width:70px;text-align:right">Actions</th></tr></thead>
+                <tbody>
+                  ${s.cases.map(c => `
+                  <tr>
+                    <td><div style="font-weight:500">${esc(c.title)}</div></td>
+                    <td><span class="badge badge-${c.priority}">${c.priority}</span></td>
+                    <td>
+                      <select class="form-control" style="width:auto;padding:3px 8px;font-size:0.78rem" onchange="setCaseStatus(${p.id},${s.id},${c.id},this.value)">
+                        <option value="pending" ${c.status==='pending'?'selected':''}>⏳ Pending</option>
+                        <option value="pass" ${c.status==='pass'?'selected':''}>✅ Pass</option>
+                        <option value="fail" ${c.status==='fail'?'selected':''}>❌ Fail</option>
+                        <option value="blocked" ${c.status==='blocked'?'selected':''}>🚫 Blocked</option>
+                      </select>
+                    </td>
+                    <td style="text-align:right">
+                      <div style="display:flex;gap:2px;justify-content:flex-end">
+                        <button class="btn-icon" onclick="openCaseModal(${p.id},${s.id},${c.id})" title="Edit"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" style="width:13px;height:13px"><path d="M10 1.5l2.5 2.5L4 12.5H1.5V10L10 1.5z"/></svg></button>
+                        <button class="btn-icon danger" onclick="deleteCase(${p.id},${s.id},${c.id})" title="Delete"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" style="width:13px;height:13px"><path d="M2 4h10M5 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4M11 4v7.5a1 1 0 01-1 1H4a1 1 0 01-1-1V4"/></svg></button>
+                      </div>
+                    </td>
+                  </tr>`).join('')}
+                </tbody>
+              </table>
+            `}
+          </div>
+        </div>`;
+    }).join('')}
+    </div>
+  `;
+}
+
+function toggleAccordion(id) {
+  const body = document.getElementById('body-' + id);
+  const toggle = document.getElementById('toggle-' + id);
+  if (body) body.classList.toggle('open');
+  if (toggle) toggle.classList.toggle('open');
+}
+
+// ════════════════════════════════════════════
+// SUITES PAGE (global view)
+// ════════════════════════════════════════════
+function renderSuites(el) {
+  let allSuites = [];
+  store.projects.forEach(p => {
+    p.suites.forEach(s => {
+      allSuites.push({ ...s, projectName: p.name, projectId: p.id });
+    });
+  });
+
+  el.innerHTML = `
+    <div class="page-header"><h1 class="page-title">All Test Suites</h1></div>
+    <p class="page-desc">View all suites across all projects.</p>
+
+    ${allSuites.length === 0 ? `
+      <div class="card"><div class="card-body">
+        <div class="empty-state">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="20" height="20" rx="3"/><rect x="36" y="8" width="20" height="20" rx="3"/><rect x="8" y="36" width="20" height="20" rx="3"/><rect x="36" y="36" width="20" height="20" rx="3"/></svg>
+          <h3>No suites yet</h3>
+          <p>Create a project first, then add suites to it.</p>
+        </div>
+      </div></div>
+    ` : `
+      <div class="card"><div class="card-body no-pad">
+        ${allSuites.map(s => {
+          const cc = s.cases.length;
+          return `
+            <div class="list-item">
+              <div class="list-item-info">
+                <div class="list-item-name">${esc(s.name)}</div>
+                <div class="list-item-meta">Project: ${esc(s.projectName)} · ${cc} case${cc!==1?'s':''}</div>
+              </div>
+              <div class="list-item-actions">
+                <button class="btn btn-sm btn-ghost" onclick="viewProject(${s.projectId})">View</button>
+                <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation(); deleteSuite(${s.projectId}, ${s.id})" style="color:var(--danger)">Delete</button>
+              </div>
+            </div>`;
+        }).join('')}
+      </div></div>
+    `}
+  `;
+}
+
+// ════════════════════════════════════════════
+// HISTORY PAGE
+// ════════════════════════════════════════════
+function renderHistory(el) {
+  el.innerHTML = `
+    <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <h1 class="page-title">History</h1>
+        <p class="page-desc">Activity log of all actions.</p>
+      </div>
+      ${store.history.length > 0 ? `<button class="btn btn-sm btn-ghost" onclick="clearHistory()" style="color:var(--danger)">Clear History</button>` : ''}
+    </div>
+
+    <div class="card"><div class="card-body">
+      ${store.history.length === 0 ? `
+        <div class="empty-state">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2"><circle cx="32" cy="32" r="24"/><path d="M32 16v16l10 6"/></svg>
+          <h3>No activity yet</h3>
+          <p>Your actions will appear here.</p>
+        </div>
+      ` : store.history.map(h => `
+        <div class="history-item">
+          <div class="history-dot ${h.type}"></div>
+          <div>
+            <div class="history-text">${esc(h.text)}</div>
+            <div class="history-time">${timeAgo(h.time)}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div></div>
+  `;
+}
+
+function clearHistory() {
+  store.history = [];
+  saveStore();
+  renderPage();
+  toast('History cleared', 'info');
+}
+
+// ════════════════════════════════════════════
+// PROJECT CRUD
+// ════════════════════════════════════════════
+function openProjectModal(editId) {
+  const existing = editId ? getProject(editId) : null;
+  openModal(`
+    <div class="modal-header">
+      <h3>${existing ? 'Edit' : 'New'} Project</h3>
+      <button class="btn-icon" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Project Name *</label>
+        <input class="form-control" id="f-proj-name" value="${existing ? esc(existing.name) : ''}" placeholder="e.g. Mobile App v2.0">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea class="form-control" id="f-proj-desc" placeholder="Brief description...">${existing ? esc(existing.description || '') : ''}</textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProject(${editId || 'null'})">${existing ? 'Update' : 'Create'}</button>
+    </div>
+  `);
+  setTimeout(() => document.getElementById('f-proj-name')?.focus(), 100);
+}
+
+function editProject(id) {
+  openProjectModal(id);
+}
+
+function saveProject(editId) {
+  const name = document.getElementById('f-proj-name').value.trim();
+  const desc = document.getElementById('f-proj-desc').value.trim();
+  if (!name) { toast('Project name is required', 'error'); return; }
+
+  if (editId !== null && editId !== undefined) {
+    const p = getProject(editId);
+    if (p) {
+      p.name = name;
+      p.description = desc;
+      addHistory(`Updated project "${name}"`, 'purple');
+      toast('Project updated!', 'success');
+    }
+  } else {
+    store.projects.push({
+      id: nextId(),
+      name: name,
+      description: desc,
+      suites: [],
+      createdAt: new Date().toISOString()
+    });
+    addHistory(`Created project "${name}"`, 'green');
+    toast('Project created!', 'success');
+  }
+
+  saveStore();
+  closeModal();
+  renderPage();
+}
+
+// ██████████████████████████████████████████
+// FIX: DELETE PROJECT — properly removes from array
+// ██████████████████████████████████████████
+function deleteProject(id) {
+  const proj = getProject(id);
+  if (!proj) return;
+
+  openModal(`
+    <div class="modal-header">
+      <h3>Delete Project</h3>
+      <button class="btn-icon" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.95rem;line-height:1.6">Are you sure you want to permanently delete <strong style="color:var(--danger)">"${esc(proj.name)}"</strong>?</p>
+      <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:8px">This will remove ${proj.suites.length} suite(s) and all associated test cases. This action cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="executeDeleteProject(${id})">Delete Project</button>
+    </div>
+  `);
+}
+
+function executeDeleteProject(id) {
+  const proj = getProject(id);
+  const projName = proj ? proj.name : 'Unknown';
+
+  // *** FIX: Use filter and REASSIGN the array ***
+  store.projects = store.projects.filter(p => p.id !== id);
+
+  addHistory(`Deleted project "${projName}"`, 'red');
+  saveStore();
+  closeModal();
+
+  // If we were viewing this project, go back
+  if (viewingProjectId === id) {
+    viewingProjectId = null;
+    currentPage = 'projects';
+  }
+
+  renderPage();
+  toast('Project deleted!', 'success');
+}
+
+// ════════════════════════════════════════════
+// SUITE CRUD
+// ════════════════════════════════════════════
+function openSuiteModal(projectId, editSuiteId) {
+  const proj = getProject(projectId);
+  if (!proj) return;
+  const existing = editSuiteId ? proj.suites.find(s => s.id === editSuiteId) : null;
+
+  openModal(`
+    <div class="modal-header">
+      <h3>${existing ? 'Edit' : 'New'} Test Suite</h3>
+      <button class="btn-icon" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Suite Name *</label>
+        <input class="form-control" id="f-suite-name" value="${existing ? esc(existing.name) : ''}" placeholder="e.g. Login Tests">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea class="form-control" id="f-suite-desc" placeholder="What does this suite cover?">${existing ? esc(existing.description || '') : ''}</textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSuite(${projectId}, ${editSuiteId || 'null'})">${existing ? 'Update' : 'Create'}</button>
+    </div>
+  `);
+  setTimeout(() => document.getElementById('f-suite-name')?.focus(), 100);
+}
+
+function saveSuite(projectId, editSuiteId) {
+  const name = document.getElementById('f-suite-name').value.trim();
+  const desc = document.getElementById('f-suite-desc').value.trim();
+  if (!name) { toast('Suite name is required', 'error'); return; }
+
+  const proj = getProject(projectId);
+  if (!proj) return;
+
+  if (editSuiteId !== null && editSuiteId !== undefined) {
+    const suite = proj.suites.find(s => s.id === editSuiteId);
+    if (suite) {
+      suite.name = name;
+      suite.description = desc;
+      addHistory(`Updated suite "${name}" in ${proj.name}`, 'purple');
+      toast('Suite updated!', 'success');
+    }
+  } else {
+    proj.suites.push({
+      id: nextId(),
+      name: name,
+      description: desc,
+      cases: [],
+      createdAt: new Date().toISOString()
+    });
+    addHistory(`Created suite "${name}" in ${proj.name}`, 'green');
+    toast('Suite created!', 'success');
+  }
+
+  saveStore();
+  closeModal();
+  renderPage();
+}
+
+// ██████████████████████████████████████████
+// FIX: DELETE SUITE — properly removes from array
+// ██████████████████████████████████████████
+function deleteSuite(projectId, suiteId) {
+  const proj = getProject(projectId);
+  if (!proj) return;
+  const suite = proj.suites.find(s => s.id === suiteId);
+  if (!suite) return;
+
+  openModal(`
+    <div class="modal-header">
+      <h3>Delete Suite</h3>
+      <button class="btn-icon" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.95rem;line-height:1.6">Are you sure you want to delete suite <strong style="color:var(--danger)">"${esc(suite.name)}"</strong>?</p>
+      <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:8px">All ${suite.cases.length} test case(s) within it will be permanently removed.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="executeDeleteSuite(${projectId}, ${suiteId})">Delete Suite</button>
+    </div>
+  `);
+}
+
+function executeDeleteSuite(projectId, suiteId) {
+  const proj = getProject(projectId);
+  if (!proj) return;
+
+  const suite = proj.suites.find(s => s.id === suiteId);
+  const suiteName = suite ? suite.name : 'Unknown';
+
+  // *** FIX: Use filter and REASSIGN the array ***
+  proj.suites = proj.suites.filter(s => s.id !== suiteId);
+
+  addHistory(`Deleted suite "${suiteName}" from ${proj.name}`, 'red');
+  saveStore();
+  closeModal();
+  renderPage();
+  toast('Suite deleted!', 'success');
+}
+
+// ════════════════════════════════════════════
+// TEST CASE CRUD
+// ════════════════════════════════════════════
+function openCaseModal(projectId, suiteId, editCaseId) {
+  const proj = getProject(projectId);
+  if (!proj) return;
+  const suite = proj.suites.find(s => s.id === suiteId);
+  if (!suite) return;
+  const existing = editCaseId ? suite.cases.find(c => c.id === editCaseId) : null;
+
+  openModal(`
+    <div class="modal-header">
+      <h3>${existing ? 'Edit' : 'New'} Test Case</h3>
+      <button class="btn-icon" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Title *</label>
+        <input class="form-control" id="f-case-title" value="${existing ? esc(existing.title) : ''}" placeholder="e.g. Verify login with valid credentials">
+      </div>
+      <div class="form-group">
+        <label>Steps</label>
+        <textarea class="form-control" id="f-case-steps" placeholder="1. Go to login&#10;2. Enter credentials&#10;3. Click submit">${existing ? esc(existing.steps || '') : ''}</textarea>
+      </div>
+      <div class="form-group">
+        <label>Expected Result</label>
+        <textarea class="form-control" id="f-case-expected" placeholder="What should happen...">${existing ? esc(existing.expected || '') : ''}</textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Priority</label>
+          <select class="form-control" id="f-case-priority">
+            <option value="low" ${existing?.priority==='low'?'selected':''}>Low</option>
+            <option value="medium" ${!existing||existing?.priority==='medium'?'selected':''}>Medium</option>
+            <option value="high" ${existing?.priority==='high'?'selected':''}>High</option>
+            <option value="critical" ${existing?.priority==='critical'?'selected':''}>Critical</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select class="form-control" id="f-case-status">
+            <option value="pending" ${!existing||existing?.status==='pending'?'selected':''}>Pending</option>
+            <option value="pass" ${existing?.status==='pass'?'selected':''}>Pass</option>
+            <option value="fail" ${existing?.status==='fail'?'selected':''}>Fail</option>
+            <option value="blocked" ${existing?.status==='blocked'?'selected':''}>Blocked</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCase(${projectId},${suiteId},${editCaseId||'null'})">${existing ? 'Update' : 'Create'}</button>
+    </div>
+  `);
+  setTimeout(() => document.getElementById('f-case-title')?.focus(), 100);
+}
+
+function saveCase(projectId, suiteId, editCaseId) {
+  const title = document.getElementById('f-case-title').value.trim();
+  if (!title) { toast('Title is required', 'error'); return; }
+
+  const proj = getProject(projectId);
+  if (!proj) return;
+  const suite = proj.suites.find(s => s.id === suiteId);
+  if (!suite) return;
+
+  const data = {
+    title,
+    steps: document.getElementById('f-case-steps').value.trim(),
+    expected: document.getElementById('f-case-expected').value.trim(),
+    priority: document.getElementById('f-case-priority').value,
+    status: document.getElementById('f-case-status').value
+  };
+
+  if (editCaseId !== null && editCaseId !== undefined) {
+    const tc = suite.cases.find(c => c.id === editCaseId);
+    if (tc) {
+      Object.assign(tc, data);
+      addHistory(`Updated case "${title}" in ${suite.name}`, 'purple');
+      toast('Test case updated!', 'success');
+    }
+  } else {
+    suite.cases.push({
+      id: nextId(),
+      localId: 'TC-' + String(suite.cases.length + 1).padStart(3,'0'),
+      ...data,
+      type: 'positive',
+      createdAt: new Date().toISOString()
+    });
+    addHistory(`Added case "${title}" to ${suite.name}`, 'green');
+    toast('Test case created!', 'success');
+  }
+
+  saveStore();
+  closeModal();
+  renderPage();
+}
+
+function deleteCase(projectId, suiteId, caseId) {
+  const proj = getProject(projectId);
+  if (!proj) return;
+  const suite = proj.suites.find(s => s.id === suiteId);
+  if (!suite) return;
+  const tc = suite.cases.find(c => c.id === caseId);
+  if (!tc) return;
+
+  openModal(`
+    <div class="modal-header">
+      <h3>Delete Test Case</h3>
+      <button class="btn-icon" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.95rem">Delete <strong style="color:var(--danger)">"${esc(tc.title)}"</strong>?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="executeDeleteCase(${projectId},${suiteId},${caseId})">Delete</button>
+    </div>
+  `);
+}
+
+function executeDeleteCase(projectId, suiteId, caseId) {
+  const proj = getProject(projectId);
+  if (!proj) return;
+  const suite = proj.suites.find(s => s.id === suiteId);
+  if (!suite) return;
+  const tc = suite.cases.find(c => c.id === caseId);
+  const caseName = tc ? tc.title : 'Unknown';
+
+  suite.cases = suite.cases.filter(c => c.id !== caseId);
+
+  addHistory(`Deleted case "${caseName}"`, 'red');
+  saveStore();
+  closeModal();
+  renderPage();
+  toast('Test case deleted!', 'success');
+}
+
+function setCaseStatus(projectId, suiteId, caseId, status) {
+  const proj = getProject(projectId);
+  if (!proj) return;
+  const suite = proj.suites.find(s => s.id === suiteId);
+  if (!suite) return;
+  const tc = suite.cases.find(c => c.id === caseId);
+  if (!tc) return;
+
+  tc.status = status;
+  addHistory(`Set "${tc.title}" → ${status}`, status === 'pass' ? 'green' : status === 'fail' ? 'red' : 'orange');
+  saveStore();
+  // Don't re-render entire page — just save silently
+}
+
+// ════════════════════════════════════════════
+// OVERRIDE renderPage for project-detail
+// ════════════════════════════════════════════
+const _origRenderPage = renderPage;
+renderPage = function() {
+  const main = document.getElementById('main-content');
+  main.scrollTop = 0;
+  if (currentPage === 'project-detail') {
+    renderProjectDetail(main);
+  } else {
+    switch(currentPage) {
+      case 'generator':  renderGenerator(main); break;
+      case 'dashboard':  renderDashboard(main); break;
+      case 'projects':   renderProjects(main); break;
+      case 'suites':     renderSuites(main); break;
+      case 'history':    renderHistory(main); break;
+      default:           renderGenerator(main);
+    }
+  }
+  updateSidebarStat();
+};
+
+// ════════════════════════════════════════════
 // INIT
-// ============================================================
-loadLatestTestCases();
-renderSavedTestCards();
-applyLang();
-updateUsageCounter();
-renderDashboard();
+// ════════════════════════════════════════════
+renderPage();
 </script>
 </body>
 </html>
