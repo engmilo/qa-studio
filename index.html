@@ -637,12 +637,14 @@ const i18n = {
         emptyHistory: "No history yet.",
         emptyProjects:"No saved projects yet.",
         dashTotalAll:     "All-time generated",
-        dashSession:      "This session",
+        dashSession:      "Current Session",
         dashPass:         "Passed",
         dashFail:         "Failed",
         dashBlocked:      "Blocked",
         dashUntested:     "Untested",
+        dashTotal:        "Total",
         priorityBreakdown:"Priority Breakdown",
+        dashEmpty:        "No test cases yet. Generate some to see stats here.",
         pass: "Pass", fail: "Fail", blocked: "Blocked",
         chips: [
             "Login flow",
@@ -694,12 +696,14 @@ const i18n = {
         emptyHistory: "Ei historiaa vielä.",
         emptyProjects:"Ei tallennettuja projekteja.",
         dashTotalAll:     "Luotu yhteensä",
-        dashSession:      "Tällä sessiolla",
+        dashSession:      "Nykyinen sessio",
         dashPass:         "Hyväksytty",
         dashFail:         "Hylätty",
         dashBlocked:      "Estetty",
         dashUntested:     "Testaamaton",
+        dashTotal:        "Yhteensä",
         priorityBreakdown:"Prioriteettijakauma",
+        dashEmpty:        "Ei testitapauksia vielä. Luo niitä nähdäksesi tilastot.",
         pass: "Hyväksytty", fail: "Hylätty", blocked: "Estetty",
         chips: [
             "Kirjautuminen",
@@ -751,12 +755,14 @@ const i18n = {
         emptyHistory: "ما كاين سجل بعد.",
         emptyProjects:"ما كاين مشاريع بعد.",
         dashTotalAll:     "مجموع ما تولّد",
-        dashSession:      "هاد الجلسة",
+        dashSession:      "الجلسة الحالية",
         dashPass:         "نجح",
         dashFail:         "فشل",
         dashBlocked:      "محظور",
         dashUntested:     "ما تختبرش",
+        dashTotal:        "المجموع",
         priorityBreakdown:"توزيع الأولوية",
+        dashEmpty:        "ما كاين حالات اختبار بعد. ولّد باش تشوف الإحصائيات.",
         pass: "نجح", fail: "فشل", blocked: "محظور",
         chips: [
             "تسجيل الدخول",
@@ -838,6 +844,22 @@ function saveState() {
     localStorage.setItem("qa_projects",    JSON.stringify(state.projects));
 }
 
+// ✅ NEW: Save & load latestTestCases to localStorage
+function saveLatestTestCases() {
+    try {
+        localStorage.setItem("qa_latest_tests", JSON.stringify(latestTestCases));
+    } catch (e) { /* ignore */ }
+}
+
+function loadLatestTestCases() {
+    try {
+        const saved = localStorage.getItem("qa_latest_tests");
+        if (saved) {
+            latestTestCases = JSON.parse(saved);
+        }
+    } catch (e) { /* ignore */ }
+}
+
 // ============================================================
 // HELPERS
 // ============================================================
@@ -857,67 +879,44 @@ function dlBlob(blob, filename) {
 }
 
 // ============================================================
-// ✅ NEW: JSON REPAIR HELPER
+// JSON REPAIR
 // ============================================================
 function repairJSON(raw) {
     let clean = raw.replace(/^```json\s*/i, "").replace(/```\s*$/g, "").trim();
 
-    // First try parsing directly
     try {
         const parsed = JSON.parse(clean);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    } catch (e) { /* continue to repair */ }
+    } catch (e) { }
 
-    // Try to find and extract just the JSON array
     const arrayStart = clean.indexOf("[");
-    if (arrayStart !== -1) {
-        clean = clean.substring(arrayStart);
-    }
+    if (arrayStart !== -1) clean = clean.substring(arrayStart);
 
-    // Try parsing again
     try {
         const parsed = JSON.parse(clean);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    } catch (e) { /* continue to repair */ }
+    } catch (e) { }
 
-    // Remove any trailing incomplete object
-    // Find the last complete object by finding last "},"  or last "}" before end
     let repaired = clean;
-
-    // Remove trailing incomplete content after last complete object
     const lastCompleteObj = repaired.lastIndexOf("}");
     if (lastCompleteObj !== -1) {
         repaired = repaired.substring(0, lastCompleteObj + 1);
-
-        // Check if there's an incomplete object after last comma
-        // Find the last "},\n  {" pattern — if the last { doesn't have a matching }, remove it
         const lastOpenBrace = repaired.lastIndexOf("{");
         const lastCloseBrace = repaired.lastIndexOf("}");
-
         if (lastOpenBrace > lastCloseBrace) {
-            // There's an unclosed object — remove it
             repaired = repaired.substring(0, lastOpenBrace);
-            repaired = repaired.replace(/,\s*$/, ""); // remove trailing comma
+            repaired = repaired.replace(/,\s*$/, "");
         }
-
-        // Ensure it ends with ]
         repaired = repaired.replace(/,\s*$/, "");
-        if (!repaired.endsWith("]")) {
-            repaired += "\n]";
-        }
-
-        // Ensure it starts with [
-        if (!repaired.startsWith("[")) {
-            repaired = "[\n" + repaired;
-        }
+        if (!repaired.endsWith("]")) repaired += "\n]";
+        if (!repaired.startsWith("[")) repaired = "[\n" + repaired;
 
         try {
             const parsed = JSON.parse(repaired);
             if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-        } catch (e) { /* last resort below */ }
+        } catch (e) { }
     }
 
-    // Last resort: try to extract individual objects using regex
     const objectPattern = /\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g;
     const matches = clean.match(objectPattern);
     if (matches && matches.length > 0) {
@@ -925,10 +924,8 @@ function repairJSON(raw) {
         for (const match of matches) {
             try {
                 const obj = JSON.parse(match);
-                if (obj.id && obj.title) {
-                    objects.push(obj);
-                }
-            } catch (e) { /* skip malformed */ }
+                if (obj.id && obj.title) objects.push(obj);
+            } catch (e) { }
         }
         if (objects.length > 0) return objects;
     }
@@ -955,7 +952,7 @@ if (savedTheme === "dark") {
 }
 
 // ============================================================
-// LANGUAGE SELECTOR
+// LANGUAGE
 // ============================================================
 document.getElementById("langSelect").value = lang;
 document.getElementById("langSelect").addEventListener("change", e => {
@@ -1161,12 +1158,18 @@ function createTestCard(tc) {
         );
     });
 
+    // ✅ FIXED: Status changes now save to localStorage and always update dashboard
     function setStatus(status) {
         tc.status = tc.status === status ? null : status;
         div.querySelector(".pass-btn").classList.toggle("active-pass", tc.status === "pass");
         div.querySelector(".fail-btn").classList.toggle("active-fail", tc.status === "fail");
         div.querySelector(".blocked-btn").classList.toggle("active-blocked", tc.status === "blocked");
-        if (document.getElementById("view-dashboard").style.display !== "none") renderDashboard();
+
+        // ✅ Save status changes to localStorage
+        saveLatestTestCases();
+
+        // ✅ Always update dashboard (even if not visible — it will be current when opened)
+        renderDashboard();
     }
 
     div.querySelector(".pass-btn").addEventListener("click",    () => setStatus("pass"));
@@ -1177,7 +1180,17 @@ function createTestCard(tc) {
 }
 
 // ============================================================
-// ✅ FIXED: Generate — max_tokens: 4096 + JSON repair
+// ✅ Re-render test cards from saved data (for page reload)
+// ============================================================
+function renderSavedTestCards() {
+    if (!latestTestCases.length) return;
+    resultsEl.innerHTML = "";
+    latestTestCases.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
+    lucide.createIcons();
+}
+
+// ============================================================
+// GENERATE
 // ============================================================
 generateBtn.addEventListener("click", async () => {
     const feature = testInput.value.trim();
@@ -1202,7 +1215,7 @@ generateBtn.addEventListener("click", async () => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 model: "claude-sonnet-4-20250514",
-                max_tokens: 4096,  // ✅ FIXED: was 1000, now 4096
+                max_tokens: 4096,
                 system: `You are a QA engineer. Given a feature description, generate 4-6 test cases as a JSON array.
 Each object must have exactly these fields:
 - id: string like "TC-001"
@@ -1226,10 +1239,14 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
         const data = await res.json();
         const raw  = data.content.map(b => b.text || "").join("").trim();
 
-        // ✅ FIXED: Use repairJSON instead of raw JSON.parse
         latestTestCases = repairJSON(raw);
-
         latestTestCases.sort((a, b) => (priorityOrder[a.priority] || 9) - (priorityOrder[b.priority] || 9));
+
+        // ✅ Initialize all statuses to null
+        latestTestCases.forEach(tc => { if (!tc.status) tc.status = null; });
+
+        // ✅ Save to localStorage immediately
+        saveLatestTestCases();
 
         resultsEl.innerHTML = "";
         latestTestCases.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
@@ -1252,6 +1269,9 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
         if (state.history.length > 50) state.history.pop();
         saveState();
         updateUsageCounter();
+
+        // ✅ Update dashboard with new data
+        renderDashboard();
 
     } catch (err) {
         finishProgress(false);
@@ -1341,17 +1361,27 @@ document.getElementById("exportWord").addEventListener("click", () => {
 });
 
 // ============================================================
-// DASHBOARD
+// ✅ FIXED: DASHBOARD — Now reads live data properly
 // ============================================================
 function renderDashboard() {
-    const pass     = latestTestCases.filter(tc => tc.status === "pass").length;
-    const fail     = latestTestCases.filter(tc => tc.status === "fail").length;
-    const blocked  = latestTestCases.filter(tc => tc.status === "blocked").length;
-    const untested = latestTestCases.filter(tc => !tc.status).length;
-    const session  = latestTestCases.length;
+    // ✅ Collect ALL test cases: current session + all projects
+    const allTestCases = [
+        ...latestTestCases,
+        ...state.projects.flatMap(p => p.testCases || [])
+    ];
 
+    // Session counts (from latestTestCases only)
+    const sessionTotal   = latestTestCases.length;
+    const sessionPass    = latestTestCases.filter(tc => tc.status === "pass").length;
+    const sessionFail    = latestTestCases.filter(tc => tc.status === "fail").length;
+    const sessionBlocked = latestTestCases.filter(tc => tc.status === "blocked").length;
+    const sessionUntested = latestTestCases.filter(tc => !tc.status).length;
+
+    // Priority counts (from current session)
     const pCounts = {};
-    latestTestCases.forEach(tc => { pCounts[tc.priority] = (pCounts[tc.priority] || 0) + 1; });
+    latestTestCases.forEach(tc => {
+        if (tc.priority) pCounts[tc.priority] = (pCounts[tc.priority] || 0) + 1;
+    });
 
     const pCards = ["Critical","High","Medium","Low","Trivial"]
         .filter(p => pCounts[p])
@@ -1361,19 +1391,47 @@ function renderDashboard() {
                 <div class="dash-label"><span class="dash-dot" style="background:${priorityColors[p]}"></span>${p}</div>
             </div>`).join("");
 
+    // ✅ Show empty state if no test cases at all
+    if (sessionTotal === 0 && state.usageTotal === 0) {
+        document.getElementById("dashContent").innerHTML = `
+            <div class="empty-state">${t("dashEmpty")}</div>
+        `;
+        return;
+    }
+
     document.getElementById("dashContent").innerHTML = `
         <div class="dash-card" style="margin-bottom:20px;display:flex;align-items:center;gap:16px;padding:16px 20px;">
             <div style="font-size:36px;font-weight:600;">${state.usageTotal}</div>
             <div style="color:var(--text-muted);font-size:14px;">${t("dashTotalAll")}</div>
         </div>
-        <p class="dash-section-title">${t("dashSession")}</p>
+
+        <p class="dash-section-title">${t("dashSession")} ${sessionTotal > 0 ? `(${sessionTotal} ${t("dashTotal").toLowerCase()})` : ""}</p>
+
+        ${sessionTotal > 0 ? `
         <div class="dash-grid">
-            <div class="dash-card"><div class="dash-value">${session}</div><div class="dash-label">Total</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:#10b981">${pass}</div><div class="dash-label"><span class="dash-dot" style="background:#10b981"></span>${t("dashPass")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:#dc2626">${fail}</div><div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:#f97316">${blocked}</div><div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:var(--text-muted)">${untested}</div><div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div></div>
+            <div class="dash-card">
+                <div class="dash-value">${sessionTotal}</div>
+                <div class="dash-label">${t("dashTotal")}</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-value" style="color:#10b981">${sessionPass}</div>
+                <div class="dash-label"><span class="dash-dot" style="background:#10b981"></span>${t("dashPass")}</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-value" style="color:#dc2626">${sessionFail}</div>
+                <div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-value" style="color:#f97316">${sessionBlocked}</div>
+                <div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-value" style="color:var(--text-muted)">${sessionUntested}</div>
+                <div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div>
+            </div>
         </div>
+        ` : `<div class="empty-state" style="padding:20px;">${t("dashEmpty")}</div>`}
+
         ${pCards ? `<p class="dash-section-title">${t("priorityBreakdown")}</p><div class="dash-grid">${pCards}</div>` : ""}
     `;
 }
@@ -1484,10 +1542,13 @@ function renderSuites() {
 }
 
 // ============================================================
-// INIT
+// ✅ INIT — Load saved test cases and render
 // ============================================================
+loadLatestTestCases();       // ✅ Load from localStorage
+renderSavedTestCards();      // ✅ Re-render cards if they exist
 applyLang();
 updateUsageCounter();
+renderDashboard();           // ✅ Render dashboard on load
 </script>
 </body>
 </html>
