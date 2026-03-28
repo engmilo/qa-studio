@@ -1,958 +1,1306 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>QA Studio — AI Test Case Generator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    :root {
-      --bg: #050712;
-      --surface: #0f111a;
-      --surface-soft: #151827;
-      --border: rgba(255,255,255,0.06);
-      --border-soft: rgba(255,255,255,0.03);
-      --border-strong: rgba(255,255,255,0.14);
-      --text: #f9fafb;
-      --text-muted: #9ca3af;
-      --text-dim: #6b7280;
-      --accent: #22d3ee;
-      --accent-soft: rgba(34,211,238,0.12);
-      --accent-strong: #06b6d4;
-      --danger: #f97373;
-      --danger-soft: rgba(248,113,113,0.12);
-      --radius: 10px;
-      --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    }
-    body {
-      font-family: var(--font);
-      background: radial-gradient(circle at top, #111827 0, #020617 55%, #020617 100%);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-    }
-    .app-shell {
-      display: flex;
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 1.5rem 1.25rem;
-      gap: 1.25rem;
-    }
-    .sidebar {
-      width: 230px;
-      background: linear-gradient(160deg, #020617 0%, #020617 40%, #0b1120 100%);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      padding: 1.25rem 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-    .brand {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-    .brand-logo {
-      font-size: 0.7rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
-      font-family: var(--mono);
-    }
-    .brand-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-    }
-    .brand-sub {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    .nav {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-    .nav-label {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--text-dim);
-      margin-bottom: 0.25rem;
-    }
-    .nav-btn {
-      width: 100%;
-      text-align: left;
-      border-radius: 8px;
-      border: 1px solid transparent;
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      padding: 0.55rem 0.7rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: all 0.15s;
-    }
-    .nav-btn span {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-    .nav-btn.active {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-      color: var(--accent-strong);
-    }
-    .nav-btn:hover:not(.active) {
-      background: rgba(15,23,42,0.9);
-      border-color: var(--border);
-      color: var(--text);
-    }
-    .nav-pill {
-      font-size: 0.7rem;
-      padding: 0.1rem 0.45rem;
-      border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      color: var(--text-dim);
-    }
-    .sidebar-footer {
-      margin-top: auto;
-      border-top: 1px solid var(--border-soft);
-      padding-top: 0.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      font-size: 0.78rem;
-      color: var(--text-dim);
-    }
-    .sidebar-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .pill {
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-    .main {
-      flex: 1;
-      background: rgba(15,23,42,0.96);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      padding: 1.25rem 1.5rem 0.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .main-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .main-title-block {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-    .main-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-    }
-    .main-subtitle {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-    .metric-chip {
-      padding: 0.4rem 0.7rem;
-      border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-    .metric-chip strong {
-      font-family: var(--mono);
-      color: var(--accent-strong);
-      font-size: 0.8rem;
-    }
-    .content {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      padding-bottom: 0.75rem;
-      overflow-y: auto;
-    }
-    .card {
-      background: var(--surface);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      padding: 1rem 1.1rem;
-    }
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.6rem;
-    }
-    .card-title {
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-    .card-subtitle {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    .card-tag {
-      font-size: 0.7rem;
-      padding: 0.15rem 0.5rem;
-      border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      color: var(--text-dim);
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-      gap: 0.75rem;
-    }
-    .field-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--text-dim);
-      margin-bottom: 0.35rem;
-    }
-    .input, .textarea, .select {
-      width: 100%;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: #020617;
-      color: var(--text);
-      font-size: 0.85rem;
-      padding: 0.55rem 0.6rem;
-      font-family: var(--font);
-    }
-    .textarea {
-      min-height: 110px;
-      resize: vertical;
-      line-height: 1.5;
-    }
-    .input:focus, .textarea:focus, .select:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-    .btn {
-      border-radius: 8px;
-      border: 1px solid transparent;
-      padding: 0.55rem 0.9rem;
-      font-size: 0.85rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      transition: all 0.15s;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #22d3ee, #0ea5e9);
-      color: #0b1120;
-      font-weight: 600;
-    }
-    .btn-primary:hover {
-      filter: brightness(1.05);
-    }
-    .btn-ghost {
-      background: transparent;
-      border-color: var(--border);
-      color: var(--text-muted);
-    }
-    .btn-ghost:hover {
-      border-color: var(--accent);
-      color: var(--accent-strong);
-    }
-    .btn-danger {
-      background: var(--danger-soft);
-      border-color: rgba(248,113,113,0.4);
-      color: var(--danger);
-    }
-    .btn-danger:hover {
-      filter: brightness(1.05);
-    }
-    .btn-sm {
-      padding: 0.35rem 0.6rem;
-      font-size: 0.78rem;
-      border-radius: 7px;
-    }
-    .muted {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    .empty {
-      padding: 1.5rem 0.5rem;
-      text-align: center;
-      font-size: 0.85rem;
-      color: var(--text-dim);
-      border-radius: 10px;
-      border: 1px dashed var(--border-soft);
-      background: rgba(15,23,42,0.6);
-    }
-    .list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-top: 0.4rem;
-    }
-    .row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.55rem 0.6rem;
-      border-radius: 8px;
-      border: 1px solid var(--border-soft);
-      background: rgba(15,23,42,0.9);
-    }
-    .row-main {
-      display: flex;
-      flex-direction: column;
-      gap: 0.1rem;
-    }
-    .row-title {
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-    .row-meta {
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      display: flex;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-    }
-    .badge {
-      font-size: 0.7rem;
-      padding: 0.1rem 0.45rem;
-      border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      color: var(--text-dim);
-    }
-    .badge-accent {
-      border-color: rgba(34,211,238,0.5);
-      color: var(--accent-strong);
-    }
-    .footer {
-      margin-top: 0.5rem;
-      padding: 0.75rem 0 0.4rem;
-      border-top: 1px solid var(--border-soft);
-      font-size: 0.78rem;
-      text-align: center;
-      color: var(--text-dim);
-    }
-    @media (max-width: 900px) {
-      .app-shell { flex-direction: column; }
-      .sidebar { width: 100%; flex-direction: row; align-items: flex-start; }
-      .nav { flex: 1; }
-      .sidebar-footer { display: none; }
-    }
-    @media (max-width: 700px) {
-      .grid-2 { grid-template-columns: minmax(0, 1fr); }
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QA Studio — AI Test Case Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            font-family: "Inter", sans-serif;
+        }
+
+        body.light {
+            --body-bg: #f5f6f8;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --sidebar-bg: #ffffff;
+        }
+
+        body.dark {
+            --body-bg: #111827;
+            --card-bg: #1f2937;
+            --text: #e5e7eb;
+            --text-muted: #9ca3af;
+            --border: #374151;
+            --sidebar-bg: #1a1a1d;
+        }
+
+        body {
+            background: var(--body-bg);
+            color: var(--text);
+            transition: background 0.25s ease, color 0.25s ease;
+        }
+
+        .app-layout {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 0 24px 20px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 0 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            color: var(--text);
+            transition: background 0.2s ease;
+            width: 100%;
+            text-align: left;
+            font-family: "Inter", sans-serif;
+        }
+
+        .nav-item:hover { background: rgba(0,0,0,0.06); }
+        body.dark .nav-item:hover { background: rgba(255,255,255,0.06); }
+        .nav-item.active { background: #3b82f6; color: white; }
+
+        .sidebar-footer {
+            padding: 12px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .usage-counter {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 2px 4px;
+        }
+
+        .lang-select {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 13px;
+            cursor: pointer;
+            width: 100%;
+            font-family: "Inter", sans-serif;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 24px 36px 48px 24px;
+            box-sizing: border-box;
+        }
+
+        .topbar {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .page-subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            font-weight: 400;
+        }
+
+        /* ── Live Preview Banner ── */
+        .live-preview-banner {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .live-preview-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #3b82f6;
+            white-space: nowrap;
+            background: rgba(59,130,246,0.10);
+            border: 1px solid rgba(59,130,246,0.25);
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-family: monospace;
+        }
+        .live-preview-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-family: "Inter", sans-serif;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .live-preview-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 13px;
+            background: #3b82f6;
+            vertical-align: middle;
+            margin-left: 1px;
+            animation: blink 0.75s step-end infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+        .generator-panel {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+
+        .chips-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .chip {
+            padding: 5px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            font-family: "Inter", sans-serif;
+        }
+        .chip:hover { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,0.08); }
+        .chip.active-chip { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,0.12); font-weight: 500; }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            resize: vertical;
+            font-size: 15px;
+            background: var(--card-bg);
+            color: var(--text);
+            box-sizing: border-box;
+            font-family: "Inter", sans-serif;
+        }
+        textarea:focus { outline: 2px solid #3b82f6; outline-offset: -1px; }
+
+        .char-counter { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+
+        .progress-wrap { display: none; margin-top: 14px; }
+        .progress-track { background: var(--border); border-radius: 999px; height: 8px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg,#3b82f6,#8b5cf6); border-radius: 999px; transition: width 0.35s ease; }
+        .progress-label { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+
+        .primary-btn {
+            padding: 10px 16px; background: #3b82f6; color: white; border: none;
+            border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center;
+            gap: 8px; font-size: 14px; font-family: "Inter", sans-serif; transition: background 0.2s ease;
+        }
+        .primary-btn:hover { background: #2563eb; }
+        .primary-btn:disabled { background: #93c5fd; cursor: not-allowed; }
+
+        .secondary-btn {
+            padding: 10px 16px; background: transparent; color: var(--text); border: 1px solid var(--border);
+            border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center;
+            gap: 8px; font-size: 14px; font-family: "Inter", sans-serif; transition: background 0.2s ease;
+        }
+        .secondary-btn:hover { background: rgba(0,0,0,0.05); }
+        body.dark .secondary-btn:hover { background: rgba(255,255,255,0.05); }
+
+        /* ── Danger / Delete button ── */
+        .danger-btn {
+            padding: 6px 12px; background: transparent; color: #dc2626;
+            border: 1px solid rgba(220,38,38,0.3); border-radius: 8px; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
+            font-family: "Inter", sans-serif; transition: all 0.2s; white-space: nowrap;
+        }
+        .danger-btn:hover { background: rgba(220,38,38,0.08); border-color: #dc2626; }
+
+        .results { display: flex; flex-direction: column; gap: 16px; }
+
+        .test-card {
+            background: var(--card-bg); padding: 20px; border-radius: 10px;
+            border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .test-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .test-card h3 { margin: 0; font-size: 17px; }
+
+        .priority-badge { padding: 2px 10px; border-radius: 999px; font-size: 12px; color: white; white-space: nowrap; font-weight: 500; }
+        .priority-Critical { background: #dc2626; }
+        .priority-High     { background: #f97316; }
+        .priority-Medium   { background: #3b82f6; }
+        .priority-Low      { background: #10b981; }
+        .priority-Trivial  { background: #6b7280; }
+
+        .test-card-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+        .status-btn {
+            padding: 5px 14px; border-radius: 999px; border: 1px solid var(--border);
+            background: transparent; cursor: pointer; font-size: 12px; color: var(--text-muted);
+            font-family: "Inter", sans-serif; transition: all 0.18s;
+        }
+        .status-btn:hover { opacity: 0.8; }
+        .status-btn.active-pass    { background: #10b981; color: white; border-color: #10b981; }
+        .status-btn.active-fail    { background: #dc2626; color: white; border-color: #dc2626; }
+        .status-btn.active-blocked { background: #f97316; color: white; border-color: #f97316; }
+
+        .status-msg { color: var(--text-muted); font-size: 15px; padding: 8px 0; }
+
+        .table-card {
+            background: var(--card-bg); padding: 20px; border-radius: 10px;
+            border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 15px; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
+        th { font-weight: 600; color: var(--text-muted); font-size: 13px; }
+        tr.clickable { cursor: pointer; }
+        tr.clickable:hover td { background: rgba(59,130,246,0.05); }
+
+        .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px,1fr)); gap: 16px; margin-bottom: 24px; }
+        .dash-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .dash-value { font-size: 32px; font-weight: 600; margin-bottom: 6px; line-height: 1; }
+        .dash-label { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+        .dash-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .dash-section-title { font-size: 16px; font-weight: 600; margin: 0 0 14px; }
+
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .section-header h2 { margin: 0; font-size: 18px; }
+
+        .empty-state { padding: 48px 20px; text-align: center; color: var(--text-muted); font-size: 15px; }
+
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex;
+            align-items: center; justify-content: center; backdrop-filter: blur(3px);
+            opacity: 0; pointer-events: none; transition: opacity 0.25s ease; z-index: 1000;
+        }
+        .modal-overlay.visible { opacity: 1; pointer-events: auto; }
+        .modal { width: 560px; max-width: 92%; max-height: 82vh; overflow-y: auto; background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 18px 40px rgba(0,0,0,0.25); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .modal-header h2 { margin: 0; font-size: 18px; }
+        .modal-content { font-size: 15px; line-height: 1.6; }
+        .modal-content ol { padding-left: 20px; margin: 8px 0; }
+        .modal-content li { margin-bottom: 4px; }
+        .close-btn { padding: 6px 10px; background: transparent; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; color: var(--text); display: flex; align-items: center; }
+        .close-btn:hover { background: rgba(0,0,0,0.06); }
+
+        /* RTL */
+        body[dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border); }
+        body[dir="rtl"] .main-content { margin-left: 0; margin-right: 240px; }
+        body[dir="rtl"] .nav-item { text-align: right; flex-direction: row-reverse; }
+        body[dir="rtl"] .test-card-header { flex-direction: row-reverse; }
+        body[dir="rtl"] .test-card-actions { flex-direction: row-reverse; }
+        body[dir="rtl"] .btn-row { flex-direction: row-reverse; }
+        body[dir="rtl"] .section-header { flex-direction: row-reverse; }
+        body[dir="rtl"] textarea { text-align: right; }
+
+        .text-input { padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 15px; font-family: "Inter", sans-serif; width: 100%; box-sizing: border-box; }
+        .text-input:focus { outline: 2px solid #3b82f6; outline-offset: -1px; }
+
+        /* Time badge */
+        .time-badge { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--text-muted); background: rgba(0,0,0,0.05); border-radius: 5px; padding: 2px 7px; font-family: "Inter", sans-serif; }
+        body.dark .time-badge { background: rgba(255,255,255,0.07); }
+    </style>
 </head>
-<body>
-  <div class="app-shell">
+
+<body class="light">
+<div class="app-layout">
+
     <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-logo">QA STUDIO</div>
-        <div class="brand-title">AI Test Case Generator</div>
-        <div class="brand-sub">Own your coverage, not just your scripts.</div>
-      </div>
-
-      <div class="nav">
-        <div class="nav-label">Workspace</div>
-        <button class="nav-btn active" data-view="generator">
-          <span>Generator</span>
-          <span class="nav-pill">Core</span>
-        </button>
-        <button class="nav-btn" data-view="dashboard">
-          <span>Dashboard</span>
-        </button>
-        <button class="nav-btn" data-view="projects">
-          <span>Projects</span>
-        </button>
-        <button class="nav-btn" data-view="suites">
-          <span>Suites</span>
-        </button>
-        <button class="nav-btn" data-view="history">
-          <span>History</span>
-        </button>
-      </div>
-
-      <div class="sidebar-footer">
-        <div class="sidebar-row">
-          <span>Language</span>
-          <span class="pill">GB English</span>
+        <div class="sidebar-header">QA Studio</div>
+        <nav class="sidebar-nav">
+            <button class="nav-item active" data-view="generator">
+                <i data-lucide="sparkles"></i><span data-i18n="generator">Generator</span>
+            </button>
+            <button class="nav-item" data-view="dashboard">
+                <i data-lucide="bar-chart-2"></i><span data-i18n="dashboard">Dashboard</span>
+            </button>
+            <button class="nav-item" data-view="projects">
+                <i data-lucide="folder"></i><span data-i18n="projects">Projects</span>
+            </button>
+            <button class="nav-item" data-view="suites">
+                <i data-lucide="layers"></i><span data-i18n="suites">Suites</span>
+            </button>
+            <button class="nav-item" data-view="history">
+                <i data-lucide="clock"></i><span data-i18n="history">History</span>
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="usage-counter" id="usageCounter">0</div>
+            <select id="langSelect" class="lang-select">
+                <option value="en">🇬🇧 English</option>
+                <option value="fi">🇫🇮 Suomi</option>
+                <option value="dz">🇩🇿 دارجة</option>
+            </select>
+            <button id="themeToggle" class="nav-item">
+                <i data-lucide="moon" id="themeIcon"></i><span data-i18n="theme">Theme</span>
+            </button>
         </div>
-        <div class="sidebar-row">
-          <span>Theme</span>
-          <span class="pill">Dark</span>
-        </div>
-      </div>
     </aside>
 
-    <main class="main">
-      <header class="main-header">
-        <div class="main-title-block">
-          <div class="main-title" id="view-title">Generator</div>
-          <div class="main-subtitle" id="view-subtitle">
-            Describe a flow, get structured, ready-to-automate test cases.
-          </div>
-        </div>
-        <div class="metric-chip">
-          All-time generated: <strong id="metric-all-time">0</strong>
-        </div>
-      </header>
+    <main class="main-content">
+        <header class="topbar" id="pageTitle">AI Test Case Generator</header>
+        <p class="page-subtitle" id="pageSubtitle">Generate, save, and track test cases by project.</p>
 
-      <section class="content" id="view-generator">
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Generate new test cases</div>
-              <div class="card-subtitle">
-                Keep it high-level. QA Studio will structure it into steps and expectations.
-              </div>
+        <section id="view-generator">
+            <!-- Live Preview Banner -->
+            <div class="live-preview-banner">
+                <span class="live-preview-label">// live preview</span>
+                <span class="live-preview-text" id="livePreviewText"><span class="live-preview-cursor"></span></span>
             </div>
-            <span class="card-tag">Generator</span>
-          </div>
 
-          <div class="grid-2">
-            <div>
-              <label class="field-label">Project name</label>
-              <input id="gen-project-name" class="input" placeholder="e.g. Checkout flow, File upload, Manager reports" />
-            </div>
-            <div>
-              <label class="field-label">Priority</label>
-              <select id="gen-priority" class="select">
-                <option value="High">High</option>
-                <option value="Medium" selected>Medium</option>
-                <option value="Low">Low</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="margin-top: 0.75rem;">
-            <label class="field-label">Scenario description</label>
-            <textarea id="gen-description" class="textarea" placeholder="Describe the flow, edge cases, and what matters most for this area."></textarea>
-          </div>
-
-          <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
-            <button class="btn btn-ghost" id="gen-clear">Clear</button>
-            <button class="btn btn-primary" id="gen-generate">Generate & Save</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Latest generated test cases</div>
-              <div class="card-subtitle">A quick glance at what you’ve just created.</div>
-            </div>
-          </div>
-          <div id="gen-latest-list" class="list"></div>
-          <div id="gen-latest-empty" class="empty" style="display:none;">
-            No test cases yet. Generate some to see them here.
-          </div>
-        </div>
-      </section>
-
-      <section class="content" id="view-dashboard" style="display:none;">
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Coverage snapshot</div>
-              <div class="card-subtitle">High-level view of what QA Studio is tracking for you.</div>
-            </div>
-          </div>
-          <div class="grid-2">
-            <div>
-              <div class="field-label">Totals</div>
-              <div class="list">
-                <div class="row">
-                  <div class="row-main">
-                    <div class="row-title">All-time generated</div>
-                    <div class="row-meta">Total test cases created in this workspace.</div>
-                  </div>
-                  <span class="badge badge-accent" id="dash-total">0</span>
+            <div class="generator-panel">
+                <div class="chips-row" id="chipsRow"></div>
+                <textarea id="testInput" placeholder="Describe the feature you want test cases for…"></textarea>
+                <div class="char-counter" id="charCounter">0 characters</div>
+                <div class="progress-wrap" id="progressWrap">
+                    <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+                    <div class="progress-label" id="progressLabel" data-i18n="generating">Generating…</div>
                 </div>
-                <div class="row">
-                  <div class="row-main">
-                    <div class="row-title">Projects</div>
-                    <div class="row-meta">How many distinct projects you’ve started.</div>
-                  </div>
-                  <span class="badge" id="dash-projects">0</span>
+                <div class="btn-row">
+                    <button id="generateBtn" class="primary-btn">
+                        <i data-lucide="wand-2"></i><span data-i18n="generate">Generate Test Cases</span>
+                    </button>
+                    <button id="exportJson" class="secondary-btn">
+                        <i data-lucide="braces"></i><span data-i18n="exportJson">Export JSON</span>
+                    </button>
+                    <button id="exportCsv" class="secondary-btn">
+                        <i data-lucide="file-text"></i><span data-i18n="exportCsv">Export CSV</span>
+                    </button>
+                    <button id="exportExcel" class="secondary-btn">
+                        <i data-lucide="table-2"></i><span data-i18n="exportExcel">Export Excel</span>
+                    </button>
+                    <button id="exportWord" class="secondary-btn">
+                        <i data-lucide="file"></i><span data-i18n="exportWord">Export Word</span>
+                    </button>
+                    <button id="saveProjectBtn" class="secondary-btn">
+                        <i data-lucide="save"></i><span data-i18n="saveProject">Save to Project</span>
+                    </button>
                 </div>
-                <div class="row">
-                  <div class="row-main">
-                    <div class="row-title">Suites</div>
-                    <div class="row-meta">Logical groupings of test cases.</div>
-                  </div>
-                  <span class="badge" id="dash-suites">0</span>
+            </div>
+            <div id="results" class="results"></div>
+        </section>
+
+        <section id="view-dashboard" style="display:none;"><div id="dashContent"></div></section>
+
+        <section id="view-projects" style="display:none;">
+            <div class="table-card">
+                <div class="section-header"><h2 data-i18n="projects">Projects</h2></div>
+                <div id="projectsContent"></div>
+            </div>
+        </section>
+
+        <section id="view-suites" style="display:none;"><div id="suitesContent"></div></section>
+
+        <section id="view-history" style="display:none;">
+            <div class="table-card">
+                <div class="section-header">
+                    <h2 data-i18n="history">History</h2>
+                    <button id="clearHistoryBtn" class="secondary-btn">
+                        <i data-lucide="trash-2"></i><span data-i18n="clearHistory">Clear History</span>
+                    </button>
                 </div>
-              </div>
+                <div id="historyContent"></div>
             </div>
-            <div>
-              <div class="field-label">Recent activity</div>
-              <div id="dash-activity" class="list"></div>
-              <div id="dash-empty" class="empty" style="display:none;">
-                No test cases yet. Generate some to see stats here.
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="content" id="view-projects" style="display:none;">
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Projects</div>
-              <div class="card-subtitle">Each project represents a product area or flow you care about.</div>
-            </div>
-            <span class="card-tag">Projects</span>
-          </div>
-
-          <div class="grid-2">
-            <div>
-              <label class="field-label">New project</label>
-              <input id="proj-name" class="input" placeholder="e.g. Checkout, File upload, Reporting" />
-              <div style="margin-top: 0.6rem; display:flex; gap:0.5rem; justify-content:flex-end;">
-                <button class="btn btn-primary btn-sm" id="proj-add">Add project</button>
-              </div>
-            </div>
-            <div>
-              <label class="field-label">Hint</label>
-              <p class="muted">
-                Projects don’t clear your Dashboard. They simply give structure to where test cases belong.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">All projects</div>
-              <div class="card-subtitle">Attach test cases to projects from the generator or later via your own workflow.</div>
-            </div>
-          </div>
-          <div id="proj-list" class="list"></div>
-          <div id="proj-empty" class="empty" style="display:none;">
-            No projects yet. Create one to start grouping your coverage.
-          </div>
-        </div>
-      </section>
-
-      <section class="content" id="view-suites" style="display:none;">
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Suites</div>
-              <div class="card-subtitle">Group test cases into suites for regression, smoke, or feature-specific runs.</div>
-            </div>
-            <span class="card-tag">Suites</span>
-          </div>
-
-          <div class="grid-2">
-            <div>
-              <label class="field-label">New suite</label>
-              <input id="suite-name" class="input" placeholder="e.g. Smoke checkout, Regression auth" />
-              <div style="margin-top: 0.6rem; display:flex; gap:0.5rem; justify-content:flex-end;">
-                <button class="btn btn-primary btn-sm" id="suite-add">Add suite</button>
-              </div>
-            </div>
-            <div>
-              <label class="field-label">Hint</label>
-              <p class="muted">
-                Suites are lightweight. You can delete and recreate them freely without losing underlying test cases.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">All suites</div>
-              <div class="card-subtitle">Use suites to mirror how you actually run tests in CI or manually.</div>
-            </div>
-          </div>
-          <div id="suite-list" class="list"></div>
-          <div id="suite-empty" class="empty" style="display:none;">
-            No suites yet. Create one to start grouping runs.
-          </div>
-        </div>
-      </section>
-
-      <section class="content" id="view-history" style="display:none;">
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">History</div>
-              <div class="card-subtitle">Every test case generated in this workspace, in chronological order.</div>
-            </div>
-            <span class="card-tag">Audit trail</span>
-          </div>
-          <div id="hist-list" class="list"></div>
-          <div id="hist-empty" class="empty" style="display:none;">
-            No history yet. Generate test cases to see them here.
-          </div>
-        </div>
-      </section>
-
-      <div class="footer">
-        QA Studio by Milo Haireche — 20+ years of QA expertise
-      </div>
+        </section>
     </main>
-  </div>
+</div>
 
-  <script>
-    const STORAGE_KEY = "qaStudio_state_v1";
+<!-- Details modal -->
+<div id="modalOverlay" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalTitle">Details</h2>
+            <button id="modalClose" class="close-btn"><i data-lucide="x"></i></button>
+        </div>
+        <div id="modalContent" class="modal-content"></div>
+    </div>
+</div>
 
-    let state = {
-      testCases: [],   // {id, title, description, projectName, priority, createdAt}
-      projects: [],    // {id, name, createdAt}
-      suites: []       // {id, name, createdAt}
-    };
+<!-- Save-to-project modal -->
+<div id="saveModalOverlay" class="modal-overlay">
+    <div class="modal" style="max-width:380px;">
+        <div class="modal-header">
+            <h2 data-i18n="saveProject">Save to Project</h2>
+            <button id="saveModalClose" class="close-btn"><i data-lucide="x"></i></button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
+            <input id="projectNameInput" type="text" class="text-input" placeholder="Project name…" />
+            <button id="confirmSaveBtn" class="primary-btn" style="justify-content:center;">
+                <i data-lucide="check"></i><span data-i18n="save">Save</span>
+            </button>
+        </div>
+    </div>
+</div>
 
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
-        const parsed = JSON.parse(raw);
-        if (parsed && typeof parsed === "object") {
-          state = {
-            testCases: parsed.testCases || [],
-            projects: parsed.projects || [],
-            suites: parsed.suites || []
-          };
-        }
-      } catch (e) {
-        console.warn("Failed to load state", e);
-      }
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const WORKER_URL = "https://qa-proxy.eng-milo.workers.dev";
+
+// ============================================================
+// I18N
+// ============================================================
+const i18n = {
+    en: {
+        documentTitle: "QA Studio — AI Test Case Generator",
+        generatorPageTitle: "AI Test Case Generator",
+        pageSubtitle: "Generate, save, and track test cases by project.",
+        appName: "QA Studio", generator: "Generator", dashboard: "Dashboard",
+        projects: "Projects", suites: "Suites", history: "History", theme: "Theme",
+        generate: "Generate Test Cases", generating: "Generating…",
+        exportJson: "Export JSON", exportCsv: "Export CSV", exportExcel: "Export Excel",
+        exportWord: "Export Word", saveProject: "Save to Project", save: "Save",
+        clearHistory: "Clear History", viewDetails: "View Details",
+        noResults: "Describe a feature above and hit Generate.",
+        colFeature: "Feature", colGenerated: "Date", colTime: "Time", colCount: "Tests",
+        colName: "Name", colDesc: "Description", colCreated: "Created",
+        emptyHistory: "No history yet.", emptyProjects: "No saved projects yet.",
+        dashTotalAll: "All-time generated", dashSession: "Current Session",
+        dashPass: "Passed", dashFail: "Failed", dashBlocked: "Blocked",
+        dashUntested: "Untested", dashTotal: "Total",
+        priorityBreakdown: "Priority Breakdown",
+        dashEmpty: "No test cases yet. Generate some to see stats here.",
+        pass: "Pass", fail: "Fail", blocked: "Blocked",
+        confirmDelete: "Delete this project? This cannot be undone.",
+        chips: ["Login flow","Password reset","File upload","Search & filter","User registration","Checkout"],
+        chipStories: [
+            "As a registered user, I want to log in with my email and password so that I can access my account dashboard. The system should support 'Remember me', show/hide password toggle, account lockout after 5 failed attempts, and display clear error messages for invalid credentials.",
+            "As a user who forgot my password, I want to reset it via a link sent to my email so that I can regain access to my account. The reset link should expire after 30 minutes, enforce strong password rules, and confirm the change with a success notification.",
+            "As a user, I want to upload documents (PDF, DOCX, JPG, PNG) up to 10MB so that I can attach them to my profile or project. The system should show an upload progress bar, validate file type and size before upload, and display a preview of the uploaded file.",
+            "As a user, I want to search products by keyword and filter results by category, price range, rating, and availability so that I can quickly find what I need. The search should support auto-suggestions, highlight matching terms, and remember recent searches.",
+            "As a new visitor, I want to create an account using my name, email, and password so that I can access the platform. The system should validate email format, enforce password strength (min 8 chars, uppercase, number, symbol), check for duplicate accounts, and send a verification email.",
+            "As a customer, I want to review my cart, enter shipping details, select a delivery method, and complete payment so that I can place my order. The system should support credit card, PayPal, and Apple Pay, apply discount codes, calculate tax and shipping, and send an order confirmation email."
+        ],
+        usageFn: n => `${n} test case${n !== 1 ? "s" : ""} generated`,
+        dir: "ltr",
+    },
+    fi: {
+        documentTitle: "QA Studio — Tekoälytestitapausgeneraattori",
+        generatorPageTitle: "Tekoälytestitapausgeneraattori",
+        pageSubtitle: "Luo, tallenna ja seuraa testitapauksia projekteittain.",
+        appName: "QA Studio", generator: "Generaattori", dashboard: "Kojelauta",
+        projects: "Projektit", suites: "Testipaketit", history: "Historia", theme: "Teema",
+        generate: "Luo testitapaukset", generating: "Luodaan…",
+        exportJson: "Vie JSON", exportCsv: "Vie CSV", exportExcel: "Vie Excel",
+        exportWord: "Vie Word", saveProject: "Tallenna projektiin", save: "Tallenna",
+        clearHistory: "Tyhjennä historia", viewDetails: "Näytä tiedot",
+        noResults: "Kuvaile ominaisuus yllä ja paina Luo.",
+        colFeature: "Ominaisuus", colGenerated: "Päivämäärä", colTime: "Aika", colCount: "Tapauksia",
+        colName: "Nimi", colDesc: "Kuvaus", colCreated: "Luotu",
+        emptyHistory: "Ei historiaa vielä.", emptyProjects: "Ei tallennettuja projekteja.",
+        dashTotalAll: "Luotu yhteensä", dashSession: "Nykyinen sessio",
+        dashPass: "Hyväksytty", dashFail: "Hylätty", dashBlocked: "Estetty",
+        dashUntested: "Testaamaton", dashTotal: "Yhteensä",
+        priorityBreakdown: "Prioriteettijakauma",
+        dashEmpty: "Ei testitapauksia vielä. Luo niitä nähdäksesi tilastot.",
+        pass: "Hyväksytty", fail: "Hylätty", blocked: "Estetty",
+        confirmDelete: "Poistetaanko tämä projekti? Toimintoa ei voi peruuttaa.",
+        chips: ["Kirjautuminen","Salasanan palautus","Tiedoston lataus","Haku ja suodatus","Rekisteröinti","Kassaprosessi"],
+        chipStories: [
+            "Rekisteröityneenä käyttäjänä haluan kirjautua sisään sähköpostilla ja salasanalla päästäkseni tilini hallintapaneeliin. Järjestelmän tulee tukea 'Muista minut' -toimintoa, salasanan näyttämistä/piilottamista, tilin lukitsemista 5 epäonnistuneen yrityksen jälkeen ja selkeiden virheilmoitusten näyttämistä.",
+            "Salasanansa unohtaneena käyttäjänä haluan palauttaa sen sähköpostiini lähetetyn linkin kautta päästäkseni takaisin tililleni. Palautuslinkin tulee vanhentua 30 minuutin jälkeen, vaatia vahva uusi salasana ja vahvistaa muutos onnistumisilmoituksella.",
+            "Käyttäjänä haluan ladata asiakirjoja (PDF, DOCX, JPG, PNG) enintään 10 Mt koossa liittääkseni ne profiiliini tai projektiini. Järjestelmän tulee näyttää latauksen edistymispalkki, vahvistaa tiedostotyyppi ja koko ennen latausta sekä näyttää esikatselu ladatusta tiedostosta.",
+            "Käyttäjänä haluan hakea tuotteita avainsanalla ja suodattaa tuloksia kategorian, hintaluokan, arvosanan ja saatavuuden mukaan löytääkseni tarvitsemani nopeasti. Haun tulee tukea automaattisia ehdotuksia, korostaa vastaavia termejä ja muistaa viimeisimmät haut.",
+            "Uutena vierailijana haluan luoda tilin nimellä, sähköpostilla ja salasanalla päästäkseni alustalle. Järjestelmän tulee vahvistaa sähköpostin muoto, vaatia vahva salasana (vähintään 8 merkkiä, iso kirjain, numero, erikoismerkki), tarkistaa päällekkäiset tilit ja lähettää vahvistussähköposti.",
+            "Asiakkaana haluan tarkistaa ostoskorini, syöttää toimitustiedot, valita toimitustavan ja suorittaa maksun tilatakseni. Järjestelmän tulee tukea luottokorttia, PayPalia ja Apple Payta, hyväksyä alennuskoodit, laskea vero ja toimituskulut sekä lähettää tilausvahvistus sähköpostitse."
+        ],
+        usageFn: n => `${n} testitapausta luotu`,
+        dir: "ltr",
+    },
+    dz: {
+        documentTitle: "QA Studio — مولّد حالات الاختبار بالذكاء الاصطناعي",
+        generatorPageTitle: "مولّد حالات الاختبار بالذكاء الاصطناعي",
+        pageSubtitle: "ولّد، احفظ، وتابع حالات الاختبار حسب المشروع.",
+        appName: "QA Studio", generator: "المولّد", dashboard: "لوحة القيادة",
+        projects: "المشاريع", suites: "الحزم", history: "السجل", theme: "المظهر",
+        generate: "ولّد حالات الاختبار", generating: "جاري التوليد…",
+        exportJson: "صدّر JSON", exportCsv: "صدّر CSV", exportExcel: "صدّر Excel",
+        exportWord: "صدّر Word", saveProject: "احفظ في مشروع", save: "احفظ",
+        clearHistory: "امسح السجل", viewDetails: "شوف التفاصيل",
+        noResults: "وصف الميزة فوق وأضغط ولّد.",
+        colFeature: "الميزة", colGenerated: "التاريخ", colTime: "الوقت", colCount: "الحالات",
+        colName: "الاسم", colDesc: "الوصف", colCreated: "تاريخ الإنشاء",
+        emptyHistory: "ما كاين سجل بعد.", emptyProjects: "ما كاين مشاريع بعد.",
+        dashTotalAll: "مجموع ما تولّد", dashSession: "الجلسة الحالية",
+        dashPass: "نجح", dashFail: "فشل", dashBlocked: "محظور",
+        dashUntested: "ما تختبرش", dashTotal: "المجموع",
+        priorityBreakdown: "توزيع الأولوية",
+        dashEmpty: "ما كاين حالات اختبار بعد. ولّد باش تشوف الإحصائيات.",
+        pass: "نجح", fail: "فشل", blocked: "محظور",
+        confirmDelete: "تحذف هذا المشروع؟ ما تقدرش ترجع.",
+        chips: ["تسجيل الدخول","استرجاع كلمة السر","رفع الملفات","البحث والتصفية","تسجيل المستخدم","الدفع"],
+        chipStories: [
+            "كمستخدم مسجّل، نحب ندخل بالإيميل والباسوورد باش نوصل للوحة التحكم تاعي. النظام لازم يدعم 'تذكرني'، إظهار/إخفاء الباسوورد، قفل الحساب بعد 5 محاولات فاشلة، وعرض رسائل خطأ واضحة للبيانات الغالطة.",
+            "كمستخدم نسيت الباسوورد تاعي، نحب نرجعها عن طريق رابط يتبعتلي على الإيميل باش نرجع للحساب تاعي. الرابط لازم ينتهي بعد 30 دقيقة، يفرض باسوورد قوية جديدة، ويأكد التغيير برسالة نجاح.",
+            "كمستخدم، نحب نرفع ملفات (PDF، DOCX، JPG، PNG) حتى 10 ميغا باش نربطهم بالبروفايل ولا المشروع تاعي. النظام لازم يوري شريط تقدم الرفع، يتحقق من نوع وحجم الملف قبل الرفع، ويعرض معاينة للملف المرفوع.",
+            "كمستخدم، نحب نلقى المنتجات بكلمة مفتاحية ونفلتر النتائج حسب الفئة، نطاق السعر، التقييم، والتوفر باش نلقى اللي نحتاجه بسرعة. البحث لازم يدعم اقتراحات تلقائية، يبرز المصطلحات المطابقة، ويتذكر عمليات البحث الأخيرة.",
+            "كزائر جديد، نحب نخلق حساب بالاسم، الإيميل، والباسوورد باش نقدر نوصل للمنصة. النظام لازم يتحقق من صيغة الإيميل، يفرض باسوورد قوية (8 حروف على الأقل، حرف كبير، رقم، رمز)، يتحقق من الحسابات المكررة، ويبعث إيميل تأكيد.",
+            "كعميل، نحب نراجع السلة تاعي، ندخل تفاصيل التوصيل، نختار طريقة التوصيل، ونكمل الدفع باش نطلب. النظام لازم يدعم الكارت البنكية، PayPal، وApple Pay، يقبل كودات التخفيض، يحسب الضريبة ومصاريف التوصيل، ويبعث إيميل تأكيد الطلبية."
+        ],
+        usageFn: n => `${n} حالات اختبار تولّدت`,
+        dir: "rtl",
     }
+};
 
-    function saveState() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch (e) {
-        console.warn("Failed to save state", e);
-      }
+let lang = localStorage.getItem("qa_lang") || "en";
+const t = key => (i18n[lang] && i18n[lang][key] !== undefined) ? i18n[lang][key] : (i18n.en[key] || key);
+
+// ============================================================
+// applyLang
+// ============================================================
+function applyLang() {
+    document.title = t("documentTitle");
+    document.documentElement.lang = lang === "dz" ? "ar" : lang;
+    const activeView = document.querySelector(".sidebar-nav .nav-item.active")?.dataset.view;
+    if (activeView === "generator") {
+        document.getElementById("pageTitle").textContent = t("generatorPageTitle");
+    } else if (activeView) {
+        document.getElementById("pageTitle").textContent = t(activeView);
     }
-
-    function uuid() {
-      if (crypto.randomUUID) return crypto.randomUUID();
-      return "id-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
-    }
-
-    function setView(view) {
-      const views = ["generator", "dashboard", "projects", "suites", "history"];
-      views.forEach(v => {
-        document.getElementById("view-" + v).style.display = v === view ? "flex" : "none";
-      });
-      document.querySelectorAll(".nav-btn").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.view === view);
-      });
-
-      const title = document.getElementById("view-title");
-      const subtitle = document.getElementById("view-subtitle");
-      if (view === "generator") {
-        title.textContent = "Generator";
-        subtitle.textContent = "Describe a flow, get structured, ready-to-automate test cases.";
-      } else if (view === "dashboard") {
-        title.textContent = "Dashboard";
-        subtitle.textContent = "See how your generated coverage is evolving over time.";
-      } else if (view === "projects") {
-        title.textContent = "Projects";
-        subtitle.textContent = "Organize your coverage by product area or flow.";
-      } else if (view === "suites") {
-        title.textContent = "Suites";
-        subtitle.textContent = "Group test cases into suites that match how you run tests.";
-      } else if (view === "history") {
-        title.textContent = "History";
-        subtitle.textContent = "A chronological log of everything QA Studio has generated.";
-      }
-
-      renderAll();
-    }
-
-    function renderMetrics() {
-      document.getElementById("metric-all-time").textContent = state.testCases.length;
-    }
-
-    function renderGeneratorLatest() {
-      const list = document.getElementById("gen-latest-list");
-      const empty = document.getElementById("gen-latest-empty");
-      list.innerHTML = "";
-      const latest = [...state.testCases].sort((a, b) => b.createdAt - a.createdAt).slice(0, 5);
-      if (latest.length === 0) {
-        empty.style.display = "block";
-        return;
-      }
-      empty.style.display = "none";
-      latest.forEach(tc => {
-        const row = document.createElement("div");
-        row.className = "row";
-        row.innerHTML = `
-          <div class="row-main">
-            <div class="row-title">${tc.title}</div>
-            <div class="row-meta">
-              <span>${tc.projectName || "Unassigned project"}</span>
-              <span>Priority: ${tc.priority}</span>
-            </div>
-          </div>
-          <span class="badge">${new Date(tc.createdAt).toLocaleString()}</span>
-        `;
-        list.appendChild(row);
-      });
-    }
-
-    function renderDashboard() {
-      const total = state.testCases.length;
-      const projectsCount = state.projects.length;
-      const suitesCount = state.suites.length;
-      document.getElementById("dash-total").textContent = total;
-      document.getElementById("dash-projects").textContent = projectsCount;
-      document.getElementById("dash-suites").textContent = suitesCount;
-
-      const activity = document.getElementById("dash-activity");
-      const empty = document.getElementById("dash-empty");
-      activity.innerHTML = "";
-      const latest = [...state.testCases].sort((a, b) => b.createdAt - a.createdAt).slice(0, 3);
-      if (latest.length === 0) {
-        empty.style.display = "block";
-        return;
-      }
-      empty.style.display = "none";
-      latest.forEach(tc => {
-        const row = document.createElement("div");
-        row.className = "row";
-        row.innerHTML = `
-          <div class="row-main">
-            <div class="row-title">${tc.title}</div>
-            <div class="row-meta">
-              <span>${tc.projectName || "Unassigned project"}</span>
-              <span>Priority: ${tc.priority}</span>
-            </div>
-          </div>
-          <span class="badge">${new Date(tc.createdAt).toLocaleTimeString()}</span>
-        `;
-        activity.appendChild(row);
-      });
-    }
-
-    function renderProjects() {
-      const list = document.getElementById("proj-list");
-      const empty = document.getElementById("proj-empty");
-      list.innerHTML = "";
-      if (state.projects.length === 0) {
-        empty.style.display = "block";
-        return;
-      }
-      empty.style.display = "none";
-      state.projects.forEach(p => {
-        const count = state.testCases.filter(tc => tc.projectName === p.name).length;
-        const row = document.createElement("div");
-        row.className = "row";
-        row.innerHTML = `
-          <div class="row-main">
-            <div class="row-title">${p.name}</div>
-            <div class="row-meta">
-              <span>${count} test cases</span>
-              <span>Created ${new Date(p.createdAt).toLocaleString()}</span>
-            </div>
-          </div>
-          <div style="display:flex; gap:0.35rem;">
-            <button class="btn btn-danger btn-sm" data-delete-project="${p.id}">Delete</button>
-          </div>
-        `;
-        list.appendChild(row);
-      });
-    }
-
-    function renderSuites() {
-      const list = document.getElementById("suite-list");
-      const empty = document.getElementById("suite-empty");
-      list.innerHTML = "";
-      if (state.suites.length === 0) {
-        empty.style.display = "block";
-        return;
-      }
-      empty.style.display = "none";
-      state.suites.forEach(s => {
-        const row = document.createElement("div");
-        row.className = "row";
-        row.innerHTML = `
-          <div class="row-main">
-            <div class="row-title">${s.name}</div>
-            <div class="row-meta">
-              <span>Created ${new Date(s.createdAt).toLocaleString()}</span>
-            </div>
-          </div>
-          <div style="display:flex; gap:0.35rem;">
-            <button class="btn btn-danger btn-sm" data-delete-suite="${s.id}">Delete</button>
-          </div>
-        `;
-        list.appendChild(row);
-      });
-    }
-
-    function renderHistory() {
-      const list = document.getElementById("hist-list");
-      const empty = document.getElementById("hist-empty");
-      list.innerHTML = "";
-      if (state.testCases.length === 0) {
-        empty.style.display = "block";
-        return;
-      }
-      empty.style.display = "none";
-      const sorted = [...state.testCases].sort((a, b) => b.createdAt - a.createdAt);
-      sorted.forEach(tc => {
-        const row = document.createElement("div");
-        row.className = "row";
-        row.innerHTML = `
-          <div class="row-main">
-            <div class="row-title">${tc.title}</div>
-            <div class="row-meta">
-              <span>${tc.projectName || "Unassigned project"}</span>
-              <span>Priority: ${tc.priority}</span>
-              <span>${new Date(tc.createdAt).toLocaleString()}</span>
-            </div>
-          </div>
-        `;
-        list.appendChild(row);
-      });
-    }
-
-    function renderAll() {
-      renderMetrics();
-      renderGeneratorLatest();
-      renderDashboard();
-      renderProjects();
-      renderSuites();
-      renderHistory();
-    }
-
-    function addTestCase() {
-      const projectName = document.getElementById("gen-project-name").value.trim();
-      const priority = document.getElementById("gen-priority").value;
-      const description = document.getElementById("gen-description").value.trim();
-      if (!description) {
-        alert("Describe at least one scenario or flow.");
-        return;
-      }
-      const title = description.split("\n")[0].slice(0, 80) || "Generated test case";
-      const tc = {
-        id: uuid(),
-        title,
-        description,
-        projectName: projectName || "",
-        priority,
-        createdAt: Date.now()
-      };
-      state.testCases.push(tc);
-
-      if (projectName && !state.projects.some(p => p.name === projectName)) {
-        state.projects.push({
-          id: uuid(),
-          name: projectName,
-          createdAt: Date.now()
-        });
-      }
-
-      saveState();
-      renderAll();
-    }
-
-    function addProject() {
-      const name = document.getElementById("proj-name").value.trim();
-      if (!name) return;
-      if (state.projects.some(p => p.name === name)) {
-        alert("Project with this name already exists.");
-        return;
-      }
-      state.projects.push({
-        id: uuid(),
-        name,
-        createdAt: Date.now()
-      });
-      document.getElementById("proj-name").value = "";
-      saveState();
-      renderAll();
-    }
-
-    function addSuite() {
-      const name = document.getElementById("suite-name").value.trim();
-      if (!name) return;
-      state.suites.push({
-        id: uuid(),
-        name,
-        createdAt: Date.now()
-      });
-      document.getElementById("suite-name").value = "";
-      saveState();
-      renderAll();
-    }
-
-    function deleteProject(id) {
-      state.projects = state.projects.filter(p => p.id !== id);
-      saveState();
-      renderAll();
-    }
-
-    function deleteSuite(id) {
-      state.suites = state.suites.filter(s => s.id !== id);
-      saveState();
-      renderAll();
-    }
-
-    document.addEventListener("click", (e) => {
-      const projBtn = e.target.closest("[data-delete-project]");
-      if (projBtn) {
-        const id = projBtn.getAttribute("data-delete-project");
-        deleteProject(id);
-        return;
-      }
-      const suiteBtn = e.target.closest("[data-delete-suite]");
-      if (suiteBtn) {
-        const id = suiteBtn.getAttribute("data-delete-suite");
-        deleteSuite(id);
-        return;
-      }
+    const subtitleEl = document.getElementById("pageSubtitle");
+    subtitleEl.textContent = t("pageSubtitle");
+    subtitleEl.style.display = (activeView === "generator") ? "block" : "none";
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+        const val = t(el.dataset.i18n);
+        if (typeof val === "string") el.textContent = val;
     });
-
-    function init() {
-      loadState();
-      document.querySelectorAll(".nav-btn").forEach(btn => {
-        btn.addEventListener("click", () => setView(btn.dataset.view));
-      });
-      document.getElementById("gen-generate").addEventListener("click", addTestCase);
-      document.getElementById("gen-clear").addEventListener("click", () => {
-        document.getElementById("gen-description").value = "";
-      });
-      document.getElementById("proj-add").addEventListener("click", addProject);
-      document.getElementById("suite-add").addEventListener("click", addSuite);
-      renderAll();
+    document.body.dir = t("dir");
+    if (lang === "dz") {
+        testInput.setAttribute("placeholder", "وصف الميزة اللي تحب تولّد ليها حالات الاختبار…");
+        testInput.dir = "rtl";
+    } else if (lang === "fi") {
+        testInput.setAttribute("placeholder", "Kuvaile ominaisuus, jolle haluat testitapaukset…");
+        testInput.dir = "ltr";
+    } else {
+        testInput.setAttribute("placeholder", "Describe the feature you want test cases for…");
+        testInput.dir = "ltr";
     }
+    buildChips();
+    updateUsageCounter();
+    lucide.createIcons();
+}
 
-    init();
-  </script>
+// ============================================================
+// STATE
+// ============================================================
+const state = {
+    usageTotal: parseInt(localStorage.getItem("qa_usage_total") || "0"),
+    history:    JSON.parse(localStorage.getItem("qa_history")   || "[]"),
+    projects:   JSON.parse(localStorage.getItem("qa_projects")  || "[]"),
+};
+
+function saveState() {
+    localStorage.setItem("qa_usage_total", String(state.usageTotal));
+    localStorage.setItem("qa_history",     JSON.stringify(state.history));
+    localStorage.setItem("qa_projects",    JSON.stringify(state.projects));
+}
+
+function saveLatestTestCases() {
+    try { localStorage.setItem("qa_latest_tests", JSON.stringify(latestTestCases)); } catch(e) {}
+}
+function loadLatestTestCases() {
+    try {
+        const saved = localStorage.getItem("qa_latest_tests");
+        if (saved) latestTestCases = JSON.parse(saved);
+    } catch(e) {}
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function esc(str) {
+    const d = document.createElement("div");
+    d.textContent = String(str);
+    return d.innerHTML;
+}
+function dlBlob(blob, filename) {
+    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: filename });
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+/** Returns HH:MM in 24-hour format */
+function now24h() {
+    const d = new Date();
+    return d.getHours().toString().padStart(2,"0") + ":" + d.getMinutes().toString().padStart(2,"0");
+}
+
+// ============================================================
+// JSON REPAIR
+// ============================================================
+function repairJSON(raw) {
+    let clean = raw.replace(/^```json\s*/i,"").replace(/```\s*$/g,"").trim();
+    try { const p = JSON.parse(clean); if(Array.isArray(p)&&p.length>0) return p; } catch(e){}
+    const as = clean.indexOf("[");
+    if(as !== -1) clean = clean.substring(as);
+    try { const p = JSON.parse(clean); if(Array.isArray(p)&&p.length>0) return p; } catch(e){}
+    let r = clean;
+    const lc = r.lastIndexOf("}");
+    if(lc !== -1){
+        r = r.substring(0,lc+1);
+        const lo = r.lastIndexOf("{"), lcb = r.lastIndexOf("}");
+        if(lo > lcb){ r = r.substring(0,lo); r = r.replace(/,\s*$/,""); }
+        r = r.replace(/,\s*$/,"");
+        if(!r.endsWith("]")) r += "\n]";
+        if(!r.startsWith("[")) r = "[\n"+r;
+        try { const p = JSON.parse(r); if(Array.isArray(p)&&p.length>0) return p; } catch(e){}
+    }
+    const m = clean.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g);
+    if(m){
+        const objs = [];
+        for(const x of m){ try{ const o=JSON.parse(x); if(o.id&&o.title) objs.push(o); }catch(e){} }
+        if(objs.length>0) return objs;
+    }
+    throw new Error("Could not parse AI response. Please try again.");
+}
+
+// ============================================================
+// THEME
+// ============================================================
+const savedTheme = localStorage.getItem("qa_theme") || "light";
+document.body.className = savedTheme;
+document.getElementById("themeToggle").addEventListener("click", () => {
+    const isDark = document.body.classList.contains("dark");
+    document.body.className = isDark ? "light" : "dark";
+    localStorage.setItem("qa_theme", isDark ? "light" : "dark");
+    document.getElementById("themeIcon").setAttribute("data-lucide", isDark ? "moon" : "sun");
+    lucide.createIcons();
+});
+if(savedTheme === "dark") document.getElementById("themeIcon").setAttribute("data-lucide","sun");
+
+// ============================================================
+// LANGUAGE
+// ============================================================
+document.getElementById("langSelect").value = lang;
+document.getElementById("langSelect").addEventListener("change", e => {
+    lang = e.target.value;
+    localStorage.setItem("qa_lang", lang);
+    applyLang();
+    const v = document.querySelector(".sidebar-nav .nav-item.active")?.dataset.view;
+    if(v === "history")   renderHistory();
+    if(v === "projects")  renderProjects();
+    if(v === "suites")    renderSuites();
+    if(v === "dashboard") renderDashboard();
+});
+
+// ============================================================
+// ROUTING
+// ============================================================
+const views = {
+    generator: document.getElementById("view-generator"),
+    dashboard: document.getElementById("view-dashboard"),
+    projects:  document.getElementById("view-projects"),
+    suites:    document.getElementById("view-suites"),
+    history:   document.getElementById("view-history"),
+};
+document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const view = btn.dataset.view;
+        if(!view) return;
+        Object.values(views).forEach(v => (v.style.display = "none"));
+        views[view].style.display = "block";
+        document.querySelectorAll(".sidebar-nav .nav-item").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("pageTitle").textContent =
+            view === "generator" ? t("generatorPageTitle") : t(view);
+        document.getElementById("pageSubtitle").style.display =
+            (view === "generator") ? "block" : "none";
+        if(view === "dashboard") renderDashboard();
+        if(view === "projects")  renderProjects();
+        if(view === "suites")    renderSuites();
+        if(view === "history")   renderHistory();
+    });
+});
+
+// ============================================================
+// MODALS
+// ============================================================
+const modalOverlay = document.getElementById("modalOverlay");
+function openModal(title, contentHTML) {
+    document.getElementById("modalTitle").textContent = title;
+    document.getElementById("modalContent").innerHTML = contentHTML;
+    modalOverlay.classList.add("visible");
+    lucide.createIcons();
+}
+function closeModal() { modalOverlay.classList.remove("visible"); }
+document.getElementById("modalClose").addEventListener("click", closeModal);
+modalOverlay.addEventListener("click", e => { if(e.target === modalOverlay) closeModal(); });
+
+const saveModalOverlay = document.getElementById("saveModalOverlay");
+document.getElementById("saveModalClose").addEventListener("click",
+    () => saveModalOverlay.classList.remove("visible"));
+saveModalOverlay.addEventListener("click",
+    e => { if(e.target === saveModalOverlay) saveModalOverlay.classList.remove("visible"); });
+
+document.getElementById("saveProjectBtn").addEventListener("click", () => {
+    if(!latestTestCases.length) return;
+    document.getElementById("projectNameInput").value = "";
+    saveModalOverlay.classList.add("visible");
+    lucide.createIcons();
+    setTimeout(() => document.getElementById("projectNameInput").focus(), 80);
+});
+
+document.getElementById("confirmSaveBtn").addEventListener("click", () => {
+    const name = document.getElementById("projectNameInput").value.trim();
+    if(!name) return;
+    state.projects.unshift({
+        id: Date.now(),
+        name,
+        description: testInput.value.trim().slice(0, 90),
+        created: new Date().toISOString().slice(0, 10),
+        testCases: JSON.parse(JSON.stringify(latestTestCases)),
+    });
+    saveState();
+    saveModalOverlay.classList.remove("visible");
+
+    // ── Reset form after saving ──
+    testInput.value = "";
+    charCounter.textContent = "0 characters";
+    latestTestCases = [];
+    saveLatestTestCases();
+    document.getElementById("results").innerHTML = "";
+    document.getElementById("chipsRow").querySelectorAll(".chip")
+        .forEach(c => c.classList.remove("active-chip"));
+});
+
+document.getElementById("projectNameInput").addEventListener("keydown", e => {
+    if(e.key === "Enter") document.getElementById("confirmSaveBtn").click();
+});
+
+// ============================================================
+// CHIPS
+// ============================================================
+function buildChips() {
+    const row = document.getElementById("chipsRow");
+    row.innerHTML = "";
+    const labels  = t("chips") || [];
+    const stories = t("chipStories") || [];
+    labels.forEach((label, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "chip";
+        btn.textContent = label;
+        btn.addEventListener("click", () => {
+            row.querySelectorAll(".chip").forEach(c => c.classList.remove("active-chip"));
+            btn.classList.add("active-chip");
+            const story = stories[idx] || label;
+            testInput.value = story;
+            charCounter.textContent = `${story.length} characters`;
+            testInput.focus();
+        });
+        row.appendChild(btn);
+    });
+}
+
+// ============================================================
+// USAGE COUNTER
+// ============================================================
+function updateUsageCounter() {
+    const fn = i18n[lang]?.usageFn;
+    document.getElementById("usageCounter").textContent =
+        typeof fn === "function" ? fn(state.usageTotal) : `${state.usageTotal}`;
+}
+
+// ============================================================
+// LIVE PREVIEW TYPING ANIMATION
+// ============================================================
+(function initLivePreview() {
+    const phrases = [
+        "As a user, I want to log in with email and password…",
+        "As a manager, I want to track team progress by sprint…",
+        "User can upload PDF, DOCX, PNG files up to 10 MB…",
+        "Shopping cart should persist across browser sessions…",
+        "Password reset link expires after 30 minutes…",
+        "Search results filter by category, price and rating…",
+    ];
+    const el = document.getElementById("livePreviewText");
+    let phraseIdx = 0, charIdx = 0, deleting = false;
+    function tick() {
+        const phrase = phrases[phraseIdx];
+        if(!deleting) {
+            charIdx++;
+            el.innerHTML = esc(phrase.slice(0, charIdx)) + '<span class="live-preview-cursor"></span>';
+            if(charIdx >= phrase.length) {
+                deleting = true;
+                setTimeout(tick, 1800);
+                return;
+            }
+            setTimeout(tick, 40);
+        } else {
+            charIdx--;
+            el.innerHTML = esc(phrase.slice(0, charIdx)) + '<span class="live-preview-cursor"></span>';
+            if(charIdx === 0) {
+                deleting = false;
+                phraseIdx = (phraseIdx + 1) % phrases.length;
+                setTimeout(tick, 350);
+                return;
+            }
+            setTimeout(tick, 18);
+        }
+    }
+    setTimeout(tick, 800);
+})();
+
+// ============================================================
+// PROGRESS BAR
+// ============================================================
+let progressInterval;
+function startProgress() {
+    const wrap = document.getElementById("progressWrap");
+    const bar  = document.getElementById("progressBar");
+    wrap.style.display = "block";
+    bar.style.width = "0%";
+    bar.style.background = "linear-gradient(90deg,#3b82f6,#8b5cf6)";
+    let pct = 0;
+    progressInterval = setInterval(() => {
+        pct += Math.random() * 9 + 2;
+        if(pct > 85) pct = 85;
+        bar.style.width = pct + "%";
+    }, 320);
+}
+function finishProgress(success = true) {
+    clearInterval(progressInterval);
+    const bar  = document.getElementById("progressBar");
+    const wrap = document.getElementById("progressWrap");
+    if(!success) bar.style.background = "#dc2626";
+    bar.style.width = "100%";
+    setTimeout(() => {
+        wrap.style.display = "none";
+        bar.style.width = "0%";
+        bar.style.background = "";
+    }, 650);
+}
+
+// ============================================================
+// GENERATOR
+// ============================================================
+const resultsEl   = document.getElementById("results");
+const generateBtn = document.getElementById("generateBtn");
+const testInput   = document.getElementById("testInput");
+const charCounter = document.getElementById("charCounter");
+let latestTestCases = [];
+
+testInput.addEventListener("input", () => {
+    charCounter.textContent = `${testInput.value.length} characters`;
+});
+
+const priorityOrder  = { Critical:1, High:2, Medium:3, Low:4, Trivial:5 };
+const priorityColors = { Critical:"#dc2626", High:"#f97316", Medium:"#3b82f6", Low:"#10b981", Trivial:"#6b7280" };
+
+function createTestCard(tc) {
+    const div = document.createElement("div");
+    div.className = "test-card";
+    div.innerHTML = `
+        <div class="test-card-header">
+            <h3>${esc(tc.id)} — ${esc(tc.title)}</h3>
+            <span class="priority-badge priority-${esc(tc.priority)}">${esc(tc.priority)}</span>
+        </div>
+        <div class="test-card-actions">
+            <button class="primary-btn view-details-btn" style="padding:6px 14px;font-size:13px;">
+                <i data-lucide="eye"></i> ${t("viewDetails")}
+            </button>
+            <button class="status-btn pass-btn ${tc.status === "pass" ? "active-pass" : ""}">${t("pass")}</button>
+            <button class="status-btn fail-btn ${tc.status === "fail" ? "active-fail" : ""}">${t("fail")}</button>
+            <button class="status-btn blocked-btn ${tc.status === "blocked" ? "active-blocked" : ""}">${t("blocked")}</button>
+        </div>`;
+    div.querySelector(".view-details-btn").addEventListener("click", () => {
+        const steps = (tc.steps || []).map(s => `<li>${esc(s)}</li>`).join("");
+        openModal(tc.title,
+            `<p><strong>Description:</strong><br>${esc(tc.description || "")}</p>` +
+            `<p><strong>Steps:</strong><ol>${steps}</ol></p>` +
+            `<p><strong>Expected:</strong><br>${esc(tc.expected || "")}</p>` +
+            `<p><strong>Tags:</strong> ${(tc.tags || []).map(esc).join(", ")}</p>` +
+            `<p><strong>Risk:</strong> ${esc(tc.risk || "")}</p>`
+        );
+    });
+    function setStatus(status) {
+        tc.status = tc.status === status ? null : status;
+        div.querySelector(".pass-btn").classList.toggle("active-pass", tc.status === "pass");
+        div.querySelector(".fail-btn").classList.toggle("active-fail", tc.status === "fail");
+        div.querySelector(".blocked-btn").classList.toggle("active-blocked", tc.status === "blocked");
+        saveLatestTestCases();
+        renderDashboard();
+    }
+    div.querySelector(".pass-btn").addEventListener("click",    () => setStatus("pass"));
+    div.querySelector(".fail-btn").addEventListener("click",    () => setStatus("fail"));
+    div.querySelector(".blocked-btn").addEventListener("click", () => setStatus("blocked"));
+    return div;
+}
+
+function renderSavedTestCards() {
+    if(!latestTestCases.length) return;
+    resultsEl.innerHTML = "";
+    latestTestCases.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
+    lucide.createIcons();
+}
+
+generateBtn.addEventListener("click", async () => {
+    const feature = testInput.value.trim();
+    if(!feature) return;
+    if(!WORKER_URL || WORKER_URL.includes("YOUR-WORKER")) {
+        resultsEl.innerHTML = `<p class="status-msg" style="color:#dc2626;">
+            ⚠️ Please set your WORKER_URL in the config at the top of the &lt;script&gt; block.</p>`;
+        return;
+    }
+    generateBtn.disabled = true;
+    generateBtn.querySelector("span").textContent = t("generating");
+    resultsEl.innerHTML = "";
+    latestTestCases = [];
+    startProgress();
+    try {
+        const res = await fetch(WORKER_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                model: "claude-sonnet-4-20250514",
+                max_tokens: 4096,
+                system: `You are a QA engineer. Given a feature description, generate 4-6 test cases as a JSON array.
+Each object must have exactly these fields:
+- id: string like "TC-001"
+- title: short string
+- description: one sentence
+- steps: array of 3-5 step strings
+- expected: string
+- priority: one of "Critical", "High", "Medium", "Low", "Trivial"
+- tags: array of 1-3 tag strings
+- risk: one sentence
+Return ONLY the raw JSON array, no markdown, no explanation.`,
+                messages: [{ role: "user", content: `Feature: ${feature}` }],
+            }),
+        });
+        if(!res.ok) {
+            const errText = await res.text();
+            throw new Error(`Server error ${res.status}: ${errText.slice(0,200)}`);
+        }
+        const data = await res.json();
+        const raw  = data.content.map(b => b.text || "").join("").trim();
+        latestTestCases = repairJSON(raw);
+        latestTestCases.sort((a,b) => (priorityOrder[a.priority]||9) - (priorityOrder[b.priority]||9));
+        latestTestCases.forEach(tc => { if(!tc.status) tc.status = null; });
+        saveLatestTestCases();
+        resultsEl.innerHTML = "";
+        latestTestCases.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
+        lucide.createIcons();
+        finishProgress(true);
+        confetti({ particleCount:130, spread:80, origin:{y:0.55}, colors:["#3b82f6","#8b5cf6","#10b981","#f97316"] });
+        state.usageTotal += latestTestCases.length;
+        state.history.unshift({
+            feature: feature.slice(0,60),
+            date: new Date().toISOString().slice(0,10),
+            time: now24h(),    // ← 24h time
+            count: latestTestCases.length,
+        });
+        if(state.history.length > 50) state.history.pop();
+        saveState();
+        updateUsageCounter();
+        renderDashboard();
+    } catch(err) {
+        finishProgress(false);
+        resultsEl.innerHTML = `<p class="status-msg" style="color:#dc2626;">Error: ${esc(err.message)}</p>`;
+    } finally {
+        generateBtn.disabled = false;
+        generateBtn.querySelector("span").textContent = t("generate");
+    }
+});
+
+// ============================================================
+// EXPORTS
+// ============================================================
+document.getElementById("exportJson").addEventListener("click", () => {
+    if(!latestTestCases.length) return;
+    dlBlob(new Blob([JSON.stringify(latestTestCases,null,2)],{type:"application/json"}),"test-cases.json");
+});
+document.getElementById("exportCsv").addEventListener("click", () => {
+    if(!latestTestCases.length) return;
+    const header = ["ID","Title","Description","Steps","Expected","Priority","Tags","Risk","Status"];
+    const rows = latestTestCases.map(tc => [
+        tc.id,tc.title,tc.description||"",
+        (tc.steps||[]).join(" | "),tc.expected||"",
+        tc.priority,(tc.tags||[]).join(" | "),tc.risk||"",tc.status||"Untested",
+    ]);
+    const csv = [header,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+    dlBlob(new Blob([csv],{type:"text/csv"}),"test-cases.csv");
+});
+document.getElementById("exportExcel").addEventListener("click", () => {
+    if(!latestTestCases.length) return;
+    const wsData = [
+        ["ID","Title","Description","Steps","Expected","Priority","Tags","Risk","Status"],
+        ...latestTestCases.map(tc => [
+            tc.id,tc.title,tc.description||"",
+            (tc.steps||[]).join(" | "),tc.expected||"",
+            tc.priority,(tc.tags||[]).join(", "),tc.risk||"",tc.status||"Untested",
+        ]),
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws["!cols"] = [8,30,40,48,40,12,22,40,12].map(w=>({wch:w}));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,"Test Cases");
+    XLSX.writeFile(wb,"test-cases.xlsx");
+});
+document.getElementById("exportWord").addEventListener("click", () => {
+    if(!latestTestCases.length) return;
+    const tableRows = latestTestCases.map(tc => `
+        <tr>
+            <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td><td>${esc(tc.description||"")}</td>
+            <td>${(tc.steps||[]).map(s=>`• ${esc(s)}`).join("<br>")}</td>
+            <td>${esc(tc.expected||"")}</td><td>${esc(tc.priority)}</td>
+            <td>${(tc.tags||[]).join(", ")}</td><td>${esc(tc.risk||"")}</td>
+            <td>${tc.status||"Untested"}</td>
+        </tr>`).join("");
+    const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office'
+        xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='UTF-8'><style>
+            body{font-family:Calibri,sans-serif;font-size:11pt;}h1{font-size:16pt;color:#1f2937;}
+            table{border-collapse:collapse;width:100%;}
+            th{background:#3b82f6;color:white;padding:8px;font-size:10pt;border:1px solid #2563eb;}
+            td{padding:7px 8px;border:1px solid #e5e7eb;font-size:10pt;vertical-align:top;}
+            tr:nth-child(even) td{background:#f9fafb;}
+        </style></head><body>
+        <h1>Test Cases — ${new Date().toLocaleDateString()}</h1>
+        <table><thead><tr>
+            <th>ID</th><th>Title</th><th>Description</th><th>Steps</th>
+            <th>Expected</th><th>Priority</th><th>Tags</th><th>Risk</th><th>Status</th>
+        </tr></thead><tbody>${tableRows}</tbody></table>
+        </body></html>`;
+    dlBlob(new Blob(["\uFEFF"+html],{type:"application/msword"}),"test-cases.doc");
+});
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+    const sessionTotal    = latestTestCases.length;
+    const sessionPass     = latestTestCases.filter(tc => tc.status === "pass").length;
+    const sessionFail     = latestTestCases.filter(tc => tc.status === "fail").length;
+    const sessionBlocked  = latestTestCases.filter(tc => tc.status === "blocked").length;
+    const sessionUntested = latestTestCases.filter(tc => !tc.status).length;
+    const pCounts = {};
+    latestTestCases.forEach(tc => { if(tc.priority) pCounts[tc.priority] = (pCounts[tc.priority]||0)+1; });
+    const pCards = ["Critical","High","Medium","Low","Trivial"].filter(p=>pCounts[p]).map(p=>`
+        <div class="dash-card">
+            <div class="dash-value" style="color:${priorityColors[p]}">${pCounts[p]}</div>
+            <div class="dash-label"><span class="dash-dot" style="background:${priorityColors[p]}"></span>${p}</div>
+        </div>`).join("");
+    if(sessionTotal === 0 && state.usageTotal === 0) {
+        document.getElementById("dashContent").innerHTML = `<div class="empty-state">${t("dashEmpty")}</div>`;
+        return;
+    }
+    document.getElementById("dashContent").innerHTML = `
+        <div class="dash-card" style="margin-bottom:20px;display:flex;align-items:center;gap:16px;padding:16px 20px;">
+            <div style="font-size:36px;font-weight:600;">${state.usageTotal}</div>
+            <div style="color:var(--text-muted);font-size:14px;">${t("dashTotalAll")}</div>
+        </div>
+        <p class="dash-section-title">${t("dashSession")} ${sessionTotal>0?`(${sessionTotal} ${t("dashTotal").toLowerCase()})`:""}
+        </p>
+        ${sessionTotal > 0 ? `
+        <div class="dash-grid">
+            <div class="dash-card"><div class="dash-value">${sessionTotal}</div><div class="dash-label">${t("dashTotal")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:#10b981">${sessionPass}</div><div class="dash-label"><span class="dash-dot" style="background:#10b981"></span>${t("dashPass")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:#dc2626">${sessionFail}</div><div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:#f97316">${sessionBlocked}</div><div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:var(--text-muted)">${sessionUntested}</div><div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div></div>
+        </div>` : `<div class="empty-state" style="padding:20px;">${t("dashEmpty")}</div>`}
+        ${pCards ? `<p class="dash-section-title">${t("priorityBreakdown")}</p><div class="dash-grid">${pCards}</div>` : ""}`;
+}
+
+// ============================================================
+// HISTORY — 24h time column
+// ============================================================
+function renderHistory() {
+    const el = document.getElementById("historyContent");
+    if(!state.history.length) {
+        el.innerHTML = `<div class="empty-state">${t("emptyHistory")}</div>`;
+        return;
+    }
+    el.innerHTML = `
+        <table>
+            <thead><tr>
+                <th>${t("colFeature")}</th>
+                <th>${t("colGenerated")}</th>
+                <th>${t("colTime")}</th>
+                <th>${t("colCount")}</th>
+            </tr></thead>
+            <tbody>${state.history.map(h => `
+                <tr>
+                    <td>${esc(h.feature)}</td>
+                    <td>${h.date}</td>
+                    <td>${h.time ? `<span class="time-badge">${esc(h.time)}</span>` : "—"}</td>
+                    <td>${h.count}</td>
+                </tr>`).join("")}
+            </tbody>
+        </table>`;
+}
+document.getElementById("clearHistoryBtn").addEventListener("click", () => {
+    state.history = [];
+    saveState();
+    renderHistory();
+});
+
+// ============================================================
+// PROJECTS — with Delete button
+// ============================================================
+function deleteProject(id, e) {
+    if(e) e.stopPropagation();
+    if(!confirm(t("confirmDelete"))) return;
+    state.projects = state.projects.filter(p => p.id !== id);
+    saveState();
+    renderProjects();
+    renderSuites();
+    renderDashboard();
+}
+
+function renderProjects() {
+    const el = document.getElementById("projectsContent");
+    if(!state.projects.length) {
+        el.innerHTML = `<div class="empty-state">${t("emptyProjects")}</div>`;
+        return;
+    }
+    el.innerHTML = `
+        <table>
+            <thead><tr>
+                <th>${t("colName")}</th>
+                <th>${t("colDesc")}</th>
+                <th>${t("colCreated")}</th>
+                <th></th>
+                <th></th>
+            </tr></thead>
+            <tbody>${state.projects.map(p => `
+                <tr class="clickable" data-pid="${p.id}">
+                    <td><strong>${esc(p.name)}</strong></td>
+                    <td style="color:var(--text-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.description)}</td>
+                    <td>${p.created}</td>
+                    <td style="color:var(--text-muted);font-size:13px;">${p.testCases.length} tests</td>
+                    <td>
+                        <button class="danger-btn delete-project-btn" data-pid="${p.id}">
+                            <i data-lucide="trash-2"></i> Delete
+                        </button>
+                    </td>
+                </tr>`).join("")}
+            </tbody>
+        </table>`;
+
+    el.querySelectorAll(".delete-project-btn").forEach(btn => {
+        btn.addEventListener("click", e => deleteProject(parseInt(btn.dataset.pid), e));
+    });
+    el.querySelectorAll("tr.clickable").forEach(row => {
+        row.addEventListener("click", e => {
+            if(e.target.closest(".delete-project-btn")) return;
+            const project = state.projects.find(p => String(p.id) === row.dataset.pid);
+            if(!project) return;
+            const rows = project.testCases.map(tc => `
+                <tr>
+                    <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td>
+                    <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(tc.priority)}</span></td>
+                    <td style="color:var(--text-muted)">${tc.status||"Untested"}</td>
+                </tr>`).join("");
+            openModal(project.name, `
+                <p style="color:var(--text-muted);font-size:13px;margin-top:0;">${esc(project.description)}</p>
+                <table style="font-size:14px">
+                    <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>`);
+        });
+    });
+    lucide.createIcons();
+}
+
+// ============================================================
+// SUITES — with Delete button
+// ============================================================
+function renderSuites() {
+    const el = document.getElementById("suitesContent");
+    if(!state.projects.length) {
+        el.innerHTML = `<div class="table-card"><div class="empty-state">${t("emptyProjects")}</div></div>`;
+        return;
+    }
+    el.innerHTML = state.projects.map(p => `
+        <div class="table-card" style="margin-bottom:20px;">
+            <div class="section-header">
+                <h2>${esc(p.name)}</h2>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <span style="color:var(--text-muted);font-size:13px;">${p.created}</span>
+                    <button class="danger-btn delete-suite-btn" data-pid="${p.id}">
+                        <i data-lucide="trash-2"></i> Delete
+                    </button>
+                </div>
+            </div>
+            <table>
+                <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th></tr></thead>
+                <tbody>${p.testCases.map(tc => `
+                    <tr>
+                        <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td>
+                        <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(tc.priority)}</span></td>
+                        <td style="color:var(--text-muted)">${tc.status||"Untested"}</td>
+                    </tr>`).join("")}
+                </tbody>
+            </table>
+        </div>`).join("");
+
+    el.querySelectorAll(".delete-suite-btn").forEach(btn => {
+        btn.addEventListener("click", e => deleteProject(parseInt(btn.dataset.pid), e));
+    });
+    lucide.createIcons();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadLatestTestCases();
+renderSavedTestCards();
+applyLang();
+updateUsageCounter();
+renderDashboard();
+</script>
 </body>
 </html>
