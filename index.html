@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QA Studio — AI Test Case Generator</title>
+    <title>QA Studio — Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -17,12 +17,12 @@
         }
 
         body.light {
-            --body-bg: #f5f6f8;
-            --card-bg: #ffffff;
-            --text: #1f2937;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
-            --sidebar-bg: #ffffff;
+            --body-bg: #e8eaee;
+            --card-bg: #f9fafb;
+            --text: #111827;
+            --text-muted: #4b5563;
+            --border: #d1d5db;
+            --sidebar-bg: #f3f4f6;
         }
 
         body.dark {
@@ -47,7 +47,6 @@
             overflow: hidden;
         }
 
-        /* ── SIDEBAR ── */
         .sidebar {
             width: 240px;
             background: var(--sidebar-bg);
@@ -110,35 +109,126 @@
             padding: 2px 4px;
         }
 
-        .lang-select {
+        .top-right-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: absolute;
+            top: 20px;
+            right: 28px;
+            z-index: 5;
+        }
+        .lang-flags {
+            display: flex;
+            gap: 4px;
+        }
+        .flag-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 5px 8px;
+            line-height: 0;
+            transition: all 0.18s;
+            opacity: 0.5;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .flag-btn img { display: block; border-radius: 2px; }
+        .flag-btn:hover { opacity: 1; border-color: var(--text-muted); }
+        .flag-btn.active-lang {
+            opacity: 1;
+            border-color: #3b82f6;
+            background: rgba(59,130,246,0.10);
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.25);
+        }
+        body.dark .flag-btn.active-lang {
+            background: rgba(59,130,246,0.20);
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.4);
+        }
+        .live-clock {
+            font-size: 13px;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-muted);
             background: var(--card-bg);
             border: 1px solid var(--border);
-            color: var(--text);
             border-radius: 8px;
-            padding: 8px 10px;
-            font-size: 13px;
-            cursor: pointer;
-            width: 100%;
+            padding: 5px 10px;
             font-family: "Inter", sans-serif;
+            white-space: nowrap;
         }
 
-        /* ── MAIN ── */
         .main-content {
             flex: 1;
             margin-left: 240px;
             height: 100vh;
             overflow-y: auto;
-            padding: 24px 36px 48px 24px;
+            padding: 24px 36px 24px 24px;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
         }
+        .main-content-inner { flex: 1; }
 
         .topbar {
             font-size: 24px;
             font-weight: 600;
-            margin-bottom: 24px;
+            margin-bottom: 4px;
         }
 
-        /* ── GENERATOR PANEL ── */
+        .page-subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            font-weight: 400;
+        }
+
+        /* ── Live Preview Banner ── */
+        .live-preview-banner {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .live-preview-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #3b82f6;
+            white-space: nowrap;
+            background: rgba(59,130,246,0.10);
+            border: 1px solid rgba(59,130,246,0.25);
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-family: monospace;
+        }
+        .live-preview-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-family: "Inter", sans-serif;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .live-preview-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 13px;
+            background: #3b82f6;
+            vertical-align: middle;
+            margin-left: 1px;
+            animation: blink 0.75s step-end infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
         .generator-panel {
             background: var(--card-bg);
             padding: 20px;
@@ -148,7 +238,6 @@
             margin-bottom: 24px;
         }
 
-        /* Prompt chips */
         .chips-row {
             display: flex;
             flex-wrap: wrap;
@@ -167,11 +256,8 @@
             transition: all 0.2s;
             font-family: "Inter", sans-serif;
         }
-        .chip:hover {
-            border-color: #3b82f6;
-            color: #3b82f6;
-            background: rgba(59,130,246,0.08);
-        }
+        .chip:hover { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,0.08); }
+        .chip.active-chip { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,0.12); font-weight: 500; }
 
         textarea {
             width: 100%;
@@ -188,130 +274,63 @@
         }
         textarea:focus { outline: 2px solid #3b82f6; outline-offset: -1px; }
 
-        .char-counter {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 6px;
-        }
+        .char-counter { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
 
-        /* Progress bar */
-        .progress-wrap {
-            display: none;
-            margin-top: 14px;
-        }
-        .progress-track {
-            background: var(--border);
-            border-radius: 999px;
-            height: 8px;
-            overflow: hidden;
-        }
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-            border-radius: 999px;
-            transition: width 0.35s ease;
-        }
-        .progress-label {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 6px;
-        }
+        .progress-wrap { display: none; margin-top: 14px; }
+        .progress-track { background: var(--border); border-radius: 999px; height: 8px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg,#3b82f6,#8b5cf6); border-radius: 999px; transition: width 0.35s ease; }
+        .progress-label { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
 
-        /* Button row */
-        .btn-row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 14px;
-        }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
 
         .primary-btn {
-            padding: 10px 16px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-family: "Inter", sans-serif;
-            transition: background 0.2s ease;
+            padding: 10px 16px; background: #3b82f6; color: white; border: none;
+            border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center;
+            gap: 8px; font-size: 14px; font-family: "Inter", sans-serif; transition: background 0.2s ease;
         }
         .primary-btn:hover { background: #2563eb; }
         .primary-btn:disabled { background: #93c5fd; cursor: not-allowed; }
 
         .secondary-btn {
-            padding: 10px 16px;
-            background: transparent;
-            color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-family: "Inter", sans-serif;
-            transition: background 0.2s ease;
+            padding: 10px 16px; background: transparent; color: var(--text); border: 1px solid var(--border);
+            border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center;
+            gap: 8px; font-size: 14px; font-family: "Inter", sans-serif; transition: background 0.2s ease;
         }
         .secondary-btn:hover { background: rgba(0,0,0,0.05); }
         body.dark .secondary-btn:hover { background: rgba(255,255,255,0.05); }
+        .secondary-btn:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
 
-        /* ── RESULTS ── */
+        /* ── Danger / Delete button ── */
+        .danger-btn {
+            padding: 6px 12px; background: transparent; color: #dc2626;
+            border: 1px solid rgba(220,38,38,0.3); border-radius: 8px; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
+            font-family: "Inter", sans-serif; transition: all 0.2s; white-space: nowrap;
+        }
+        .danger-btn:hover { background: rgba(220,38,38,0.08); border-color: #dc2626; }
+
         .results { display: flex; flex-direction: column; gap: 16px; }
 
         .test-card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            background: var(--card-bg); padding: 20px; border-radius: 10px;
+            border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
-
-        .test-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
+        .test-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .test-card h3 { margin: 0; font-size: 17px; }
 
-        .priority-badge {
-            padding: 2px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            color: white;
-            white-space: nowrap;
-            font-weight: 500;
-        }
+        .priority-badge { padding: 2px 10px; border-radius: 999px; font-size: 12px; color: white; white-space: nowrap; font-weight: 500; }
         .priority-Critical { background: #dc2626; }
         .priority-High     { background: #f97316; }
         .priority-Medium   { background: #3b82f6; }
         .priority-Low      { background: #10b981; }
         .priority-Trivial  { background: #6b7280; }
 
-        /* Status buttons */
-        .test-card-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
+        .test-card-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 
         .status-btn {
-            padding: 5px 14px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: transparent;
-            cursor: pointer;
-            font-size: 12px;
-            color: var(--text-muted);
-            font-family: "Inter", sans-serif;
-            transition: all 0.18s;
+            padding: 5px 14px; border-radius: 999px; border: 1px solid var(--border);
+            background: transparent; cursor: pointer; font-size: 12px; color: var(--text-muted);
+            font-family: "Inter", sans-serif; transition: all 0.18s;
         }
         .status-btn:hover { opacity: 0.8; }
         .status-btn.active-pass    { background: #10b981; color: white; border-color: #10b981; }
@@ -320,120 +339,48 @@
 
         .status-msg { color: var(--text-muted); font-size: 15px; padding: 8px 0; }
 
-        /* ── TABLE CARD ── */
         .table-card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            background: var(--card-bg); padding: 20px; border-radius: 10px;
+            border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
 
         table { width: 100%; border-collapse: collapse; font-size: 15px; }
         th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
         th { font-weight: 600; color: var(--text-muted); font-size: 13px; }
-
         tr.clickable { cursor: pointer; }
         tr.clickable:hover td { background: rgba(59,130,246,0.05); }
 
-        /* ── DASHBOARD ── */
-        .dash-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .dash-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
+        .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px,1fr)); gap: 16px; margin-bottom: 24px; }
+        .dash-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .dash-value { font-size: 32px; font-weight: 600; margin-bottom: 6px; line-height: 1; }
         .dash-label { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
         .dash-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
         .dash-section-title { font-size: 16px; font-weight: 600; margin: 0 0 14px; }
 
-        /* ── SECTION HEADER ── */
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .section-header h2 { margin: 0; font-size: 18px; }
 
-        /* ── EMPTY STATE ── */
-        .empty-state {
-            padding: 48px 20px;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 15px;
-        }
+        .empty-state { padding: 48px 20px; text-align: center; color: var(--text-muted); font-size: 15px; }
 
-        /* ── MODAL ── */
         .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.45);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(3px);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s ease;
-            z-index: 1000;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex;
+            align-items: center; justify-content: center; backdrop-filter: blur(3px);
+            opacity: 0; pointer-events: none; transition: opacity 0.25s ease; z-index: 1000;
         }
         .modal-overlay.visible { opacity: 1; pointer-events: auto; }
-
-        .modal {
-            width: 560px;
-            max-width: 92%;
-            max-height: 82vh;
-            overflow-y: auto;
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            box-shadow: 0 18px 40px rgba(0,0,0,0.25);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-        }
+        .modal { width: 560px; max-width: 92%; max-height: 82vh; overflow-y: auto; background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 18px 40px rgba(0,0,0,0.25); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
         .modal-header h2 { margin: 0; font-size: 18px; }
         .modal-content { font-size: 15px; line-height: 1.6; }
         .modal-content ol { padding-left: 20px; margin: 8px 0; }
         .modal-content li { margin-bottom: 4px; }
-
-        .close-btn {
-            padding: 6px 10px;
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
-            color: var(--text);
-            display: flex;
-            align-items: center;
-        }
+        .close-btn { padding: 6px 10px; background: transparent; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; color: var(--text); display: flex; align-items: center; }
         .close-btn:hover { background: rgba(0,0,0,0.06); }
 
-        /* RTL support for Arabic */
-        body[dir="rtl"] .sidebar {
-            left: auto;
-            right: 0;
-            border-right: none;
-            border-left: 1px solid var(--border);
-        }
-        body[dir="rtl"] .main-content {
-            margin-left: 0;
-            margin-right: 240px;
-        }
+        /* RTL */
+        body[dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border); }
+        body[dir="rtl"] .main-content { margin-left: 0; margin-right: 240px; }
+        body[dir="rtl"] .top-right-bar { right: auto; left: 28px; }
         body[dir="rtl"] .nav-item { text-align: right; flex-direction: row-reverse; }
         body[dir="rtl"] .test-card-header { flex-direction: row-reverse; }
         body[dir="rtl"] .test-card-actions { flex-direction: row-reverse; }
@@ -441,19 +388,23 @@
         body[dir="rtl"] .section-header { flex-direction: row-reverse; }
         body[dir="rtl"] textarea { text-align: right; }
 
-        /* Inline text input for save modal */
-        .text-input {
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: var(--card-bg);
-            color: var(--text);
-            font-size: 15px;
-            font-family: "Inter", sans-serif;
-            width: 100%;
-            box-sizing: border-box;
-        }
+        .text-input { padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 15px; font-family: "Inter", sans-serif; width: 100%; box-sizing: border-box; }
         .text-input:focus { outline: 2px solid #3b82f6; outline-offset: -1px; }
+
+        /* Time badge */
+        .time-badge { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--text-muted); background: rgba(0,0,0,0.05); border-radius: 5px; padding: 2px 7px; font-family: "Inter", sans-serif; }
+        body.dark .time-badge { background: rgba(255,255,255,0.07); }
+
+        /* Footer */
+        .app-footer {
+            text-align: center;
+            padding: 16px 24px;
+            font-size: 13px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 
@@ -463,123 +414,113 @@
     <aside class="sidebar">
         <div class="sidebar-header">QA Studio</div>
         <nav class="sidebar-nav">
-            <button class="nav-item active" data-view="generator">
-                <i data-lucide="sparkles"></i>
-                <span data-i18n="generator">Generator</span>
+            <button class="nav-item active" data-view="generator" data-tip="tipGenerator">
+                <i data-lucide="sparkles"></i><span data-i18n="generator">Generator</span>
             </button>
-            <button class="nav-item" data-view="dashboard">
-                <i data-lucide="bar-chart-2"></i>
-                <span data-i18n="dashboard">Dashboard</span>
+            <button class="nav-item" data-view="dashboard" data-tip="tipDashboard">
+                <i data-lucide="bar-chart-2"></i><span data-i18n="dashboard">Dashboard</span>
             </button>
-            <button class="nav-item" data-view="projects">
-                <i data-lucide="folder"></i>
-                <span data-i18n="projects">Projects</span>
+            <button class="nav-item" data-view="projects" data-tip="tipProjects">
+                <i data-lucide="folder"></i><span data-i18n="projects">Projects</span>
             </button>
-            <button class="nav-item" data-view="suites">
-                <i data-lucide="layers"></i>
-                <span data-i18n="suites">Suites</span>
+            <button class="nav-item" data-view="suites" data-tip="tipSuites">
+                <i data-lucide="layers"></i><span data-i18n="suites">Suites</span>
             </button>
-            <button class="nav-item" data-view="history">
-                <i data-lucide="clock"></i>
-                <span data-i18n="history">History</span>
+            <button class="nav-item" data-view="history" data-tip="tipHistory">
+                <i data-lucide="clock"></i><span data-i18n="history">History</span>
             </button>
         </nav>
         <div class="sidebar-footer">
             <div class="usage-counter" id="usageCounter">0</div>
-            <select id="langSelect" class="lang-select">
-                <option value="en">🇬🇧 English</option>
-                <option value="fi">🇫🇮 Suomi</option>
-                <option value="dz">🇩🇿 دارجة</option>
-            </select>
             <button id="themeToggle" class="nav-item">
-                <i data-lucide="moon" id="themeIcon"></i>
-                <span data-i18n="theme">Theme</span>
+                <i data-lucide="moon" id="themeIcon"></i><span data-i18n="theme">Theme</span>
+            </button>
+            <button id="clearAllBtn" class="nav-item" style="color:#dc2626;font-size:13px;">
+                <i data-lucide="trash-2"></i><span data-i18n="clearAllData">Clear All Data</span>
             </button>
         </div>
     </aside>
 
-    <main class="main-content">
-        <header class="topbar" id="pageTitle">AI Test Case Generator</header>
+    <main class="main-content" style="position:relative;">
+      <div class="top-right-bar">
+        <span class="live-clock" id="liveClock"></span>
+        <div class="lang-flags" id="langFlags">
+            <button class="flag-btn" data-lang="en" title="English"><img src="https://flagcdn.com/w40/gb.png" alt="EN" width="24" height="16"></button>
+            <button class="flag-btn" data-lang="fi" title="Suomi"><img src="https://flagcdn.com/w40/fi.png" alt="FI" width="24" height="16"></button>
+            <button class="flag-btn" data-lang="dz" title="Arabic"><img src="https://flagcdn.com/w40/dz.png" alt="DZ" width="24" height="16"></button>
+        </div>
+      </div>
+      <div class="main-content-inner">
+        <header class="topbar" id="pageTitle">Generator</header>
+        <p class="page-subtitle" id="pageSubtitle">Generate, save, and track test cases by project.</p>
 
-        <!-- ── GENERATOR ── -->
         <section id="view-generator">
+            <!-- Live Preview Banner -->
+            <div class="live-preview-banner">
+                <span class="live-preview-label">// live preview</span>
+                <span class="live-preview-text" id="livePreviewText"><span class="live-preview-cursor"></span></span>
+            </div>
+
             <div class="generator-panel">
                 <div class="chips-row" id="chipsRow"></div>
                 <textarea id="testInput" placeholder="Describe the feature you want test cases for…"></textarea>
                 <div class="char-counter" id="charCounter">0 characters</div>
                 <div class="progress-wrap" id="progressWrap">
-                    <div class="progress-track">
-                        <div class="progress-bar" id="progressBar"></div>
-                    </div>
+                    <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
                     <div class="progress-label" id="progressLabel" data-i18n="generating">Generating…</div>
                 </div>
                 <div class="btn-row">
                     <button id="generateBtn" class="primary-btn">
-                        <i data-lucide="wand-2"></i>
-                        <span data-i18n="generate">Generate Test Cases</span>
+                        <i data-lucide="wand-2"></i><span data-i18n="generate">Generate Test Cases</span>
                     </button>
-                    <button id="exportJson" class="secondary-btn">
-                        <i data-lucide="braces"></i>
-                        <span data-i18n="exportJson">Export JSON</span>
+                    <button id="exportJson" class="secondary-btn" disabled>
+                        <i data-lucide="braces"></i><span data-i18n="exportJson">Export JSON</span>
                     </button>
-                    <button id="exportCsv" class="secondary-btn">
-                        <i data-lucide="file-text"></i>
-                        <span data-i18n="exportCsv">Export CSV</span>
+                    <button id="exportCsv" class="secondary-btn" disabled>
+                        <i data-lucide="file-text"></i><span data-i18n="exportCsv">Export CSV</span>
                     </button>
-                    <button id="exportExcel" class="secondary-btn">
-                        <i data-lucide="table-2"></i>
-                        <span data-i18n="exportExcel">Export Excel</span>
+                    <button id="exportExcel" class="secondary-btn" disabled>
+                        <i data-lucide="table-2"></i><span data-i18n="exportExcel">Export Excel</span>
                     </button>
-                    <button id="exportWord" class="secondary-btn">
-                        <i data-lucide="file"></i>
-                        <span data-i18n="exportWord">Export Word</span>
+                    <button id="exportWord" class="secondary-btn" disabled>
+                        <i data-lucide="file"></i><span data-i18n="exportWord">Export Word</span>
                     </button>
-                    <button id="saveProjectBtn" class="secondary-btn">
-                        <i data-lucide="save"></i>
-                        <span data-i18n="saveProject">Save to Project</span>
+                    <button id="saveProjectBtn" class="secondary-btn" disabled>
+                        <i data-lucide="save"></i><span data-i18n="saveProject">Save to Project</span>
                     </button>
                 </div>
             </div>
             <div id="results" class="results"></div>
         </section>
 
-        <!-- ── DASHBOARD ── -->
-        <section id="view-dashboard" style="display:none;">
-            <div id="dashContent"></div>
-        </section>
+        <section id="view-dashboard" style="display:none;"><div id="dashContent"></div></section>
 
-        <!-- ── PROJECTS ── -->
         <section id="view-projects" style="display:none;">
             <div class="table-card">
-                <div class="section-header">
-                    <h2 data-i18n="projects">Projects</h2>
-                </div>
+                <div class="section-header"><h2 data-i18n="projects">Projects</h2></div>
                 <div id="projectsContent"></div>
             </div>
         </section>
 
-        <!-- ── SUITES ── -->
-        <section id="view-suites" style="display:none;">
-            <div id="suitesContent"></div>
-        </section>
+        <section id="view-suites" style="display:none;"><div id="suitesContent"></div></section>
 
-        <!-- ── HISTORY ── -->
         <section id="view-history" style="display:none;">
             <div class="table-card">
                 <div class="section-header">
                     <h2 data-i18n="history">History</h2>
                     <button id="clearHistoryBtn" class="secondary-btn">
-                        <i data-lucide="trash-2"></i>
-                        <span data-i18n="clearHistory">Clear History</span>
+                        <i data-lucide="trash-2"></i><span data-i18n="clearHistory">Clear History</span>
                     </button>
                 </div>
                 <div id="historyContent"></div>
             </div>
         </section>
+      </div>
+      <footer class="app-footer" data-i18n="footerText">QA Studio by Milo Haireche — 20+ years of QA expertise</footer>
     </main>
 </div>
 
-<!-- ── DETAIL MODAL ── -->
+<!-- Details modal -->
 <div id="modalOverlay" class="modal-overlay">
     <div class="modal">
         <div class="modal-header">
@@ -590,7 +531,7 @@
     </div>
 </div>
 
-<!-- ── SAVE-TO-PROJECT MODAL ── -->
+<!-- Save-to-project modal -->
 <div id="saveModalOverlay" class="modal-overlay">
     <div class="modal" style="max-width:380px;">
         <div class="modal-header">
@@ -600,8 +541,7 @@
         <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
             <input id="projectNameInput" type="text" class="text-input" placeholder="Project name…" />
             <button id="confirmSaveBtn" class="primary-btn" style="justify-content:center;">
-                <i data-lucide="check"></i>
-                <span data-i18n="save">Save</span>
+                <i data-lucide="check"></i><span data-i18n="save">Save</span>
             </button>
         </div>
     </div>
@@ -609,129 +549,140 @@
 
 <script>
 // ============================================================
-// CONFIG — replace with your Cloudflare Worker URL
+// CONFIG
 // ============================================================
-const WORKER_URL = "https://YOUR-WORKER.YOUR-NAME.workers.dev";
-// ============================================================
+const WORKER_URL = "https://qa-proxy.eng-milo.workers.dev";
 
 // ============================================================
 // I18N
 // ============================================================
 const i18n = {
     en: {
-        appName: "QA Studio",
-        generator:    "Generator",
-        dashboard:    "Dashboard",
-        projects:     "Projects",
-        suites:       "Suites",
-        history:      "History",
-        theme:        "Theme",
-        generate:     "Generate Test Cases",
-        generating:   "Generating…",
-        exportJson:   "Export JSON",
-        exportCsv:    "Export CSV",
-        exportExcel:  "Export Excel",
-        exportWord:   "Export Word",
-        saveProject:  "Save to Project",
-        save:         "Save",
-        clearHistory: "Clear History",
-        viewDetails:  "View Details",
-        noResults:    "Describe a feature above and hit Generate.",
-        colFeature:   "Feature",
-        colGenerated: "Date",
-        colCount:     "Tests",
-        colName:      "Name",
-        colDesc:      "Description",
-        colCreated:   "Created",
-        emptyHistory: "No history yet.",
-        emptyProjects:"No saved projects yet.",
-        dashTotalAll:     "All-time generated",
-        dashSession:      "This session",
-        dashPass:         "Passed",
-        dashFail:         "Failed",
-        dashBlocked:      "Blocked",
-        dashUntested:     "Untested",
-        priorityBreakdown:"Priority Breakdown",
-        pass: "Pass", fail: "Fail", blocked: "Blocked",
+        documentTitle: "QA Studio — Generator",
+        generatorPageTitle: "Generator",
+        pageSubtitle: "Generate, save, and track test cases by project.",
+        appName: "QA Studio", generator: "Generator", dashboard: "Dashboard",
+        projects: "Projects", suites: "Suites", history: "History", theme: "Theme",
+        tipGenerator: "Generate test cases from a feature description",
+        tipDashboard: "View stats and status of your test cases",
+        tipProjects: "Browse and manage saved projects",
+        tipSuites: "View test suites grouped by project",
+        tipHistory: "See your past generation history",
+        generate: "Generate Test Cases", generating: "Generating…",
+        exportJson: "Export JSON", exportCsv: "Export CSV", exportExcel: "Export Excel",
+        exportWord: "Export Word", saveProject: "Save to Project", save: "Save",
+        clearHistory: "Clear History", viewDetails: "View Details",
+        noResults: "Describe a feature above and hit Generate.",
+        colFeature: "Feature", colGenerated: "Date", colTime: "Time", colCount: "Tests",
+        colName: "Name", colDesc: "Description", colCreated: "Created",
+        emptyHistory: "No history yet.", emptyProjects: "No saved projects yet.",
+        dashTotalAll: "All-time generated", dashSession: "Current Session",
+        dashPass: "Passed", dashFail: "Failed", dashBlocked: "Blocked",
+        dashUntested: "Untested", dashTotal: "Total",
+        priorityBreakdown: "Priority Breakdown",
+        dashEmpty: "No test cases yet. Generate some to see stats here.",
+        pass: "Pass", fail: "Fail", blocked: "Blocked", untested: "Untested",
+        colId: "ID", colPriority: "Priority", colStatus: "Status", colTitle: "Title",
+        delete: "Delete", testsLabel: "tests",
+        pCritical: "Critical", pHigh: "High", pMedium: "Medium", pLow: "Low", pTrivial: "Trivial",
+        clearAllData: "Clear All Data", confirmClearAll: "Clear ALL data (projects, history, test cases)? This cannot be undone.",
+        confirmDelete: "Delete this project? This cannot be undone.",
+        footerText: "QA Studio by Milo Haireche — 20+ years of QA expertise",
         chips: ["Login flow","Password reset","File upload","Search & filter","User registration","Checkout"],
+        chipStories: [
+            "As a registered user, I want to log in with my email and password so that I can access my account dashboard. The system should support 'Remember me', show/hide password toggle, account lockout after 5 failed attempts, and display clear error messages for invalid credentials.",
+            "As a user who forgot my password, I want to reset it via a link sent to my email so that I can regain access to my account. The reset link should expire after 30 minutes, enforce strong password rules, and confirm the change with a success notification.",
+            "As a user, I want to upload documents (PDF, DOCX, JPG, PNG) up to 10MB so that I can attach them to my profile or project. The system should show an upload progress bar, validate file type and size before upload, and display a preview of the uploaded file.",
+            "As a user, I want to search products by keyword and filter results by category, price range, rating, and availability so that I can quickly find what I need. The search should support auto-suggestions, highlight matching terms, and remember recent searches.",
+            "As a new visitor, I want to create an account using my name, email, and password so that I can access the platform. The system should validate email format, enforce password strength (min 8 chars, uppercase, number, symbol), check for duplicate accounts, and send a verification email.",
+            "As a customer, I want to review my cart, enter shipping details, select a delivery method, and complete payment so that I can place my order. The system should support credit card, PayPal, and Apple Pay, apply discount codes, calculate tax and shipping, and send an order confirmation email."
+        ],
         usageFn: n => `${n} test case${n !== 1 ? "s" : ""} generated`,
         dir: "ltr",
     },
     fi: {
-        appName: "QA Studio",
-        generator:    "Generaattori",
-        dashboard:    "Kojelauta",
-        projects:     "Projektit",
-        suites:       "Testipaketit",
-        history:      "Historia",
-        theme:        "Teema",
-        generate:     "Luo testitapaukset",
-        generating:   "Luodaan…",
-        exportJson:   "Vie JSON",
-        exportCsv:    "Vie CSV",
-        exportExcel:  "Vie Excel",
-        exportWord:   "Vie Word",
-        saveProject:  "Tallenna projektiin",
-        save:         "Tallenna",
-        clearHistory: "Tyhjennä historia",
-        viewDetails:  "Näytä tiedot",
-        noResults:    "Kuvaile ominaisuus yllä ja paina Luo.",
-        colFeature:   "Ominaisuus",
-        colGenerated: "Päivämäärä",
-        colCount:     "Tapauksia",
-        colName:      "Nimi",
-        colDesc:      "Kuvaus",
-        colCreated:   "Luotu",
-        emptyHistory: "Ei historiaa vielä.",
-        emptyProjects:"Ei tallennettuja projekteja.",
-        dashTotalAll:     "Luotu yhteensä",
-        dashSession:      "Tällä sessiolla",
-        dashPass:         "Hyväksytty",
-        dashFail:         "Hylätty",
-        dashBlocked:      "Estetty",
-        dashUntested:     "Testaamaton",
-        priorityBreakdown:"Prioriteettijakauma",
-        pass: "Hyväksytty", fail: "Hylätty", blocked: "Estetty",
-        chips: ["Kirjautuminen","Salasanan palautus","Tiedostolataus","Haku & suodatus","Rekisteröinti","Kassaprosessi"],
+        documentTitle: "QA Studio — Generaattori",
+        generatorPageTitle: "Generaattori",
+        pageSubtitle: "Luo, tallenna ja seuraa testitapauksia projekteittain.",
+        appName: "QA Studio", generator: "Generaattori", dashboard: "Kojelauta",
+        projects: "Projektit", suites: "Testipaketit", history: "Historia", theme: "Teema",
+        tipGenerator: "Luo testitapaukset ominaisuuskuvauksen perusteella",
+        tipDashboard: "Näytä testitapausten tilastot ja tila",
+        tipProjects: "Selaa ja hallitse tallennettuja projekteja",
+        tipSuites: "Näytä testipaketit projekteittain",
+        tipHistory: "Katso aikaisempi luontihistoria",
+        generate: "Luo testitapaukset", generating: "Luodaan…",
+        exportJson: "Vie JSON", exportCsv: "Vie CSV", exportExcel: "Vie Excel",
+        exportWord: "Vie Word", saveProject: "Tallenna projektiin", save: "Tallenna",
+        clearHistory: "Tyhjennä historia", viewDetails: "Näytä tiedot",
+        noResults: "Kuvaile ominaisuus yllä ja paina Luo.",
+        colFeature: "Ominaisuus", colGenerated: "Päivämäärä", colTime: "Aika", colCount: "Tapauksia",
+        colName: "Nimi", colDesc: "Kuvaus", colCreated: "Luotu",
+        emptyHistory: "Ei historiaa vielä.", emptyProjects: "Ei tallennettuja projekteja.",
+        dashTotalAll: "Luotu yhteensä", dashSession: "Nykyinen sessio",
+        dashPass: "Hyväksytty", dashFail: "Hylätty", dashBlocked: "Estetty",
+        dashUntested: "Testaamaton", dashTotal: "Yhteensä",
+        priorityBreakdown: "Prioriteettijakauma",
+        dashEmpty: "Ei testitapauksia vielä. Luo niitä nähdäksesi tilastot.",
+        pass: "Hyväksytty", fail: "Hylätty", blocked: "Estetty", untested: "Testaamaton",
+        colId: "ID", colPriority: "Prioriteetti", colStatus: "Tila", colTitle: "Otsikko",
+        delete: "Poista", testsLabel: "testiä",
+        pCritical: "Kriittinen", pHigh: "Korkea", pMedium: "Keskitaso", pLow: "Matala", pTrivial: "Triviaali",
+        clearAllData: "Tyhjennä kaikki", confirmClearAll: "Tyhjennä KAIKKI tiedot (projektit, historia, testitapaukset)? Toimintoa ei voi peruuttaa.",
+        confirmDelete: "Poistetaanko tämä projekti? Toimintoa ei voi peruuttaa.",
+        footerText: "QA Studio, tekijä Milo Haireche — yli 20 vuoden QA-kokemus",
+        chips: ["Kirjautuminen","Salasanan palautus","Tiedoston lataus","Haku ja suodatus","Rekisteröinti","Kassaprosessi"],
+        chipStories: [
+            "Rekisteröityneenä käyttäjänä haluan kirjautua sisään sähköpostilla ja salasanalla päästäkseni tilini hallintapaneeliin. Järjestelmän tulee tukea 'Muista minut' -toimintoa, salasanan näyttämistä/piilottamista, tilin lukitsemista 5 epäonnistuneen yrityksen jälkeen ja selkeiden virheilmoitusten näyttämistä.",
+            "Salasanansa unohtaneena käyttäjänä haluan palauttaa sen sähköpostiini lähetetyn linkin kautta päästäkseni takaisin tililleni. Palautuslinkin tulee vanhentua 30 minuutin jälkeen, vaatia vahva uusi salasana ja vahvistaa muutos onnistumisilmoituksella.",
+            "Käyttäjänä haluan ladata asiakirjoja (PDF, DOCX, JPG, PNG) enintään 10 Mt koossa liittääkseni ne profiiliini tai projektiini. Järjestelmän tulee näyttää latauksen edistymispalkki, vahvistaa tiedostotyyppi ja koko ennen latausta sekä näyttää esikatselu ladatusta tiedostosta.",
+            "Käyttäjänä haluan hakea tuotteita avainsanalla ja suodattaa tuloksia kategorian, hintaluokan, arvosanan ja saatavuuden mukaan löytääkseni tarvitsemani nopeasti. Haun tulee tukea automaattisia ehdotuksia, korostaa vastaavia termejä ja muistaa viimeisimmät haut.",
+            "Uutena vierailijana haluan luoda tilin nimellä, sähköpostilla ja salasanalla päästäkseni alustalle. Järjestelmän tulee vahvistaa sähköpostin muoto, vaatia vahva salasana (vähintään 8 merkkiä, iso kirjain, numero, erikoismerkki), tarkistaa päällekkäiset tilit ja lähettää vahvistussähköposti.",
+            "Asiakkaana haluan tarkistaa ostoskorini, syöttää toimitustiedot, valita toimitustavan ja suorittaa maksun tilatakseni. Järjestelmän tulee tukea luottokorttia, PayPalia ja Apple Payta, hyväksyä alennuskoodit, laskea vero ja toimituskulut sekä lähettää tilausvahvistus sähköpostitse."
+        ],
         usageFn: n => `${n} testitapausta luotu`,
         dir: "ltr",
     },
     dz: {
-        appName: "QA Studio",
-        generator:    "المولّد",
-        dashboard:    "لوحة القيادة",
-        projects:     "المشاريع",
-        suites:       "الحزم",
-        history:      "السجل",
-        theme:        "المظهر",
-        generate:     "ولّد حالات الاختبار",
-        generating:   "جاري التوليد…",
-        exportJson:   "صدّر JSON",
-        exportCsv:    "صدّر CSV",
-        exportExcel:  "صدّر Excel",
-        exportWord:   "صدّر Word",
-        saveProject:  "احفظ في مشروع",
-        save:         "احفظ",
-        clearHistory: "امسح السجل",
-        viewDetails:  "شوف التفاصيل",
-        noResults:    "وصف الميزة فوق وأضغط ولّد.",
-        colFeature:   "الميزة",
-        colGenerated: "التاريخ",
-        colCount:     "الحالات",
-        colName:      "الاسم",
-        colDesc:      "الوصف",
-        colCreated:   "تاريخ الإنشاء",
-        emptyHistory: "ما كاين سجل بعد.",
-        emptyProjects:"ما كاين مشاريع بعد.",
-        dashTotalAll:     "مجموع ما تولّد",
-        dashSession:      "هاد الجلسة",
-        dashPass:         "نجح",
-        dashFail:         "فشل",
-        dashBlocked:      "محظور",
-        dashUntested:     "ما تختبرش",
-        priorityBreakdown:"توزيع الأولوية",
-        pass: "نجح", fail: "فشل", blocked: "محظور",
+        documentTitle: "QA Studio — المولّد",
+        generatorPageTitle: "المولّد",
+        pageSubtitle: "ولّد، احفظ، وتابع حالات الاختبار حسب المشروع.",
+        appName: "QA Studio", generator: "المولّد", dashboard: "لوحة القيادة",
+        projects: "المشاريع", suites: "الحزم", history: "السجل", theme: "المظهر",
+        tipGenerator: "ولّد حالات اختبار من وصف الميزة",
+        tipDashboard: "شوف إحصائيات وحالة حالات الاختبار",
+        tipProjects: "تصفّح وسيّر المشاريع المحفوظة",
+        tipSuites: "شوف حزم الاختبار حسب المشروع",
+        tipHistory: "شوف تاريخ التوليد السابق",
+        generate: "ولّد حالات الاختبار", generating: "جاري التوليد…",
+        exportJson: "صدّر JSON", exportCsv: "صدّر CSV", exportExcel: "صدّر Excel",
+        exportWord: "صدّر Word", saveProject: "احفظ في مشروع", save: "احفظ",
+        clearHistory: "امسح السجل", viewDetails: "شوف التفاصيل",
+        noResults: "وصف الميزة فوق وأضغط ولّد.",
+        colFeature: "الميزة", colGenerated: "التاريخ", colTime: "الوقت", colCount: "الحالات",
+        colName: "الاسم", colDesc: "الوصف", colCreated: "تاريخ الإنشاء",
+        emptyHistory: "ما كاين سجل بعد.", emptyProjects: "ما كاين مشاريع بعد.",
+        dashTotalAll: "مجموع ما تولّد", dashSession: "الجلسة الحالية",
+        dashPass: "نجح", dashFail: "فشل", dashBlocked: "محظور",
+        dashUntested: "ما تختبرش", dashTotal: "المجموع",
+        priorityBreakdown: "توزيع الأولوية",
+        dashEmpty: "ما كاين حالات اختبار بعد. ولّد باش تشوف الإحصائيات.",
+        pass: "نجح", fail: "فشل", blocked: "محظور", untested: "ما تختبرش",
+        colId: "المعرّف", colPriority: "الأولوية", colStatus: "الحالة", colTitle: "العنوان",
+        delete: "حذف", testsLabel: "اختبارات",
+        pCritical: "حرج", pHigh: "عالي", pMedium: "متوسط", pLow: "منخفض", pTrivial: "بسيط",
+        clearAllData: "امسح كل شيء", confirmClearAll: "تمسح كل شيء (المشاريع، السجل، حالات الاختبار)؟ ما تقدرش ترجع.",
+        confirmDelete: "تحذف هذا المشروع؟ ما تقدرش ترجع.",
+        footerText: "QA Studio من Milo Haireche — أكثر من 20 سنة خبرة في ضمان الجودة",
         chips: ["تسجيل الدخول","استرجاع كلمة السر","رفع الملفات","البحث والتصفية","تسجيل المستخدم","الدفع"],
+        chipStories: [
+            "كمستخدم مسجّل، نحب ندخل بالإيميل والباسوورد باش نوصل للوحة التحكم تاعي. النظام لازم يدعم 'تذكرني'، إظهار/إخفاء الباسوورد، قفل الحساب بعد 5 محاولات فاشلة، وعرض رسائل خطأ واضحة للبيانات الغالطة.",
+            "كمستخدم نسيت الباسوورد تاعي، نحب نرجعها عن طريق رابط يتبعتلي على الإيميل باش نرجع للحساب تاعي. الرابط لازم ينتهي بعد 30 دقيقة، يفرض باسوورد قوية جديدة، ويأكد التغيير برسالة نجاح.",
+            "كمستخدم، نحب نرفع ملفات (PDF، DOCX، JPG، PNG) حتى 10 ميغا باش نربطهم بالبروفايل ولا المشروع تاعي. النظام لازم يوري شريط تقدم الرفع، يتحقق من نوع وحجم الملف قبل الرفع، ويعرض معاينة للملف المرفوع.",
+            "كمستخدم، نحب نلقى المنتجات بكلمة مفتاحية ونفلتر النتائج حسب الفئة، نطاق السعر، التقييم، والتوفر باش نلقى اللي نحتاجه بسرعة. البحث لازم يدعم اقتراحات تلقائية، يبرز المصطلحات المطابقة، ويتذكر عمليات البحث الأخيرة.",
+            "كزائر جديد، نحب نخلق حساب بالاسم، الإيميل، والباسوورد باش نقدر نوصل للمنصة. النظام لازم يتحقق من صيغة الإيميل، يفرض باسوورد قوية (8 حروف على الأقل، حرف كبير، رقم، رمز)، يتحقق من الحسابات المكررة، ويبعث إيميل تأكيد.",
+            "كعميل، نحب نراجع السلة تاعي، ندخل تفاصيل التوصيل، نختار طريقة التوصيل، ونكمل الدفع باش نطلب. النظام لازم يدعم الكارت البنكية، PayPal، وApple Pay، يقبل كودات التخفيض، يحسب الضريبة ومصاريف التوصيل، ويبعث إيميل تأكيد الطلبية."
+        ],
         usageFn: n => `${n} حالات اختبار تولّدت`,
         dir: "rtl",
     }
@@ -740,10 +691,27 @@ const i18n = {
 let lang = localStorage.getItem("qa_lang") || "en";
 const t = key => (i18n[lang] && i18n[lang][key] !== undefined) ? i18n[lang][key] : (i18n.en[key] || key);
 
+// ============================================================
+// applyLang
+// ============================================================
 function applyLang() {
+    document.title = t("documentTitle");
+    document.documentElement.lang = lang === "dz" ? "ar" : lang;
+    const activeView = document.querySelector(".sidebar-nav .nav-item.active")?.dataset.view;
+    if (activeView === "generator") {
+        document.getElementById("pageTitle").textContent = t("generatorPageTitle");
+    } else if (activeView) {
+        document.getElementById("pageTitle").textContent = t(activeView);
+    }
+    const subtitleEl = document.getElementById("pageSubtitle");
+    subtitleEl.textContent = t("pageSubtitle");
+    subtitleEl.style.display = (activeView === "generator") ? "block" : "none";
     document.querySelectorAll("[data-i18n]").forEach(el => {
         const val = t(el.dataset.i18n);
         if (typeof val === "string") el.textContent = val;
+    });
+    document.querySelectorAll("[data-tip]").forEach(el => {
+        el.title = t(el.dataset.tip);
     });
     document.body.dir = t("dir");
     if (lang === "dz") {
@@ -762,7 +730,7 @@ function applyLang() {
 }
 
 // ============================================================
-// PERSISTENT STATE
+// STATE
 // ============================================================
 const state = {
     usageTotal: parseInt(localStorage.getItem("qa_usage_total") || "0"),
@@ -776,6 +744,16 @@ function saveState() {
     localStorage.setItem("qa_projects",    JSON.stringify(state.projects));
 }
 
+function saveLatestTestCases() {
+    try { localStorage.setItem("qa_latest_tests", JSON.stringify(latestTestCases)); } catch(e) {}
+}
+function loadLatestTestCases() {
+    try {
+        const saved = localStorage.getItem("qa_latest_tests");
+        if (saved) latestTestCases = JSON.parse(saved);
+    } catch(e) {}
+}
+
 // ============================================================
 // HELPERS
 // ============================================================
@@ -784,14 +762,54 @@ function esc(str) {
     d.textContent = String(str);
     return d.innerHTML;
 }
-
+function statusLabel(s) {
+    if(s === "pass") return t("pass");
+    if(s === "fail") return t("fail");
+    if(s === "blocked") return t("blocked");
+    return t("untested");
+}
+function priorityLabel(p) {
+    const map = { Critical:"pCritical", High:"pHigh", Medium:"pMedium", Low:"pLow", Trivial:"pTrivial" };
+    return map[p] ? t(map[p]) : p;
+}
 function dlBlob(blob, filename) {
-    const a = Object.assign(document.createElement("a"), {
-        href: URL.createObjectURL(blob),
-        download: filename,
-    });
+    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: filename });
     a.click();
     URL.revokeObjectURL(a.href);
+}
+/** Returns HH:MM in 24-hour format */
+function now24h() {
+    const d = new Date();
+    return d.getHours().toString().padStart(2,"0") + ":" + d.getMinutes().toString().padStart(2,"0");
+}
+
+// ============================================================
+// JSON REPAIR
+// ============================================================
+function repairJSON(raw) {
+    let clean = raw.replace(/^```json\s*/i,"").replace(/```\s*$/g,"").trim();
+    try { const p = JSON.parse(clean); if(Array.isArray(p)&&p.length>0) return p; } catch(e){}
+    const as = clean.indexOf("[");
+    if(as !== -1) clean = clean.substring(as);
+    try { const p = JSON.parse(clean); if(Array.isArray(p)&&p.length>0) return p; } catch(e){}
+    let r = clean;
+    const lc = r.lastIndexOf("}");
+    if(lc !== -1){
+        r = r.substring(0,lc+1);
+        const lo = r.lastIndexOf("{"), lcb = r.lastIndexOf("}");
+        if(lo > lcb){ r = r.substring(0,lo); r = r.replace(/,\s*$/,""); }
+        r = r.replace(/,\s*$/,"");
+        if(!r.endsWith("]")) r += "\n]";
+        if(!r.startsWith("[")) r = "[\n"+r;
+        try { const p = JSON.parse(r); if(Array.isArray(p)&&p.length>0) return p; } catch(e){}
+    }
+    const m = clean.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g);
+    if(m){
+        const objs = [];
+        for(const x of m){ try{ const o=JSON.parse(x); if(o.id&&o.title) objs.push(o); }catch(e){} }
+        if(objs.length>0) return objs;
+    }
+    throw new Error("Could not parse AI response. Please try again.");
 }
 
 // ============================================================
@@ -799,7 +817,6 @@ function dlBlob(blob, filename) {
 // ============================================================
 const savedTheme = localStorage.getItem("qa_theme") || "light";
 document.body.className = savedTheme;
-
 document.getElementById("themeToggle").addEventListener("click", () => {
     const isDark = document.body.classList.contains("dark");
     document.body.className = isDark ? "light" : "dark";
@@ -807,57 +824,75 @@ document.getElementById("themeToggle").addEventListener("click", () => {
     document.getElementById("themeIcon").setAttribute("data-lucide", isDark ? "moon" : "sun");
     lucide.createIcons();
 });
+if(savedTheme === "dark") document.getElementById("themeIcon").setAttribute("data-lucide","sun");
 
-// Sync icon on load
-if (savedTheme === "dark") {
-    document.getElementById("themeIcon").setAttribute("data-lucide", "sun");
+// ============================================================
+// LANGUAGE (flag buttons)
+// ============================================================
+function updateFlagButtons() {
+    document.querySelectorAll("#langFlags .flag-btn").forEach(btn => {
+        btn.classList.toggle("active-lang", btn.dataset.lang === lang);
+    });
 }
+updateFlagButtons();
+document.querySelectorAll("#langFlags .flag-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        lang = btn.dataset.lang;
+        localStorage.setItem("qa_lang", lang);
+        updateFlagButtons();
+        applyLang();
+        const v = document.querySelector(".sidebar-nav .nav-item.active")?.dataset.view;
+        if(v === "history")   renderHistory();
+        if(v === "projects")  renderProjects();
+        if(v === "suites")    renderSuites();
+        if(v === "dashboard") renderDashboard();
+    });
+});
 
 // ============================================================
-// LANGUAGE SELECTOR
+// LIVE CLOCK
 // ============================================================
-document.getElementById("langSelect").value = lang;
-document.getElementById("langSelect").addEventListener("change", e => {
-    lang = e.target.value;
-    localStorage.setItem("qa_lang", lang);
-    applyLang();
-    // Re-render current active view in new language
-    const activeView = document.querySelector(".sidebar-nav .nav-item.active")?.dataset.view;
-    if (activeView === "history")  renderHistory();
-    if (activeView === "projects") renderProjects();
-    if (activeView === "suites")   renderSuites();
-    if (activeView === "dashboard") renderDashboard();
-});
+(function initClock() {
+    const el = document.getElementById("liveClock");
+    function tick() {
+        const now = new Date();
+        el.textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+    }
+    tick();
+    setInterval(tick, 1000);
+})();
 
 // ============================================================
 // ROUTING
 // ============================================================
 const views = {
     generator: document.getElementById("view-generator"),
-    dashboard:  document.getElementById("view-dashboard"),
+    dashboard: document.getElementById("view-dashboard"),
     projects:  document.getElementById("view-projects"),
     suites:    document.getElementById("view-suites"),
     history:   document.getElementById("view-history"),
 };
-
 document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
     btn.addEventListener("click", () => {
         const view = btn.dataset.view;
-        if (!view) return;
+        if(!view) return;
         Object.values(views).forEach(v => (v.style.display = "none"));
         views[view].style.display = "block";
         document.querySelectorAll(".sidebar-nav .nav-item").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        document.getElementById("pageTitle").textContent = t(view);
-        if (view === "dashboard") renderDashboard();
-        if (view === "projects")  renderProjects();
-        if (view === "suites")    renderSuites();
-        if (view === "history")   renderHistory();
+        document.getElementById("pageTitle").textContent =
+            view === "generator" ? t("generatorPageTitle") : t(view);
+        document.getElementById("pageSubtitle").style.display =
+            (view === "generator") ? "block" : "none";
+        if(view === "dashboard") renderDashboard();
+        if(view === "projects")  renderProjects();
+        if(view === "suites")    renderSuites();
+        if(view === "history")   renderHistory();
     });
 });
 
 // ============================================================
-// MODAL — Detail
+// MODALS
 // ============================================================
 const modalOverlay = document.getElementById("modalOverlay");
 function openModal(title, contentHTML) {
@@ -868,19 +903,16 @@ function openModal(title, contentHTML) {
 }
 function closeModal() { modalOverlay.classList.remove("visible"); }
 document.getElementById("modalClose").addEventListener("click", closeModal);
-modalOverlay.addEventListener("click", e => { if (e.target === modalOverlay) closeModal(); });
+modalOverlay.addEventListener("click", e => { if(e.target === modalOverlay) closeModal(); });
 
-// ============================================================
-// MODAL — Save to Project
-// ============================================================
 const saveModalOverlay = document.getElementById("saveModalOverlay");
 document.getElementById("saveModalClose").addEventListener("click",
     () => saveModalOverlay.classList.remove("visible"));
 saveModalOverlay.addEventListener("click",
-    e => { if (e.target === saveModalOverlay) saveModalOverlay.classList.remove("visible"); });
+    e => { if(e.target === saveModalOverlay) saveModalOverlay.classList.remove("visible"); });
 
 document.getElementById("saveProjectBtn").addEventListener("click", () => {
-    if (!latestTestCases.length) return;
+    if(!latestTestCases.length) return;
     document.getElementById("projectNameInput").value = "";
     saveModalOverlay.classList.add("visible");
     lucide.createIcons();
@@ -889,7 +921,7 @@ document.getElementById("saveProjectBtn").addEventListener("click", () => {
 
 document.getElementById("confirmSaveBtn").addEventListener("click", () => {
     const name = document.getElementById("projectNameInput").value.trim();
-    if (!name) return;
+    if(!name) return;
     state.projects.unshift({
         id: Date.now(),
         name,
@@ -899,25 +931,41 @@ document.getElementById("confirmSaveBtn").addEventListener("click", () => {
     });
     saveState();
     saveModalOverlay.classList.remove("visible");
+
+    // ── Reset form after saving ──
+    testInput.value = "";
+    charCounter.textContent = "0 characters";
+    latestTestCases = [];
+    saveLatestTestCases();
+    document.getElementById("results").innerHTML = "";
+    document.getElementById("chipsRow").querySelectorAll(".chip")
+        .forEach(c => c.classList.remove("active-chip"));
+    toggleActionBtns();
 });
 
 document.getElementById("projectNameInput").addEventListener("keydown", e => {
-    if (e.key === "Enter") document.getElementById("confirmSaveBtn").click();
+    if(e.key === "Enter") document.getElementById("confirmSaveBtn").click();
 });
 
 // ============================================================
-// EXAMPLE PROMPT CHIPS
+// CHIPS
 // ============================================================
 function buildChips() {
     const row = document.getElementById("chipsRow");
     row.innerHTML = "";
-    (t("chips") || []).forEach(label => {
+    const labels  = t("chips") || [];
+    const stories = t("chipStories") || [];
+    labels.forEach((label, idx) => {
         const btn = document.createElement("button");
         btn.className = "chip";
         btn.textContent = label;
         btn.addEventListener("click", () => {
-            testInput.value = label;
-            charCounter.textContent = `${label.length} characters`;
+            row.querySelectorAll(".chip").forEach(c => c.classList.remove("active-chip"));
+            btn.classList.add("active-chip");
+            const story = stories[idx] || label;
+            testInput.value = story;
+            charCounter.textContent = `${story.length} characters`;
+            testInput.focus();
         });
         row.appendChild(btn);
     });
@@ -933,10 +981,49 @@ function updateUsageCounter() {
 }
 
 // ============================================================
+// LIVE PREVIEW TYPING ANIMATION
+// ============================================================
+(function initLivePreview() {
+    const phrases = [
+        "As a user, I want to log in with email and password…",
+        "As a manager, I want to track team progress by sprint…",
+        "User can upload PDF, DOCX, PNG files up to 10 MB…",
+        "Shopping cart should persist across browser sessions…",
+        "Password reset link expires after 30 minutes…",
+        "Search results filter by category, price and rating…",
+    ];
+    const el = document.getElementById("livePreviewText");
+    let phraseIdx = 0, charIdx = 0, deleting = false;
+    function tick() {
+        const phrase = phrases[phraseIdx];
+        if(!deleting) {
+            charIdx++;
+            el.innerHTML = esc(phrase.slice(0, charIdx)) + '<span class="live-preview-cursor"></span>';
+            if(charIdx >= phrase.length) {
+                deleting = true;
+                setTimeout(tick, 1800);
+                return;
+            }
+            setTimeout(tick, 40);
+        } else {
+            charIdx--;
+            el.innerHTML = esc(phrase.slice(0, charIdx)) + '<span class="live-preview-cursor"></span>';
+            if(charIdx === 0) {
+                deleting = false;
+                phraseIdx = (phraseIdx + 1) % phrases.length;
+                setTimeout(tick, 350);
+                return;
+            }
+            setTimeout(tick, 18);
+        }
+    }
+    setTimeout(tick, 800);
+})();
+
+// ============================================================
 // PROGRESS BAR
 // ============================================================
 let progressInterval;
-
 function startProgress() {
     const wrap = document.getElementById("progressWrap");
     const bar  = document.getElementById("progressBar");
@@ -946,16 +1033,15 @@ function startProgress() {
     let pct = 0;
     progressInterval = setInterval(() => {
         pct += Math.random() * 9 + 2;
-        if (pct > 85) pct = 85;
+        if(pct > 85) pct = 85;
         bar.style.width = pct + "%";
     }, 320);
 }
-
 function finishProgress(success = true) {
     clearInterval(progressInterval);
     const bar  = document.getElementById("progressBar");
     const wrap = document.getElementById("progressWrap");
-    if (!success) bar.style.background = "#dc2626";
+    if(!success) bar.style.background = "#dc2626";
     bar.style.width = "100%";
     setTimeout(() => {
         wrap.style.display = "none";
@@ -968,6 +1054,11 @@ function finishProgress(success = true) {
 // GENERATOR
 // ============================================================
 const resultsEl   = document.getElementById("results");
+const actionBtns  = ["exportJson","exportCsv","exportExcel","exportWord","saveProjectBtn"].map(id => document.getElementById(id));
+function toggleActionBtns() {
+    const has = latestTestCases.length > 0;
+    actionBtns.forEach(btn => btn.disabled = !has);
+}
 const generateBtn = document.getElementById("generateBtn");
 const testInput   = document.getElementById("testInput");
 const charCounter = document.getElementById("charCounter");
@@ -977,8 +1068,8 @@ testInput.addEventListener("input", () => {
     charCounter.textContent = `${testInput.value.length} characters`;
 });
 
-const priorityOrder = { Critical: 1, High: 2, Medium: 3, Low: 4, Trivial: 5 };
-const priorityColors = { Critical: "#dc2626", High: "#f97316", Medium: "#3b82f6", Low: "#10b981", Trivial: "#6b7280" };
+const priorityOrder  = { Critical:1, High:2, Medium:3, Low:4, Trivial:5 };
+const priorityColors = { Critical:"#dc2626", High:"#f97316", Medium:"#3b82f6", Low:"#10b981", Trivial:"#6b7280" };
 
 function createTestCard(tc) {
     const div = document.createElement("div");
@@ -996,59 +1087,57 @@ function createTestCard(tc) {
             <button class="status-btn fail-btn ${tc.status === "fail" ? "active-fail" : ""}">${t("fail")}</button>
             <button class="status-btn blocked-btn ${tc.status === "blocked" ? "active-blocked" : ""}">${t("blocked")}</button>
         </div>`;
-
     div.querySelector(".view-details-btn").addEventListener("click", () => {
-        const steps = tc.steps.map(s => `<li>${esc(s)}</li>`).join("");
+        const steps = (tc.steps || []).map(s => `<li>${esc(s)}</li>`).join("");
         openModal(tc.title,
-            `<p><strong>Description:</strong><br>${esc(tc.description)}</p>` +
+            `<p><strong>Description:</strong><br>${esc(tc.description || "")}</p>` +
             `<p><strong>Steps:</strong><ol>${steps}</ol></p>` +
-            `<p><strong>Expected:</strong><br>${esc(tc.expected)}</p>` +
-            `<p><strong>Tags:</strong> ${tc.tags.map(esc).join(", ")}</p>` +
-            `<p><strong>Risk:</strong> ${esc(tc.risk)}</p>`
+            `<p><strong>Expected:</strong><br>${esc(tc.expected || "")}</p>` +
+            `<p><strong>Tags:</strong> ${(tc.tags || []).map(esc).join(", ")}</p>` +
+            `<p><strong>Risk:</strong> ${esc(tc.risk || "")}</p>`
         );
     });
-
     function setStatus(status) {
         tc.status = tc.status === status ? null : status;
         div.querySelector(".pass-btn").classList.toggle("active-pass", tc.status === "pass");
         div.querySelector(".fail-btn").classList.toggle("active-fail", tc.status === "fail");
         div.querySelector(".blocked-btn").classList.toggle("active-blocked", tc.status === "blocked");
-        // Live-refresh dashboard if open
-        if (document.getElementById("view-dashboard").style.display !== "none") renderDashboard();
+        saveLatestTestCases();
+        renderDashboard();
     }
-
     div.querySelector(".pass-btn").addEventListener("click",    () => setStatus("pass"));
     div.querySelector(".fail-btn").addEventListener("click",    () => setStatus("fail"));
     div.querySelector(".blocked-btn").addEventListener("click", () => setStatus("blocked"));
-
     return div;
+}
+
+function renderSavedTestCards() {
+    if(!latestTestCases.length) return;
+    resultsEl.innerHTML = "";
+    latestTestCases.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
+    lucide.createIcons();
 }
 
 generateBtn.addEventListener("click", async () => {
     const feature = testInput.value.trim();
-    if (!feature) return;
-
-    // Guard against unconfigured worker URL
-    if (!WORKER_URL || WORKER_URL.includes("YOUR-WORKER")) {
+    if(!feature) return;
+    if(!WORKER_URL || WORKER_URL.includes("YOUR-WORKER")) {
         resultsEl.innerHTML = `<p class="status-msg" style="color:#dc2626;">
-            ⚠️ Please set your WORKER_URL in the config at the top of the &lt;script&gt; block.
-        </p>`;
+            ⚠️ Please set your WORKER_URL in the config at the top of the &lt;script&gt; block.</p>`;
         return;
     }
-
     generateBtn.disabled = true;
     generateBtn.querySelector("span").textContent = t("generating");
     resultsEl.innerHTML = "";
     latestTestCases = [];
     startProgress();
-
     try {
         const res = await fetch(WORKER_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 model: "claude-sonnet-4-20250514",
-                max_tokens: 1000,
+                max_tokens: 4096,
                 system: `You are a QA engineer. Given a feature description, generate 4-6 test cases as a JSON array.
 Each object must have exactly these fields:
 - id: string like "TC-001"
@@ -1059,42 +1148,39 @@ Each object must have exactly these fields:
 - priority: one of "Critical", "High", "Medium", "Low", "Trivial"
 - tags: array of 1-3 tag strings
 - risk: one sentence
+IMPORTANT: Write all text content (title, description, steps, expected, tags, risk) in ${lang === "fi" ? "Finnish" : lang === "dz" ? "Algerian Arabic (Darja)" : "English"}. The priority field must always use the English values (Critical/High/Medium/Low/Trivial).
 Return ONLY the raw JSON array, no markdown, no explanation.`,
                 messages: [{ role: "user", content: `Feature: ${feature}` }],
             }),
         });
-
-        const data   = await res.json();
-        const raw    = data.content.map(b => b.text || "").join("").trim();
-        const clean  = raw.replace(/^```json\s*/i, "").replace(/```$/g, "").trim();
-        latestTestCases = JSON.parse(clean);
-        latestTestCases.sort((a, b) => (priorityOrder[a.priority] || 9) - (priorityOrder[b.priority] || 9));
-
+        if(!res.ok) {
+            const errText = await res.text();
+            throw new Error(`Server error ${res.status}: ${errText.slice(0,200)}`);
+        }
+        const data = await res.json();
+        const raw  = data.content.map(b => b.text || "").join("").trim();
+        latestTestCases = repairJSON(raw);
+        latestTestCases.sort((a,b) => (priorityOrder[a.priority]||9) - (priorityOrder[b.priority]||9));
+        latestTestCases.forEach(tc => { if(!tc.status) tc.status = null; });
+        saveLatestTestCases();
         resultsEl.innerHTML = "";
         latestTestCases.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
         lucide.createIcons();
         finishProgress(true);
-
-        // 🎉 Confetti
-        confetti({
-            particleCount: 130,
-            spread: 80,
-            origin: { y: 0.55 },
-            colors: ["#3b82f6", "#8b5cf6", "#10b981", "#f97316"],
-        });
-
-        // Persist usage + history
+        confetti({ particleCount:130, spread:80, origin:{y:0.55}, colors:["#3b82f6","#8b5cf6","#10b981","#f97316"] });
+        toggleActionBtns();
         state.usageTotal += latestTestCases.length;
         state.history.unshift({
-            feature: feature.slice(0, 60),
-            date: new Date().toISOString().slice(0, 10),
+            feature: feature.slice(0,60),
+            date: new Date().toISOString().slice(0,10),
+            time: now24h(),    // ← 24h time
             count: latestTestCases.length,
         });
-        if (state.history.length > 50) state.history.pop();
+        if(state.history.length > 50) state.history.pop();
         saveState();
         updateUsageCounter();
-
-    } catch (err) {
+        renderDashboard();
+    } catch(err) {
         finishProgress(false);
         resultsEl.innerHTML = `<p class="status-msg" style="color:#dc2626;">Error: ${esc(err.message)}</p>`;
     } finally {
@@ -1104,157 +1190,114 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
 });
 
 // ============================================================
-// EXPORT — JSON
+// EXPORTS
 // ============================================================
 document.getElementById("exportJson").addEventListener("click", () => {
-    if (!latestTestCases.length) return;
-    dlBlob(new Blob([JSON.stringify(latestTestCases, null, 2)], { type: "application/json" }), "test-cases.json");
+    if(!latestTestCases.length) return;
+    dlBlob(new Blob([JSON.stringify(latestTestCases,null,2)],{type:"application/json"}),"test-cases.json");
 });
-
-// ============================================================
-// EXPORT — CSV
-// ============================================================
 document.getElementById("exportCsv").addEventListener("click", () => {
-    if (!latestTestCases.length) return;
+    if(!latestTestCases.length) return;
     const header = ["ID","Title","Description","Steps","Expected","Priority","Tags","Risk","Status"];
-    const rows   = latestTestCases.map(tc => [
-        tc.id, tc.title, tc.description,
-        tc.steps.join(" | "), tc.expected,
-        tc.priority, tc.tags.join(" | "), tc.risk,
-        tc.status || "Untested",
+    const rows = latestTestCases.map(tc => [
+        tc.id,tc.title,tc.description||"",
+        (tc.steps||[]).join(" | "),tc.expected||"",
+        tc.priority,(tc.tags||[]).join(" | "),tc.risk||"",tc.status||"Untested",
     ]);
-    const csv = [header, ...rows]
-        .map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(","))
-        .join("\n");
-    dlBlob(new Blob([csv], { type: "text/csv" }), "test-cases.csv");
+    const csv = [header,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+    dlBlob(new Blob([csv],{type:"text/csv"}),"test-cases.csv");
 });
-
-// ============================================================
-// EXPORT — EXCEL (SheetJS)
-// ============================================================
 document.getElementById("exportExcel").addEventListener("click", () => {
-    if (!latestTestCases.length) return;
+    if(!latestTestCases.length) return;
     const wsData = [
         ["ID","Title","Description","Steps","Expected","Priority","Tags","Risk","Status"],
         ...latestTestCases.map(tc => [
-            tc.id, tc.title, tc.description,
-            tc.steps.join(" | "), tc.expected,
-            tc.priority, tc.tags.join(", "), tc.risk,
-            tc.status || "Untested",
+            tc.id,tc.title,tc.description||"",
+            (tc.steps||[]).join(" | "),tc.expected||"",
+            tc.priority,(tc.tags||[]).join(", "),tc.risk||"",tc.status||"Untested",
         ]),
     ];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws["!cols"] = [8, 30, 40, 48, 40, 12, 22, 40, 12].map(w => ({ wch: w }));
+    ws["!cols"] = [8,30,40,48,40,12,22,40,12].map(w=>({wch:w}));
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Test Cases");
-    XLSX.writeFile(wb, "test-cases.xlsx");
+    XLSX.utils.book_append_sheet(wb,ws,"Test Cases");
+    XLSX.writeFile(wb,"test-cases.xlsx");
 });
-
-// ============================================================
-// EXPORT — WORD (.doc via HTML-to-Word)
-// ============================================================
 document.getElementById("exportWord").addEventListener("click", () => {
-    if (!latestTestCases.length) return;
+    if(!latestTestCases.length) return;
     const tableRows = latestTestCases.map(tc => `
         <tr>
-            <td>${tc.id}</td>
-            <td>${tc.title}</td>
-            <td>${tc.description}</td>
-            <td>${tc.steps.map(s => `• ${s}`).join("<br>")}</td>
-            <td>${tc.expected}</td>
-            <td>${tc.priority}</td>
-            <td>${tc.tags.join(", ")}</td>
-            <td>${tc.risk}</td>
-            <td>${tc.status || "Untested"}</td>
+            <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td><td>${esc(tc.description||"")}</td>
+            <td>${(tc.steps||[]).map(s=>`• ${esc(s)}`).join("<br>")}</td>
+            <td>${esc(tc.expected||"")}</td><td>${esc(tc.priority)}</td>
+            <td>${(tc.tags||[]).join(", ")}</td><td>${esc(tc.risk||"")}</td>
+            <td>${tc.status||"Untested"}</td>
         </tr>`).join("");
-
     const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office'
-        xmlns:w='urn:schemas-microsoft-com:office:word'
-        xmlns='http://www.w3.org/TR/REC-html40'>
-        <head><meta charset='UTF-8'>
-        <style>
-            body  { font-family: Calibri, sans-serif; font-size: 11pt; }
-            h1    { font-size: 16pt; color: #1f2937; }
-            table { border-collapse: collapse; width: 100%; }
-            th    { background: #3b82f6; color: white; padding: 8px; font-size: 10pt; border: 1px solid #2563eb; }
-            td    { padding: 7px 8px; border: 1px solid #e5e7eb; font-size: 10pt; vertical-align: top; }
-            tr:nth-child(even) td { background: #f9fafb; }
-        </style></head>
-        <body>
+        xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='UTF-8'><style>
+            body{font-family:Calibri,sans-serif;font-size:11pt;}h1{font-size:16pt;color:#1f2937;}
+            table{border-collapse:collapse;width:100%;}
+            th{background:#3b82f6;color:white;padding:8px;font-size:10pt;border:1px solid #2563eb;}
+            td{padding:7px 8px;border:1px solid #e5e7eb;font-size:10pt;vertical-align:top;}
+            tr:nth-child(even) td{background:#f9fafb;}
+        </style></head><body>
         <h1>Test Cases — ${new Date().toLocaleDateString()}</h1>
-        <table>
-            <thead><tr>
-                <th>ID</th><th>Title</th><th>Description</th><th>Steps</th>
-                <th>Expected</th><th>Priority</th><th>Tags</th><th>Risk</th><th>Status</th>
-            </tr></thead>
-            <tbody>${tableRows}</tbody>
-        </table>
+        <table><thead><tr>
+            <th>ID</th><th>Title</th><th>Description</th><th>Steps</th>
+            <th>Expected</th><th>Priority</th><th>Tags</th><th>Risk</th><th>Status</th>
+        </tr></thead><tbody>${tableRows}</tbody></table>
         </body></html>`;
-
-    dlBlob(new Blob(["\uFEFF" + html], { type: "application/msword" }), "test-cases.doc");
+    dlBlob(new Blob(["\uFEFF"+html],{type:"application/msword"}),"test-cases.doc");
 });
 
 // ============================================================
 // DASHBOARD
 // ============================================================
 function renderDashboard() {
-    const pass     = latestTestCases.filter(tc => tc.status === "pass").length;
-    const fail     = latestTestCases.filter(tc => tc.status === "fail").length;
-    const blocked  = latestTestCases.filter(tc => tc.status === "blocked").length;
-    const untested = latestTestCases.filter(tc => !tc.status).length;
-    const session  = latestTestCases.length;
-
+    // Aggregate test cases from all saved projects + current session
+    const allProjectTests = state.projects.reduce((arr, p) => arr.concat(p.testCases), []);
+    const allTests = allProjectTests.concat(latestTestCases);
+    const total    = allTests.length;
+    const pass     = allTests.filter(tc => tc.status === "pass").length;
+    const fail     = allTests.filter(tc => tc.status === "fail").length;
+    const blocked  = allTests.filter(tc => tc.status === "blocked").length;
+    const untested = allTests.filter(tc => !tc.status).length;
     const pCounts = {};
-    latestTestCases.forEach(tc => { pCounts[tc.priority] = (pCounts[tc.priority] || 0) + 1; });
-
-    const pCards = ["Critical","High","Medium","Low","Trivial"]
-        .filter(p => pCounts[p])
-        .map(p => `
-            <div class="dash-card">
-                <div class="dash-value" style="color:${priorityColors[p]}">${pCounts[p]}</div>
-                <div class="dash-label">
-                    <span class="dash-dot" style="background:${priorityColors[p]}"></span>${p}
-                </div>
-            </div>`).join("");
-
+    allTests.forEach(tc => { if(tc.priority) pCounts[tc.priority] = (pCounts[tc.priority]||0)+1; });
+    const pCards = ["Critical","High","Medium","Low","Trivial"].filter(p=>pCounts[p]).map(p=>`
+        <div class="dash-card">
+            <div class="dash-value" style="color:${priorityColors[p]}">${pCounts[p]}</div>
+            <div class="dash-label"><span class="dash-dot" style="background:${priorityColors[p]}"></span>${priorityLabel(p)}</div>
+        </div>`).join("");
+    if(total === 0 && state.usageTotal === 0) {
+        document.getElementById("dashContent").innerHTML = `<div class="empty-state">${t("dashEmpty")}</div>`;
+        return;
+    }
     document.getElementById("dashContent").innerHTML = `
         <div class="dash-card" style="margin-bottom:20px;display:flex;align-items:center;gap:16px;padding:16px 20px;">
             <div style="font-size:36px;font-weight:600;">${state.usageTotal}</div>
             <div style="color:var(--text-muted);font-size:14px;">${t("dashTotalAll")}</div>
         </div>
-        <p class="dash-section-title">${t("dashSession")}</p>
+        <p class="dash-section-title">${t("dashSession")} ${total>0?`(${total} ${t("dashTotal").toLowerCase()})`:""}
+        </p>
+        ${total > 0 ? `
         <div class="dash-grid">
-            <div class="dash-card">
-                <div class="dash-value">${session}</div>
-                <div class="dash-label">Total</div>
-            </div>
-            <div class="dash-card">
-                <div class="dash-value" style="color:#10b981">${pass}</div>
-                <div class="dash-label"><span class="dash-dot" style="background:#10b981"></span>${t("dashPass")}</div>
-            </div>
-            <div class="dash-card">
-                <div class="dash-value" style="color:#dc2626">${fail}</div>
-                <div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div>
-            </div>
-            <div class="dash-card">
-                <div class="dash-value" style="color:#f97316">${blocked}</div>
-                <div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div>
-            </div>
-            <div class="dash-card">
-                <div class="dash-value" style="color:var(--text-muted)">${untested}</div>
-                <div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div>
-            </div>
-        </div>
-        ${pCards ? `<p class="dash-section-title">${t("priorityBreakdown")}</p><div class="dash-grid">${pCards}</div>` : ""}
-    `;
+            <div class="dash-card"><div class="dash-value">${total}</div><div class="dash-label">${t("dashTotal")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:#10b981">${pass}</div><div class="dash-label"><span class="dash-dot" style="background:#10b981"></span>${t("dashPass")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:#dc2626">${fail}</div><div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:#f97316">${blocked}</div><div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:var(--text-muted)">${untested}</div><div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div></div>
+        </div>` : `<div class="empty-state" style="padding:20px;">${t("dashEmpty")}</div>`}
+        ${pCards ? `<p class="dash-section-title">${t("priorityBreakdown")}</p><div class="dash-grid">${pCards}</div>` : ""}`;
 }
 
 // ============================================================
-// HISTORY (localStorage-backed)
+// HISTORY — 24h time column
 // ============================================================
 function renderHistory() {
     const el = document.getElementById("historyContent");
-    if (!state.history.length) {
+    if(!state.history.length) {
         el.innerHTML = `<div class="empty-state">${t("emptyHistory")}</div>`;
         return;
     }
@@ -1263,26 +1306,58 @@ function renderHistory() {
             <thead><tr>
                 <th>${t("colFeature")}</th>
                 <th>${t("colGenerated")}</th>
+                <th>${t("colTime")}</th>
                 <th>${t("colCount")}</th>
             </tr></thead>
-            <tbody>${state.history.map(h =>
-                `<tr><td>${esc(h.feature)}</td><td>${h.date}</td><td>${h.count}</td></tr>`
-            ).join("")}</tbody>
+            <tbody>${state.history.map(h => `
+                <tr>
+                    <td>${esc(h.feature)}</td>
+                    <td>${h.date}</td>
+                    <td>${h.time ? `<span class="time-badge">${esc(h.time)}</span>` : "—"}</td>
+                    <td>${h.count}</td>
+                </tr>`).join("")}
+            </tbody>
         </table>`;
 }
-
 document.getElementById("clearHistoryBtn").addEventListener("click", () => {
     state.history = [];
     saveState();
     renderHistory();
 });
 
+document.getElementById("clearAllBtn").addEventListener("click", () => {
+    if(!confirm(t("confirmClearAll"))) return;
+    state.usageTotal = 0;
+    state.history = [];
+    state.projects = [];
+    latestTestCases = [];
+    saveState();
+    saveLatestTestCases();
+    document.getElementById("results").innerHTML = "";
+    toggleActionBtns();
+    updateUsageCounter();
+    renderDashboard();
+    renderHistory();
+    renderProjects();
+    renderSuites();
+});
+
 // ============================================================
-// PROJECTS (localStorage-backed)
+// PROJECTS — with Delete button
 // ============================================================
+function deleteProject(id, e) {
+    if(e) { e.stopPropagation(); e.preventDefault(); }
+    if(!confirm(t("confirmDelete"))) return;
+    state.projects = state.projects.filter(p => String(p.id) !== String(id));
+    saveState();
+    renderProjects();
+    renderSuites();
+    renderDashboard();
+}
+
 function renderProjects() {
     const el = document.getElementById("projectsContent");
-    if (!state.projects.length) {
+    if(!state.projects.length) {
         el.innerHTML = `<div class="empty-state">${t("emptyProjects")}</div>`;
         return;
     }
@@ -1293,44 +1368,54 @@ function renderProjects() {
                 <th>${t("colDesc")}</th>
                 <th>${t("colCreated")}</th>
                 <th></th>
+                <th></th>
             </tr></thead>
             <tbody>${state.projects.map(p => `
                 <tr class="clickable" data-pid="${p.id}">
                     <td><strong>${esc(p.name)}</strong></td>
                     <td style="color:var(--text-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.description)}</td>
                     <td>${p.created}</td>
-                    <td style="color:var(--text-muted);font-size:13px;">${p.testCases.length} tests</td>
+                    <td style="color:var(--text-muted);font-size:13px;">${p.testCases.length} ${t("testsLabel")}</td>
+                    <td>
+                        <button class="danger-btn delete-project-btn" data-pid="${p.id}">
+                            <i data-lucide="trash-2"></i> ${t("delete")}
+                        </button>
+                    </td>
                 </tr>`).join("")}
             </tbody>
         </table>`;
 
+    el.querySelectorAll(".delete-project-btn").forEach(btn => {
+        btn.addEventListener("click", e => deleteProject(btn.dataset.pid, e));
+    });
     el.querySelectorAll("tr.clickable").forEach(row => {
-        row.addEventListener("click", () => {
+        row.addEventListener("click", e => {
+            if(e.target.closest(".delete-project-btn")) return;
             const project = state.projects.find(p => String(p.id) === row.dataset.pid);
-            if (!project) return;
+            if(!project) return;
             const rows = project.testCases.map(tc => `
                 <tr>
-                    <td>${esc(tc.id)}</td>
-                    <td>${esc(tc.title)}</td>
-                    <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(tc.priority)}</span></td>
-                    <td style="color:var(--text-muted)">${tc.status || "Untested"}</td>
+                    <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td>
+                    <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${priorityLabel(tc.priority)}</span></td>
+                    <td style="color:var(--text-muted)">${statusLabel(tc.status)}</td>
                 </tr>`).join("");
             openModal(project.name, `
                 <p style="color:var(--text-muted);font-size:13px;margin-top:0;">${esc(project.description)}</p>
                 <table style="font-size:14px">
-                    <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th></tr></thead>
+                    <thead><tr><th>${t("colId")}</th><th>${t("colTitle")}</th><th>${t("colPriority")}</th><th>${t("colStatus")}</th></tr></thead>
                     <tbody>${rows}</tbody>
                 </table>`);
         });
     });
+    lucide.createIcons();
 }
 
 // ============================================================
-// SUITES (test cases grouped by project)
+// SUITES — with Delete button
 // ============================================================
 function renderSuites() {
     const el = document.getElementById("suitesContent");
-    if (!state.projects.length) {
+    if(!state.projects.length) {
         el.innerHTML = `<div class="table-card"><div class="empty-state">${t("emptyProjects")}</div></div>`;
         return;
     }
@@ -1338,27 +1423,40 @@ function renderSuites() {
         <div class="table-card" style="margin-bottom:20px;">
             <div class="section-header">
                 <h2>${esc(p.name)}</h2>
-                <span style="color:var(--text-muted);font-size:13px;">${p.created}</span>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <span style="color:var(--text-muted);font-size:13px;">${p.created}</span>
+                    <button class="danger-btn delete-suite-btn" data-pid="${p.id}">
+                        <i data-lucide="trash-2"></i> ${t("delete")}
+                    </button>
+                </div>
             </div>
             <table>
-                <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th></tr></thead>
+                <thead><tr><th>${t("colId")}</th><th>${t("colTitle")}</th><th>${t("colPriority")}</th><th>${t("colStatus")}</th></tr></thead>
                 <tbody>${p.testCases.map(tc => `
                     <tr>
-                        <td>${esc(tc.id)}</td>
-                        <td>${esc(tc.title)}</td>
-                        <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(tc.priority)}</span></td>
-                        <td style="color:var(--text-muted)">${tc.status || "Untested"}</td>
+                        <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td>
+                        <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${priorityLabel(tc.priority)}</span></td>
+                        <td style="color:var(--text-muted)">${statusLabel(tc.status)}</td>
                     </tr>`).join("")}
                 </tbody>
             </table>
         </div>`).join("");
+
+    el.querySelectorAll(".delete-suite-btn").forEach(btn => {
+        btn.addEventListener("click", e => deleteProject(btn.dataset.pid, e));
+    });
+    lucide.createIcons();
 }
 
 // ============================================================
 // INIT
 // ============================================================
+loadLatestTestCases();
+renderSavedTestCards();
 applyLang();
 updateUsageCounter();
+renderDashboard();
+toggleActionBtns();
 </script>
 </body>
 </html>
