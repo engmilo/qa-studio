@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QA Studio — AI Test Case Generator</title>
+    <title>QA Studio — Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -17,12 +17,12 @@
         }
 
         body.light {
-            --body-bg: #f5f6f8;
-            --card-bg: #ffffff;
-            --text: #1f2937;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
-            --sidebar-bg: #ffffff;
+            --body-bg: #e8eaee;
+            --card-bg: #f9fafb;
+            --text: #111827;
+            --text-muted: #4b5563;
+            --border: #d1d5db;
+            --sidebar-bg: #f3f4f6;
         }
 
         body.dark {
@@ -109,16 +109,54 @@
             padding: 2px 4px;
         }
 
-        .lang-select {
+        .top-right-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: absolute;
+            top: 20px;
+            right: 28px;
+            z-index: 5;
+        }
+        .lang-flags {
+            display: flex;
+            gap: 4px;
+        }
+        .flag-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 5px 8px;
+            line-height: 0;
+            transition: all 0.18s;
+            opacity: 0.5;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .flag-btn img { display: block; border-radius: 2px; }
+        .flag-btn:hover { opacity: 1; border-color: var(--text-muted); }
+        .flag-btn.active-lang {
+            opacity: 1;
+            border-color: #3b82f6;
+            background: rgba(59,130,246,0.10);
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.25);
+        }
+        body.dark .flag-btn.active-lang {
+            background: rgba(59,130,246,0.20);
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.4);
+        }
+        .live-clock {
+            font-size: 13px;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-muted);
             background: var(--card-bg);
             border: 1px solid var(--border);
-            color: var(--text);
             border-radius: 8px;
-            padding: 8px 10px;
-            font-size: 13px;
-            cursor: pointer;
-            width: 100%;
+            padding: 5px 10px;
             font-family: "Inter", sans-serif;
+            white-space: nowrap;
         }
 
         .main-content {
@@ -126,9 +164,12 @@
             margin-left: 240px;
             height: 100vh;
             overflow-y: auto;
-            padding: 24px 36px 48px 24px;
+            padding: 24px 36px 24px 24px;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
         }
+        .main-content-inner { flex: 1; }
 
         .topbar {
             font-size: 24px;
@@ -257,6 +298,7 @@
         }
         .secondary-btn:hover { background: rgba(0,0,0,0.05); }
         body.dark .secondary-btn:hover { background: rgba(255,255,255,0.05); }
+        .secondary-btn:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
 
         /* ── Danger / Delete button ── */
         .danger-btn {
@@ -338,6 +380,7 @@
         /* RTL */
         body[dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border); }
         body[dir="rtl"] .main-content { margin-left: 0; margin-right: 240px; }
+        body[dir="rtl"] .top-right-bar { right: auto; left: 28px; }
         body[dir="rtl"] .nav-item { text-align: right; flex-direction: row-reverse; }
         body[dir="rtl"] .test-card-header { flex-direction: row-reverse; }
         body[dir="rtl"] .test-card-actions { flex-direction: row-reverse; }
@@ -351,6 +394,17 @@
         /* Time badge */
         .time-badge { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--text-muted); background: rgba(0,0,0,0.05); border-radius: 5px; padding: 2px 7px; font-family: "Inter", sans-serif; }
         body.dark .time-badge { background: rgba(255,255,255,0.07); }
+
+        /* Footer */
+        .app-footer {
+            text-align: center;
+            padding: 16px 24px;
+            font-size: 13px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 
@@ -360,37 +414,41 @@
     <aside class="sidebar">
         <div class="sidebar-header">QA Studio</div>
         <nav class="sidebar-nav">
-            <button class="nav-item active" data-view="generator">
+            <button class="nav-item active" data-view="generator" data-tip="tipGenerator">
                 <i data-lucide="sparkles"></i><span data-i18n="generator">Generator</span>
             </button>
-            <button class="nav-item" data-view="dashboard">
+            <button class="nav-item" data-view="dashboard" data-tip="tipDashboard">
                 <i data-lucide="bar-chart-2"></i><span data-i18n="dashboard">Dashboard</span>
             </button>
-            <button class="nav-item" data-view="projects">
+            <button class="nav-item" data-view="projects" data-tip="tipProjects">
                 <i data-lucide="folder"></i><span data-i18n="projects">Projects</span>
             </button>
-            <button class="nav-item" data-view="suites">
+            <button class="nav-item" data-view="suites" data-tip="tipSuites">
                 <i data-lucide="layers"></i><span data-i18n="suites">Suites</span>
             </button>
-            <button class="nav-item" data-view="history">
+            <button class="nav-item" data-view="history" data-tip="tipHistory">
                 <i data-lucide="clock"></i><span data-i18n="history">History</span>
             </button>
         </nav>
         <div class="sidebar-footer">
             <div class="usage-counter" id="usageCounter">0</div>
-            <select id="langSelect" class="lang-select">
-                <option value="en">🇬🇧 English</option>
-                <option value="fi">🇫🇮 Suomi</option>
-                <option value="dz">🇩🇿 دارجة</option>
-            </select>
             <button id="themeToggle" class="nav-item">
                 <i data-lucide="moon" id="themeIcon"></i><span data-i18n="theme">Theme</span>
             </button>
         </div>
     </aside>
 
-    <main class="main-content">
-        <header class="topbar" id="pageTitle">AI Test Case Generator</header>
+    <main class="main-content" style="position:relative;">
+      <div class="top-right-bar">
+        <span class="live-clock" id="liveClock"></span>
+        <div class="lang-flags" id="langFlags">
+            <button class="flag-btn" data-lang="en" title="English"><img src="https://flagcdn.com/w40/gb.png" alt="EN" width="24" height="16"></button>
+            <button class="flag-btn" data-lang="fi" title="Suomi"><img src="https://flagcdn.com/w40/fi.png" alt="FI" width="24" height="16"></button>
+            <button class="flag-btn" data-lang="dz" title="Arabic"><img src="https://flagcdn.com/w40/dz.png" alt="DZ" width="24" height="16"></button>
+        </div>
+      </div>
+      <div class="main-content-inner">
+        <header class="topbar" id="pageTitle">Generator</header>
         <p class="page-subtitle" id="pageSubtitle">Generate, save, and track test cases by project.</p>
 
         <section id="view-generator">
@@ -412,19 +470,19 @@
                     <button id="generateBtn" class="primary-btn">
                         <i data-lucide="wand-2"></i><span data-i18n="generate">Generate Test Cases</span>
                     </button>
-                    <button id="exportJson" class="secondary-btn">
+                    <button id="exportJson" class="secondary-btn" disabled>
                         <i data-lucide="braces"></i><span data-i18n="exportJson">Export JSON</span>
                     </button>
-                    <button id="exportCsv" class="secondary-btn">
+                    <button id="exportCsv" class="secondary-btn" disabled>
                         <i data-lucide="file-text"></i><span data-i18n="exportCsv">Export CSV</span>
                     </button>
-                    <button id="exportExcel" class="secondary-btn">
+                    <button id="exportExcel" class="secondary-btn" disabled>
                         <i data-lucide="table-2"></i><span data-i18n="exportExcel">Export Excel</span>
                     </button>
-                    <button id="exportWord" class="secondary-btn">
+                    <button id="exportWord" class="secondary-btn" disabled>
                         <i data-lucide="file"></i><span data-i18n="exportWord">Export Word</span>
                     </button>
-                    <button id="saveProjectBtn" class="secondary-btn">
+                    <button id="saveProjectBtn" class="secondary-btn" disabled>
                         <i data-lucide="save"></i><span data-i18n="saveProject">Save to Project</span>
                     </button>
                 </div>
@@ -454,6 +512,8 @@
                 <div id="historyContent"></div>
             </div>
         </section>
+      </div>
+      <footer class="app-footer" data-i18n="footerText">QA Studio by Milo Haireche — 20+ years of QA expertise</footer>
     </main>
 </div>
 
@@ -495,11 +555,16 @@ const WORKER_URL = "https://qa-proxy.eng-milo.workers.dev";
 // ============================================================
 const i18n = {
     en: {
-        documentTitle: "QA Studio — AI Test Case Generator",
-        generatorPageTitle: "AI Test Case Generator",
+        documentTitle: "QA Studio — Generator",
+        generatorPageTitle: "Generator",
         pageSubtitle: "Generate, save, and track test cases by project.",
         appName: "QA Studio", generator: "Generator", dashboard: "Dashboard",
         projects: "Projects", suites: "Suites", history: "History", theme: "Theme",
+        tipGenerator: "Generate test cases from a feature description",
+        tipDashboard: "View stats and status of your test cases",
+        tipProjects: "Browse and manage saved projects",
+        tipSuites: "View test suites grouped by project",
+        tipHistory: "See your past generation history",
         generate: "Generate Test Cases", generating: "Generating…",
         exportJson: "Export JSON", exportCsv: "Export CSV", exportExcel: "Export Excel",
         exportWord: "Export Word", saveProject: "Save to Project", save: "Save",
@@ -515,6 +580,7 @@ const i18n = {
         dashEmpty: "No test cases yet. Generate some to see stats here.",
         pass: "Pass", fail: "Fail", blocked: "Blocked",
         confirmDelete: "Delete this project? This cannot be undone.",
+        footerText: "QA Studio by Milo Haireche — 20+ years of QA expertise",
         chips: ["Login flow","Password reset","File upload","Search & filter","User registration","Checkout"],
         chipStories: [
             "As a registered user, I want to log in with my email and password so that I can access my account dashboard. The system should support 'Remember me', show/hide password toggle, account lockout after 5 failed attempts, and display clear error messages for invalid credentials.",
@@ -528,11 +594,16 @@ const i18n = {
         dir: "ltr",
     },
     fi: {
-        documentTitle: "QA Studio — Tekoälytestitapausgeneraattori",
-        generatorPageTitle: "Tekoälytestitapausgeneraattori",
+        documentTitle: "QA Studio — Generaattori",
+        generatorPageTitle: "Generaattori",
         pageSubtitle: "Luo, tallenna ja seuraa testitapauksia projekteittain.",
         appName: "QA Studio", generator: "Generaattori", dashboard: "Kojelauta",
         projects: "Projektit", suites: "Testipaketit", history: "Historia", theme: "Teema",
+        tipGenerator: "Luo testitapaukset ominaisuuskuvauksen perusteella",
+        tipDashboard: "Näytä testitapausten tilastot ja tila",
+        tipProjects: "Selaa ja hallitse tallennettuja projekteja",
+        tipSuites: "Näytä testipaketit projekteittain",
+        tipHistory: "Katso aikaisempi luontihistoria",
         generate: "Luo testitapaukset", generating: "Luodaan…",
         exportJson: "Vie JSON", exportCsv: "Vie CSV", exportExcel: "Vie Excel",
         exportWord: "Vie Word", saveProject: "Tallenna projektiin", save: "Tallenna",
@@ -548,6 +619,7 @@ const i18n = {
         dashEmpty: "Ei testitapauksia vielä. Luo niitä nähdäksesi tilastot.",
         pass: "Hyväksytty", fail: "Hylätty", blocked: "Estetty",
         confirmDelete: "Poistetaanko tämä projekti? Toimintoa ei voi peruuttaa.",
+        footerText: "QA Studio, tekijä Milo Haireche — yli 20 vuoden QA-kokemus",
         chips: ["Kirjautuminen","Salasanan palautus","Tiedoston lataus","Haku ja suodatus","Rekisteröinti","Kassaprosessi"],
         chipStories: [
             "Rekisteröityneenä käyttäjänä haluan kirjautua sisään sähköpostilla ja salasanalla päästäkseni tilini hallintapaneeliin. Järjestelmän tulee tukea 'Muista minut' -toimintoa, salasanan näyttämistä/piilottamista, tilin lukitsemista 5 epäonnistuneen yrityksen jälkeen ja selkeiden virheilmoitusten näyttämistä.",
@@ -561,11 +633,16 @@ const i18n = {
         dir: "ltr",
     },
     dz: {
-        documentTitle: "QA Studio — مولّد حالات الاختبار بالذكاء الاصطناعي",
-        generatorPageTitle: "مولّد حالات الاختبار بالذكاء الاصطناعي",
+        documentTitle: "QA Studio — المولّد",
+        generatorPageTitle: "المولّد",
         pageSubtitle: "ولّد، احفظ، وتابع حالات الاختبار حسب المشروع.",
         appName: "QA Studio", generator: "المولّد", dashboard: "لوحة القيادة",
         projects: "المشاريع", suites: "الحزم", history: "السجل", theme: "المظهر",
+        tipGenerator: "ولّد حالات اختبار من وصف الميزة",
+        tipDashboard: "شوف إحصائيات وحالة حالات الاختبار",
+        tipProjects: "تصفّح وسيّر المشاريع المحفوظة",
+        tipSuites: "شوف حزم الاختبار حسب المشروع",
+        tipHistory: "شوف تاريخ التوليد السابق",
         generate: "ولّد حالات الاختبار", generating: "جاري التوليد…",
         exportJson: "صدّر JSON", exportCsv: "صدّر CSV", exportExcel: "صدّر Excel",
         exportWord: "صدّر Word", saveProject: "احفظ في مشروع", save: "احفظ",
@@ -581,6 +658,7 @@ const i18n = {
         dashEmpty: "ما كاين حالات اختبار بعد. ولّد باش تشوف الإحصائيات.",
         pass: "نجح", fail: "فشل", blocked: "محظور",
         confirmDelete: "تحذف هذا المشروع؟ ما تقدرش ترجع.",
+        footerText: "QA Studio من Milo Haireche — أكثر من 20 سنة خبرة في ضمان الجودة",
         chips: ["تسجيل الدخول","استرجاع كلمة السر","رفع الملفات","البحث والتصفية","تسجيل المستخدم","الدفع"],
         chipStories: [
             "كمستخدم مسجّل، نحب ندخل بالإيميل والباسوورد باش نوصل للوحة التحكم تاعي. النظام لازم يدعم 'تذكرني'، إظهار/إخفاء الباسوورد، قفل الحساب بعد 5 محاولات فاشلة، وعرض رسائل خطأ واضحة للبيانات الغالطة.",
@@ -616,6 +694,9 @@ function applyLang() {
     document.querySelectorAll("[data-i18n]").forEach(el => {
         const val = t(el.dataset.i18n);
         if (typeof val === "string") el.textContent = val;
+    });
+    document.querySelectorAll("[data-tip]").forEach(el => {
+        el.title = t(el.dataset.tip);
     });
     document.body.dir = t("dir");
     if (lang === "dz") {
@@ -721,19 +802,40 @@ document.getElementById("themeToggle").addEventListener("click", () => {
 if(savedTheme === "dark") document.getElementById("themeIcon").setAttribute("data-lucide","sun");
 
 // ============================================================
-// LANGUAGE
+// LANGUAGE (flag buttons)
 // ============================================================
-document.getElementById("langSelect").value = lang;
-document.getElementById("langSelect").addEventListener("change", e => {
-    lang = e.target.value;
-    localStorage.setItem("qa_lang", lang);
-    applyLang();
-    const v = document.querySelector(".sidebar-nav .nav-item.active")?.dataset.view;
-    if(v === "history")   renderHistory();
-    if(v === "projects")  renderProjects();
-    if(v === "suites")    renderSuites();
-    if(v === "dashboard") renderDashboard();
+function updateFlagButtons() {
+    document.querySelectorAll("#langFlags .flag-btn").forEach(btn => {
+        btn.classList.toggle("active-lang", btn.dataset.lang === lang);
+    });
+}
+updateFlagButtons();
+document.querySelectorAll("#langFlags .flag-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        lang = btn.dataset.lang;
+        localStorage.setItem("qa_lang", lang);
+        updateFlagButtons();
+        applyLang();
+        const v = document.querySelector(".sidebar-nav .nav-item.active")?.dataset.view;
+        if(v === "history")   renderHistory();
+        if(v === "projects")  renderProjects();
+        if(v === "suites")    renderSuites();
+        if(v === "dashboard") renderDashboard();
+    });
 });
+
+// ============================================================
+// LIVE CLOCK
+// ============================================================
+(function initClock() {
+    const el = document.getElementById("liveClock");
+    function tick() {
+        const now = new Date();
+        el.textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+    }
+    tick();
+    setInterval(tick, 1000);
+})();
 
 // ============================================================
 // ROUTING
@@ -813,6 +915,7 @@ document.getElementById("confirmSaveBtn").addEventListener("click", () => {
     document.getElementById("results").innerHTML = "";
     document.getElementById("chipsRow").querySelectorAll(".chip")
         .forEach(c => c.classList.remove("active-chip"));
+    toggleActionBtns();
 });
 
 document.getElementById("projectNameInput").addEventListener("keydown", e => {
@@ -926,6 +1029,11 @@ function finishProgress(success = true) {
 // GENERATOR
 // ============================================================
 const resultsEl   = document.getElementById("results");
+const actionBtns  = ["exportJson","exportCsv","exportExcel","exportWord","saveProjectBtn"].map(id => document.getElementById(id));
+function toggleActionBtns() {
+    const has = latestTestCases.length > 0;
+    actionBtns.forEach(btn => btn.disabled = !has);
+}
 const generateBtn = document.getElementById("generateBtn");
 const testInput   = document.getElementById("testInput");
 const charCounter = document.getElementById("charCounter");
@@ -1034,6 +1142,7 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
         lucide.createIcons();
         finishProgress(true);
         confetti({ particleCount:130, spread:80, origin:{y:0.55}, colors:["#3b82f6","#8b5cf6","#10b981","#f97316"] });
+        toggleActionBtns();
         state.usageTotal += latestTestCases.length;
         state.history.unshift({
             feature: feature.slice(0,60),
@@ -1120,19 +1229,22 @@ document.getElementById("exportWord").addEventListener("click", () => {
 // DASHBOARD
 // ============================================================
 function renderDashboard() {
-    const sessionTotal    = latestTestCases.length;
-    const sessionPass     = latestTestCases.filter(tc => tc.status === "pass").length;
-    const sessionFail     = latestTestCases.filter(tc => tc.status === "fail").length;
-    const sessionBlocked  = latestTestCases.filter(tc => tc.status === "blocked").length;
-    const sessionUntested = latestTestCases.filter(tc => !tc.status).length;
+    // Aggregate test cases from all saved projects + current session
+    const allProjectTests = state.projects.reduce((arr, p) => arr.concat(p.testCases), []);
+    const allTests = allProjectTests.concat(latestTestCases);
+    const total    = allTests.length;
+    const pass     = allTests.filter(tc => tc.status === "pass").length;
+    const fail     = allTests.filter(tc => tc.status === "fail").length;
+    const blocked  = allTests.filter(tc => tc.status === "blocked").length;
+    const untested = allTests.filter(tc => !tc.status).length;
     const pCounts = {};
-    latestTestCases.forEach(tc => { if(tc.priority) pCounts[tc.priority] = (pCounts[tc.priority]||0)+1; });
+    allTests.forEach(tc => { if(tc.priority) pCounts[tc.priority] = (pCounts[tc.priority]||0)+1; });
     const pCards = ["Critical","High","Medium","Low","Trivial"].filter(p=>pCounts[p]).map(p=>`
         <div class="dash-card">
             <div class="dash-value" style="color:${priorityColors[p]}">${pCounts[p]}</div>
             <div class="dash-label"><span class="dash-dot" style="background:${priorityColors[p]}"></span>${p}</div>
         </div>`).join("");
-    if(sessionTotal === 0 && state.usageTotal === 0) {
+    if(total === 0 && state.usageTotal === 0) {
         document.getElementById("dashContent").innerHTML = `<div class="empty-state">${t("dashEmpty")}</div>`;
         return;
     }
@@ -1141,15 +1253,15 @@ function renderDashboard() {
             <div style="font-size:36px;font-weight:600;">${state.usageTotal}</div>
             <div style="color:var(--text-muted);font-size:14px;">${t("dashTotalAll")}</div>
         </div>
-        <p class="dash-section-title">${t("dashSession")} ${sessionTotal>0?`(${sessionTotal} ${t("dashTotal").toLowerCase()})`:""}
+        <p class="dash-section-title">${t("dashSession")} ${total>0?`(${total} ${t("dashTotal").toLowerCase()})`:""}
         </p>
-        ${sessionTotal > 0 ? `
+        ${total > 0 ? `
         <div class="dash-grid">
-            <div class="dash-card"><div class="dash-value">${sessionTotal}</div><div class="dash-label">${t("dashTotal")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:#10b981">${sessionPass}</div><div class="dash-label"><span class="dash-dot" style="background:#10b981"></span>${t("dashPass")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:#dc2626">${sessionFail}</div><div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:#f97316">${sessionBlocked}</div><div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:var(--text-muted)">${sessionUntested}</div><div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div></div>
+            <div class="dash-card"><div class="dash-value">${total}</div><div class="dash-label">${t("dashTotal")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:#10b981">${pass}</div><div class="dash-label"><span class="dash-dot" style="background:#10b981"></span>${t("dashPass")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:#dc2626">${fail}</div><div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:#f97316">${blocked}</div><div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div></div>
+            <div class="dash-card"><div class="dash-value" style="color:var(--text-muted)">${untested}</div><div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div></div>
         </div>` : `<div class="empty-state" style="padding:20px;">${t("dashEmpty")}</div>`}
         ${pCards ? `<p class="dash-section-title">${t("priorityBreakdown")}</p><div class="dash-grid">${pCards}</div>` : ""}`;
 }
@@ -1191,9 +1303,9 @@ document.getElementById("clearHistoryBtn").addEventListener("click", () => {
 // PROJECTS — with Delete button
 // ============================================================
 function deleteProject(id, e) {
-    if(e) e.stopPropagation();
+    if(e) { e.stopPropagation(); e.preventDefault(); }
     if(!confirm(t("confirmDelete"))) return;
-    state.projects = state.projects.filter(p => p.id !== id);
+    state.projects = state.projects.filter(p => String(p.id) !== String(id));
     saveState();
     renderProjects();
     renderSuites();
@@ -1231,7 +1343,7 @@ function renderProjects() {
         </table>`;
 
     el.querySelectorAll(".delete-project-btn").forEach(btn => {
-        btn.addEventListener("click", e => deleteProject(parseInt(btn.dataset.pid), e));
+        btn.addEventListener("click", e => deleteProject(btn.dataset.pid, e));
     });
     el.querySelectorAll("tr.clickable").forEach(row => {
         row.addEventListener("click", e => {
@@ -1288,7 +1400,7 @@ function renderSuites() {
         </div>`).join("");
 
     el.querySelectorAll(".delete-suite-btn").forEach(btn => {
-        btn.addEventListener("click", e => deleteProject(parseInt(btn.dataset.pid), e));
+        btn.addEventListener("click", e => deleteProject(btn.dataset.pid, e));
     });
     lucide.createIcons();
 }
@@ -1301,6 +1413,7 @@ renderSavedTestCards();
 applyLang();
 updateUsageCounter();
 renderDashboard();
+toggleActionBtns();
 </script>
 </body>
 </html>
