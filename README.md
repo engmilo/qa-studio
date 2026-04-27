@@ -2,7 +2,7 @@
 
 A single-page AI-powered test case generator built for QA engineers. Describe a feature and get structured, prioritised test cases instantly.
 
-🔗 **Live site:** https://YOUR-USERNAME.github.io/qa-studio
+🔗 **Live site:** https://engmilo.github.io/qa-studio
 
 ---
 
