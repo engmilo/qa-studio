@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QA Studio — AI Test Case Generator</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="QA Studio">
 
     <!-- ── Open Graph / LinkedIn preview tags ── -->
     <meta property="og:title" content="QA Studio — AI Test Case Generator" />
@@ -3199,29 +3204,45 @@ document.getElementById("exportWord").addEventListener("click", () => {
 function renderDashboard() {
     const allProjectTests = state.projects.reduce((arr, p) => arr.concat(p.testCases), []);
     const allTests = allProjectTests.concat(latestTestCases);
-    const total    = allTests.length;
-    const pass     = allTests.filter(tc => tc.status === "pass").length;
-    const fail     = allTests.filter(tc => tc.status === "fail").length;
-    const blocked  = allTests.filter(tc => tc.status === "blocked").length;
+    const total = allTests.length;
+    const pass = allTests.filter(tc => tc.status === "pass").length;
+    const fail = allTests.filter(tc => tc.status === "fail").length;
+    const blocked = allTests.filter(tc => tc.status === "blocked").length;
     const untested = allTests.filter(tc => !tc.status).length;
-    const pCounts = {};
-    allTests.forEach(tc => { if(tc.priority) pCounts[tc.priority] = (pCounts[tc.priority]||0)+1; });
-    const pCards = ["Critical","High","Medium","Low","Trivial"].filter(p=>pCounts[p]).map(p=>`
-        <div class="dash-card">
-            <div class="dash-value" style="color:${priorityColors[p]}">${pCounts[p]}</div>
-            <div class="dash-label"><span class="dash-dot" style="background:${priorityColors[p]}"></span>${priorityLabel(p)}</div>
-        </div>`).join("");
-    if(total === 0 && state.usageTotal === 0) {
+    
+    if (total === 0 && state.usageTotal === 0) {
         document.getElementById("dashContent").innerHTML = `<div class="empty-state">${t("dashEmpty")}</div>`;
         return;
     }
+    
+    const statusChart = renderPieChart([pass, fail, blocked, untested], ['#10b981', '#dc2626', '#f97316', '#6b7280']);
+    const priorityCounts = {};
+    allTests.forEach(tc => { if(tc.priority) priorityCounts[tc.priority] = (priorityCounts[tc.priority]||0)+1; });
+    const priorityData = ["Critical","High","Medium","Low","Trivial"].map(p => priorityCounts[p] || 0);
+    const pColors = ["#dc2626","#f97316","#3b82f6","#10b981","#6b7280"];
+    const priorityChart = renderPieChart(priorityData, pColors);
+    const trendChart = renderTrendChart(state.history);
+    
     document.getElementById("dashContent").innerHTML = `
         <div class="dash-card" style="margin-bottom:24px;display:flex;align-items:center;gap:20px;padding:20px 24px;">
             <div style="font-size:42px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${state.usageTotal}</div>
             <div style="color:var(--text-muted);font-size:15px;font-weight:500;">${t("dashTotalAll")}</div>
         </div>
-        <p class="dash-section-title">${t("dashSession")} ${total>0?`(${total} ${t("dashTotal").toLowerCase()})`:""}
-        </p>
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="chart-title">Status Distribution</div>
+                ${statusChart}
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Priority Distribution</div>
+                ${priorityChart}
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-title">Generation Trend (Last 7)</div>
+            ${trendChart}
+        </div>
+        <p class="dash-section-title">${t("dashSession")} ${total>0?`(${total} ${t("dashTotal").toLowerCase()})`:""}</p>
         ${total > 0 ? `
         <div class="dash-grid">
             <div class="dash-card"><div class="dash-value">${total}</div><div class="dash-label">${t("dashTotal")}</div></div>
@@ -3229,8 +3250,7 @@ function renderDashboard() {
             <div class="dash-card"><div class="dash-value" style="color:#dc2626">${fail}</div><div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div></div>
             <div class="dash-card"><div class="dash-value" style="color:#f97316">${blocked}</div><div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div></div>
             <div class="dash-card"><div class="dash-value" style="color:var(--text-muted)">${untested}</div><div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div></div>
-        </div>` : `<div class="empty-state" style="padding:24px;">${t("dashEmpty")}</div>`}
-        ${pCards ? `<p class="dash-section-title">${t("priorityBreakdown")}</p><div class="dash-grid">${pCards}</div>` : ""}`;
+        </div>` : `<div class="empty-state" style="padding:24px;">${t("dashEmpty")}</div>`}`;
 }
 
 // ============================================================
@@ -3242,7 +3262,8 @@ function renderHistory() {
         el.innerHTML = `<div class="empty-state">${t("emptyHistory")}</div>`;
         return;
     }
-    el.innerHTML = `
+    
+    const tableHtml = `
         <table>
             <thead><tr>
                 <th>${t("colFeature")}</th>
@@ -3250,7 +3271,7 @@ function renderHistory() {
                 <th>${t("colTime")}</th>
                 <th>${t("colCount")}</th>
             </tr></thead>
-            <tbody>${state.history.map(h => `
+            <tbody id="historyBody">${state.history.map(h => `
                 <tr>
                     <td>${esc(h.feature)}</td>
                     <td>${h.date}</td>
@@ -3259,6 +3280,39 @@ function renderHistory() {
                 </tr>`).join("")}
             </tbody>
         </table>`;
+    
+    el.innerHTML = tableHtml;
+    
+    if (!document.getElementById("historySearch")) {
+        const searchInput = document.createElement("input");
+        searchInput.type = "text";
+        searchInput.className = "search-input";
+        searchInput.placeholder = "Search history...";
+        searchInput.id = "historySearch";
+        
+        const searchWrapper = document.createElement("div");
+        searchWrapper.className = "search-wrapper";
+        searchWrapper.innerHTML = `<i data-lucide="search" class="search-icon"></i>`;
+        searchWrapper.appendChild(searchInput);
+        searchWrapper.innerHTML += `<button class="search-clear" id="clearHistorySearch"><i data-lucide="x"></i></button>`;
+        
+        el.parentNode.insertBefore(searchWrapper, el);
+        
+        searchInput.addEventListener("input", (e) => {
+            const query = e.target.value.toLowerCase();
+            document.getElementById("clearHistorySearch").classList.toggle("visible", query.length > 0);
+            document.querySelectorAll("#historyBody tr").forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(query) ? "" : "none";
+            });
+        });
+        
+        document.getElementById("clearHistorySearch").addEventListener("click", () => {
+            searchInput.value = "";
+            searchInput.dispatchEvent(new Event("input"));
+        });
+        
+        lucide.createIcons();
+    }
 }
 document.getElementById("clearHistoryBtn").addEventListener("click", () => {
     state.history = [];
@@ -3303,7 +3357,7 @@ function renderProjects() {
         el.innerHTML = `<div class="empty-state">${t("emptyProjects")}</div>`;
         return;
     }
-    el.innerHTML = `
+    const tableHtml = `
         <table>
             <thead><tr>
                 <th>${t("colName")}</th>
@@ -3312,7 +3366,7 @@ function renderProjects() {
                 <th></th>
                 <th></th>
             </tr></thead>
-            <tbody>${state.projects.map(p => `
+            <tbody id="projectsBody">${state.projects.map(p => `
                 <tr class="clickable" data-pid="${p.id}">
                     <td><strong>${esc(p.name)}</strong></td>
                     <td style="color:var(--text-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.description)}</td>
@@ -3326,7 +3380,9 @@ function renderProjects() {
                 </tr>`).join("")}
             </tbody>
         </table>`;
-
+    
+    el.innerHTML = tableHtml;
+    
     el.querySelectorAll(".delete-project-btn").forEach(btn => {
         btn.addEventListener("click", e => deleteProject(btn.dataset.pid, e));
     });
@@ -3350,6 +3406,37 @@ function renderProjects() {
         });
     });
     lucide.createIcons();
+    
+    if (!document.getElementById("projectsSearch")) {
+        const searchInput = document.createElement("input");
+        searchInput.type = "text";
+        searchInput.className = "search-input";
+        searchInput.placeholder = "Search projects...";
+        searchInput.id = "projectsSearch";
+        
+        const searchWrapper = document.createElement("div");
+        searchWrapper.className = "search-wrapper";
+        searchWrapper.innerHTML = `<i data-lucide="search" class="search-icon"></i>`;
+        searchWrapper.appendChild(searchInput);
+        searchWrapper.innerHTML += `<button class="search-clear" id="clearProjectsSearch"><i data-lucide="x"></i></button>`;
+        
+        el.parentNode.insertBefore(searchWrapper, el);
+        
+        searchInput.addEventListener("input", (e) => {
+            const query = e.target.value.toLowerCase();
+            document.getElementById("clearProjectsSearch").classList.toggle("visible", query.length > 0);
+            document.querySelectorAll("#projectsBody tr").forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(query) ? "" : "none";
+            });
+        });
+        
+        document.getElementById("clearProjectsSearch").addEventListener("click", () => {
+            searchInput.value = "";
+            searchInput.dispatchEvent(new Event("input"));
+        });
+        
+        lucide.createIcons();
+    }
 }
 
 // ============================================================
@@ -3653,80 +3740,7 @@ function showSkeletonLoader() {
 }
 
 // ============================================================
-// NEW FEATURES: SEARCH/FILTER
-// ============================================================
-function addSearchToHistory() {
-    const searchInput = document.createElement("input");
-    searchInput.type = "text";
-    searchInput.className = "search-input";
-    searchInput.placeholder = "Search history...";
-    searchInput.id = "historySearch";
-    
-    const searchWrapper = document.createElement("div");
-    searchWrapper.className = "search-wrapper";
-    searchWrapper.innerHTML = `<i data-lucide="search" class="search-icon"></i>`;
-    searchWrapper.appendChild(searchInput);
-    searchWrapper.innerHTML += `<button class="search-clear" id="clearHistorySearch"><i data-lucide="x"></i></button>`;
-    
-    const historyContent = document.getElementById("historyContent");
-    historyContent.parentNode.insertBefore(searchWrapper, historyContent);
-    
-    searchInput.addEventListener("input", (e) => {
-        const query = e.target.value.toLowerCase();
-        document.getElementById("clearHistorySearch").classList.toggle("visible", query.length > 0);
-        
-        const rows = document.querySelectorAll("#historyContent tbody tr");
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(query) ? "" : "none";
-        });
-    });
-    
-    document.getElementById("clearHistorySearch").addEventListener("click", () => {
-        searchInput.value = "";
-        searchInput.dispatchEvent(new Event("input"));
-    });
-    
-    lucide.createIcons();
-}
-
-function addSearchToProjects() {
-    const searchInput = document.createElement("input");
-    searchInput.type = "text";
-    searchInput.className = "search-input";
-    searchInput.placeholder = "Search projects...";
-    searchInput.id = "projectsSearch";
-    
-    const searchWrapper = document.createElement("div");
-    searchWrapper.className = "search-wrapper";
-    searchWrapper.innerHTML = `<i data-lucide="search" class="search-icon"></i>`;
-    searchWrapper.appendChild(searchInput);
-    searchWrapper.innerHTML += `<button class="search-clear" id="clearProjectsSearch"><i data-lucide="x"></i></button>`;
-    
-    const projectsContent = document.getElementById("projectsContent");
-    projectsContent.parentNode.insertBefore(searchWrapper, projectsContent);
-    
-    searchInput.addEventListener("input", (e) => {
-        const query = e.target.value.toLowerCase();
-        document.getElementById("clearProjectsSearch").classList.toggle("visible", query.length > 0);
-        
-        const rows = document.querySelectorAll("#projectsContent tbody tr");
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(query) ? "" : "none";
-        });
-    });
-    
-    document.getElementById("clearProjectsSearch").addEventListener("click", () => {
-        searchInput.value = "";
-        searchInput.dispatchEvent(new Event("input"));
-    });
-    
-    lucide.createIcons();
-}
-
-// ============================================================
-// NEW FEATURES: VISUAL CHARTS
+// VISUAL CHARTS
 // ============================================================
 function renderPieChart(data, colors, container) {
     const total = data.reduce((a, b) => a + b, 0);
@@ -3765,60 +3779,8 @@ function renderTrendChart(history) {
     return html;
 }
 
-function renderDashboardWithCharts() {
-    const allProjectTests = state.projects.reduce((arr, p) => arr.concat(p.testCases), []);
-    const allTests = allProjectTests.concat(latestTestCases);
-    const total = allTests.length;
-    const pass = allTests.filter(tc => tc.status === "pass").length;
-    const fail = allTests.filter(tc => tc.status === "fail").length;
-    const blocked = allTests.filter(tc => tc.status === "blocked").length;
-    const untested = allTests.filter(tc => !tc.status).length;
-    
-    if (total === 0 && state.usageTotal === 0) {
-        document.getElementById("dashContent").innerHTML = `<div class="empty-state">${t("dashEmpty")}</div>`;
-        return;
-    }
-    
-    const statusChart = renderPieChart([pass, fail, blocked, untested], ['#10b981', '#dc2626', '#f97316', '#6b7280']);
-    const priorityCounts = {};
-    allTests.forEach(tc => { if(tc.priority) priorityCounts[tc.priority] = (priorityCounts[tc.priority]||0)+1; });
-    const priorityData = ["Critical","High","Medium","Low","Trivial"].map(p => priorityCounts[p] || 0);
-    const priorityColors = ["#dc2626","#f97316","#3b82f6","#10b981","#6b7280"];
-    const priorityChart = renderPieChart(priorityData, priorityColors);
-    const trendChart = renderTrendChart(state.history);
-    
-    document.getElementById("dashContent").innerHTML = `
-        <div class="dash-card" style="margin-bottom:24px;display:flex;align-items:center;gap:20px;padding:20px 24px;">
-            <div style="font-size:42px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${state.usageTotal}</div>
-            <div style="color:var(--text-muted);font-size:15px;font-weight:500;">${t("dashTotalAll")}</div>
-        </div>
-        <div class="chart-grid">
-            <div class="chart-container">
-                <div class="chart-title">Status Distribution</div>
-                ${statusChart}
-            </div>
-            <div class="chart-container">
-                <div class="chart-title">Priority Distribution</div>
-                ${priorityChart}
-            </div>
-        </div>
-        <div class="chart-container">
-            <div class="chart-title">Generation Trend (Last 7)</div>
-            ${trendChart}
-        </div>
-        <p class="dash-section-title">${t("dashSession")} ${total>0?`(${total} ${t("dashTotal").toLowerCase()})`:""}</p>
-        ${total > 0 ? `
-        <div class="dash-grid">
-            <div class="dash-card"><div class="dash-value">${total}</div><div class="dash-label">${t("dashTotal")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:#10b981">${pass}</div><div class="dash-label"><span class="dash-dot" style="background:#10b981"></span>${t("dashPass")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:#dc2626">${fail}</div><div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:#f97316">${blocked}</div><div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div></div>
-            <div class="dash-card"><div class="dash-value" style="color:var(--text-muted)">${untested}</div><div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div></div>
-        </div>` : `<div class="empty-state" style="padding:24px;">${t("dashEmpty")}</div>`}`;
-}
-
 // ============================================================
-// NEW FEATURES: TEMPLATES
+// TEMPLATES
 // ============================================================
 let templates = JSON.parse(localStorage.getItem("qa_templates") || "[]");
 
@@ -4281,7 +4243,48 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
         renderSavedTestCards();
         finishProgress(true);
         confetti({ particleCount:130, spread:80, origin:{y:0.55}, colors:["#3b82f6","#8b5cf6","#10b981","#f97316"] });
-        toggleActionBtns();
+toggleActionBtns();
+
+// ── PWA: Register service worker ──
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
+// ── LocalStorage quota warning ──
+if (navigator.storage && navigator.storage.estimate) {
+    navigator.storage.estimate().then(({ usage, quota }) => {
+        if (usage / quota > 0.8) {
+            const warnKey = "qa_quota_warn";
+            if (!localStorage.getItem(warnKey)) {
+                const bar = document.createElement("div");
+                bar.id = "quotaWarn";
+                bar.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#f97316;color:#fff;font-size:13px;padding:10px 16px;z-index:9999;display:flex;align-items:center;gap:12px;justify-content:center;";
+                bar.innerHTML = `⚠️ Storage is nearly full (${Math.round(usage/quota*100)}%). Export your data and clear old test cases to free up space. <button id="quotaWarnDismiss" style="background:none;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:13px;">Dismiss</button>`;
+                document.body.appendChild(bar);
+                document.getElementById("quotaWarnDismiss").onclick = () => {
+                    bar.remove();
+                    localStorage.setItem(warnKey, "1");
+                };
+            }
+        }
+    }).catch(() => {});
+} else {
+    // Fallback: measure qa_ keys manually
+    try {
+        let total = 0;
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith("qa_")) {
+                total += (k.length + (localStorage.getItem(k) || "").length) * 2;
+            }
+        }
+        if (total > 4e6) {
+            console.warn("QA Studio: localStorage usage ~" + (total / 1e6).toFixed(1) + "MB — consider cleaning up.");
+        }
+    } catch (_) {}
+}
+
+
         
         state.usageTotal += latestTestCases.length;
         state.history.unshift({
@@ -4322,34 +4325,6 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
         generateBtn.querySelector("span").textContent = t("generate");
     }
 });
-
-// ============================================================
-// Override renderDashboard
-// ============================================================
-const originalRenderDashboard = renderDashboard;
-renderDashboard = renderDashboardWithCharts;
-
-// ============================================================
-// Override renderHistory
-// ============================================================
-const originalRenderHistory = renderHistory;
-renderHistory = function() {
-    originalRenderHistory();
-    if (!document.getElementById("historySearch")) {
-        addSearchToHistory();
-    }
-};
-
-// ============================================================
-// Override renderProjects
-// ============================================================
-const originalRenderProjects = renderProjects;
-renderProjects = function() {
-    originalRenderProjects();
-    if (!document.getElementById("projectsSearch")) {
-        addSearchToProjects();
-    }
-};
 
 // ============================================================
 // INIT

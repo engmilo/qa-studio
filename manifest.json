@@ -1,0 +1,19 @@
+{
+  "name": "QA Studio — AI Test Case Generator",
+  "short_name": "QA Studio",
+  "description": "Generate, save, and track test cases by project using AI. Built by Milo Haireche.",
+  "start_url": "/qa-studio/",
+  "display": "standalone",
+  "background_color": "#f0f2f5",
+  "theme_color": "#3b82f6",
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
