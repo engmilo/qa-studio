@@ -2321,7 +2321,7 @@
                 <div class="chips-row" id="chipsRow"></div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
                     <button id="suggestBtn" class="secondary-btn" style="font-size:13px;">
-                        <i data-lucide="sparkles"></i> <span data-i18n="suggestFeatures">Suggest Features</span>
+                        <i data-lucide="shuffle"></i> <span data-i18n="suggestFeatures">Random Stories</span>
                     </button>
                 </div>
                 <div class="textarea-wrapper">
@@ -2501,7 +2501,7 @@ const i18n = {
         ],
         usageFn: n => `${n} test case${n !== 1 ? "s" : ""} generated`,
         charCounterLabel: "characters",
-        suggestFeatures: "Suggest Features",
+        suggestFeatures: "Random Stories",
         livePreviewLabel: "// live preview",
         apiEndpointUrl: "API Endpoint URL",
         apiEndpointPlaceholder: "https://your-api.com/endpoint",
@@ -2563,7 +2563,7 @@ const i18n = {
         ],
         usageFn: n => `${n} testitapausta luotu`,
         charCounterLabel: "merkkiä",
-        suggestFeatures: "Ehdota ominaisuuksia",
+        suggestFeatures: "Satunnaistarinoita",
         livePreviewLabel: "// suora esikatselu",
         apiEndpointUrl: "API-päätepisteen URL",
         apiEndpointPlaceholder: "https://your-api.com/endpoint",
@@ -2625,7 +2625,7 @@ const i18n = {
         ],
         usageFn: n => `${n} حالات اختبار تولّدت`,
         charCounterLabel: "حرف",
-        suggestFeatures: "اقتراح ميزات",
+        suggestFeatures: "قصص عشوائية",
         livePreviewLabel: "// معاينة مباشرة",
         apiEndpointUrl: "رابط نقطة نهاية API",
         apiEndpointPlaceholder: "https://your-api.com/endpoint",
@@ -2980,7 +2980,7 @@ document.getElementById("suggestBtn").addEventListener("click", async () => {
     const btn = document.getElementById("suggestBtn");
     const orig = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<i data-lucide="loader"></i> Suggesting…';
+    btn.innerHTML = '<i data-lucide="loader"></i> Generating…';
     lucide.createIcons();
     try {
         const config = getApiConfig();
@@ -2991,11 +2991,12 @@ document.getElementById("suggestBtn").addEventListener("click", async () => {
             body: JSON.stringify({
                 model: config.model,
                 max_tokens: config.tokens,
-                system: `You are a QA engineer. Suggest 6 feature areas for software testing. 
-Return ONLY a JSON object with two arrays: "labels" (short feature names, 2-3 words each) and "stories" (detailed feature descriptions for test case generation, 1-2 sentences each).
+                system: `You are a QA engineer. Generate 6 random realistic user stories for software testing.
+Return ONLY a JSON object with two arrays: "labels" (short feature name, 2-3 words) and "stories" (a complete user story in the format "As a [role], I want to [goal] so that [reason]", 1 sentence).
+Each story must be different and cover various app features (auth, payments, search, notifications, settings, etc.).
 Write all text in ${lang === "fi" ? "Finnish" : lang === "ar" ? "Arabic" : "English"}.
 Return ONLY the raw JSON, no markdown.`,
-                messages: [{ role: "user", content: "Suggest features for testing" }],
+                messages: [{ role: "user", content: "Generate random user stories for testing" }],
             }),
         });
         if (!res.ok) throw new Error(`Server error ${res.status}`);
@@ -3004,7 +3005,7 @@ Return ONLY the raw JSON, no markdown.`,
         const parsed = JSON.parse(raw);
         if (parsed.labels && parsed.stories) {
             buildChips({ labels: parsed.labels, stories: parsed.stories });
-            showToast("Features suggested! Click one to load it.", "success");
+            showToast("Random stories loaded! Click one to try it.", "success");
         } else {
             throw new Error("Unexpected response format");
         }
