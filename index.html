@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QA Studio — AI Test Case Generator</title>
+    <title>QA Studio</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#3b82f6">
@@ -1740,24 +1740,15 @@
             color: white;
             border: none;
             border-radius: 14px;
-            cursor: default;
+            cursor: pointer;
             font-family: "Inter", sans-serif;
             box-shadow: 0 8px 28px rgba(59, 130, 246, 0.35);
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            opacity: 0.35;
-            filter: grayscale(1);
-            pointer-events: none;
-            user-select: none;
         }
-        .hero-splash:hover .hero-btn {
-            opacity: 1;
-            filter: grayscale(0);
-            pointer-events: auto;
-            cursor: pointer;
-        }
+
         .hero-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 12px 36px rgba(59, 130, 246, 0.5);
@@ -2417,7 +2408,7 @@ const WORKER_URL = "https://qa-proxy.eng-milo.workers.dev";
 // ============================================================
 const i18n = {
     en: {
-        documentTitle: "QA Studio — Generator",
+        documentTitle: "QA Studio",
         generatorPageTitle: "Generator",
         pageSubtitle: "Generate, save, and track test cases by project.",
         appName: "QA Studio", generator: "Generator", dashboard: "Dashboard",
@@ -2478,7 +2469,7 @@ const i18n = {
         dir: "ltr",
     },
     fi: {
-        documentTitle: "QA Studio — Generaattori",
+        documentTitle: "QA Studio",
         generatorPageTitle: "Generaattori",
         pageSubtitle: "Luo, tallenna ja seuraa testitapauksia projekteittain.",
         appName: "QA Studio", generator: "Generaattori", dashboard: "Kojelauta",
