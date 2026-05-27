@@ -2297,13 +2297,15 @@
                     <div class="progress-label" id="progressLabel" data-i18n="generating">Generating…</div>
                 </div>
                 <div class="btn-row">
-                    <button id="generateBtn" class="primary-btn">
+                    <button id="generateBtn" class="primary-btn" disabled>
                         <i data-lucide="wand-2"></i><span data-i18n="generate">Generate Test Cases</span>
                     </button>
                     <button id="demoBtn" class="secondary-btn" style="border-color:var(--warning);color:var(--warning);">
                         <i data-lucide="flask-conical"></i> Demo
                     </button>
                     <span class="usage-badge" id="usageBadge">0 generated</span>
+                </div>
+                <div class="btn-row">
                     <button id="exportJson" class="secondary-btn" disabled>
                         <i data-lucide="braces"></i><span data-i18n="exportJson">Export JSON</span>
                     </button>
@@ -2931,6 +2933,7 @@ document.getElementById("confirmSaveBtn").addEventListener("click", () => {
     // ── Reset form after saving ──
     testInput.value = "";
     charCounter.textContent = "0 characters";
+    updateGenerateBtn();
     latestTestCases = [];
     saveLatestTestCases();
     document.getElementById("results").innerHTML = "";
@@ -2961,6 +2964,7 @@ function buildChips(overrides) {
             const story = stories[idx] || label;
             testInput.value = story;
             updateCharCounter();
+            updateGenerateBtn();
             testInput.focus();
         });
         row.appendChild(btn);
@@ -3112,7 +3116,14 @@ function updateCharCounter() {
     charCounter.textContent = `${testInput.value.length} ${label}`;
 }
 
-testInput.addEventListener("input", updateCharCounter);
+function updateGenerateBtn() {
+    generateBtn.disabled = !testInput.value.trim();
+}
+testInput.addEventListener("input", () => {
+    updateCharCounter();
+    updateGenerateBtn();
+});
+updateGenerateBtn();
 
 const priorityOrder  = { Critical:1, High:2, Medium:3, Low:4, Trivial:5 };
 const priorityColors = { Critical:"#dc2626", High:"#f97316", Medium:"#3b82f6", Low:"#10b981", Trivial:"#6b7280" };
@@ -3557,6 +3568,7 @@ clearTextareaBtn.addEventListener("click", () => {
     testInput.value = "";
     saveToHistory();
     updateCharCounter();
+    updateGenerateBtn();
     clearTextareaBtn.classList.remove("visible");
     document.querySelectorAll("#chipsRow .chip").forEach(c => c.classList.remove("active-chip"));
     showToast("Cleared", "info", 1500);
