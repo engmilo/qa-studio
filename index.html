@@ -2914,6 +2914,10 @@ document.getElementById("saveProjectBtn").addEventListener("click", () => {
 document.getElementById("confirmSaveBtn").addEventListener("click", () => {
     const name = document.getElementById("projectNameInput").value.trim();
     if(!name) return;
+    if(state.projects.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+        showToast(`Project "${name}" already exists`, "error");
+        return;
+    }
     state.projects.unshift({
         id: Date.now(),
         name,
