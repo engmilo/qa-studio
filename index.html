@@ -90,9 +90,12 @@ nav .container {
     color: #fff; border: none; padding: 10px 22px;
     border-radius: 10px; font-size: 14px; font-weight: 700;
     font-family: inherit; cursor: pointer;
-    transition: all .25s; box-shadow: 0 4px 14px rgba(59,130,246,.35);
+    box-shadow: 0 4px 14px rgba(59,130,246,.35);
     text-shadow: 0 1px 4px rgba(0,0,0,.25);
+    opacity: .4; transition: all .4s;
 }
+.nav-links .nav-cta:hover,
+.hero-hover .nav-links .nav-cta { opacity: 1; }
 .nav-links .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,.45); }
 .mobile-toggle { display: none; background: none; border: none; cursor: pointer; padding: 4px; color: #1a1a2e; }
 
@@ -543,6 +546,10 @@ document.querySelectorAll(".faq-q").forEach(btn => {
         if (!open) item.classList.add("open");
     });
 });
+
+// ── Hero hover dim for both CTAs ──
+document.querySelector(".hero").addEventListener("mouseenter", () => document.body.classList.add("hero-hover"));
+document.querySelector(".hero").addEventListener("mouseleave", () => document.body.classList.remove("hero-hover"));
 
 // ── Smooth scroll for anchor links ──
 document.querySelectorAll('a[href^="#"]').forEach(a => {
