@@ -2361,7 +2361,10 @@
             </div>
         </section>
       </div>
-      <footer class="app-footer" data-i18n="footerText">QA Studio by Milo Haireche — 20+ years of QA expertise</footer>
+      <footer class="app-footer" style="display:flex;align-items:center;justify-content:center;gap:16px;">
+        <span data-i18n="footerText">QA Studio by Milo Haireche — 20+ years of QA expertise</span>
+        <button id="showWelcomeBtn" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:12px;font-weight:600;padding:4px 8px;border-radius:6px;transition:background 0.2s;" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='transparent'">Welcome</button>
+      </footer>
     </main>
 </div>
 
@@ -2755,6 +2758,11 @@ if(savedTheme === "dark") document.getElementById("themeIcon").setAttribute("dat
         localStorage.setItem("qa_hero_dismissed", "1");
     });
 })();
+
+document.getElementById("showWelcomeBtn").addEventListener("click", () => {
+    localStorage.removeItem("qa_hero_dismissed");
+    location.reload();
+});
 
 // ============================================================
 // LANGUAGE (flag buttons)
