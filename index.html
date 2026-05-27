@@ -2042,6 +2042,10 @@
                 padding: 10px 14px 10px 38px;
             }
 
+            #resultsMeta {
+                font-size: 12px;
+            }
+
             .api-input-group {
                 flex-direction: column;
             }
@@ -2355,7 +2359,13 @@
                 </div>
             </div>
 
+            <div class="search-wrapper" id="generatorSearchWrap" style="display:none;">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="generatorSearch" class="search-input" placeholder="Search by title, tags, priority…" />
+                <button class="search-clear" id="generatorSearchClear"><i data-lucide="x"></i></button>
+            </div>
             <div id="results" class="results"></div>
+            <div id="resultsMeta" style="text-align:center;font-size:13px;color:var(--text-muted);margin-top:12px;"></div>
         </section>
 
         <section id="view-dashboard" style="display:none;">
@@ -3171,12 +3181,45 @@ function createTestCard(tc) {
     return div;
 }
 
-function renderSavedTestCards() {
-    if(!latestTestCases.length) return;
+function renderSavedTestCards(filter) {
+    const wrap = document.getElementById("generatorSearchWrap");
+    const meta = document.getElementById("resultsMeta");
+    if (!latestTestCases.length) {
+        wrap.style.display = "none";
+        meta.innerHTML = "";
+        return;
+    }
+    wrap.style.display = "block";
+    const query = (filter || document.getElementById("generatorSearch").value || "").toLowerCase().trim();
+    const filtered = query
+        ? latestTestCases.filter(tc =>
+            (tc.id || "").toLowerCase().includes(query) ||
+            (tc.title || "").toLowerCase().includes(query) ||
+            (tc.priority || "").toLowerCase().includes(query) ||
+            (tc.tags || []).some(t => t.toLowerCase().includes(query)) ||
+            (tc.status || "").toLowerCase().includes(query)
+          )
+        : latestTestCases;
     resultsEl.innerHTML = "";
-    latestTestCases.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
+    filtered.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
     lucide.createIcons();
+    const shown = filtered.length;
+    const total = latestTestCases.length;
+    meta.textContent = shown < total ? `Showing ${shown} of ${total} test cases` : `${total} test case${total !== 1 ? "s" : ""}`;
+    document.getElementById("generatorSearchClear").classList.toggle("visible", !!query);
 }
+
+let generatorSearchTimer;
+document.getElementById("generatorSearch").addEventListener("input", () => {
+    clearTimeout(generatorSearchTimer);
+    generatorSearchTimer = setTimeout(() => renderSavedTestCards(), 200);
+});
+document.getElementById("generatorSearchClear").addEventListener("click", () => {
+    document.getElementById("generatorSearch").value = "";
+    document.getElementById("generatorSearchClear").classList.remove("visible");
+    renderSavedTestCards("");
+    document.getElementById("generatorSearch").focus();
+});
 
 // ============================================================
 // EXPORTS
