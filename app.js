@@ -1894,7 +1894,6 @@ if (navigator.storage && navigator.storage.estimate) {
 // ============================================================
 // INIT
 // ============================================================
-document.getElementById("initialSkeleton")?.remove();
 loadLatestTestCases();
 renderSavedTestCards();
 applyLang();

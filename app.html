@@ -1039,18 +1039,6 @@
             flex-shrink: 0;
         }
 
-        /* ── Initial Loading Skeleton ── */
-        .skeleton-block {
-            background: linear-gradient(90deg, var(--border) 25%, var(--hover-bg) 50%, var(--border) 75%);
-            background-size: 200% 100%;
-            animation: skeletonShimmer 1.5s ease-in-out infinite;
-            border-radius: 8px;
-        }
-        @keyframes skeletonShimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
         /* ── RTL Support ── */
         body[dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border); }
         body[dir="rtl"] .main-content { margin-left: 0; margin-right: 260px; }
@@ -2131,13 +2119,6 @@
         <p class="page-subtitle" id="pageSubtitle">Generate, save, and track test cases by project.</p>
 
         <section id="view-generator">
-            <!-- Initial loading skeleton (hidden by JS on first render) -->
-            <div id="initialSkeleton" aria-live="off">
-                <div class="skeleton-block" style="height:24px;width:200px;margin-bottom:8px;"></div>
-                <div class="skeleton-block" style="height:16px;width:320px;margin-bottom:28px;"></div>
-                <div class="skeleton-block" style="height:100px;width:100%;margin-bottom:16px;"></div>
-                <div class="skeleton-block" style="height:44px;width:200px;margin-bottom:20px;"></div>
-            </div>
             <!-- Live Preview Banner -->
             <div class="live-preview-banner">
                 <span class="live-preview-label" data-i18n="livePreviewLabel">// live preview</span>
