@@ -2870,17 +2870,17 @@ const testInput   = document.getElementById("testInput");
 const charCounter = document.getElementById("charCounter");
 let latestTestCases = [];
 
-function updateCharCounter() {
-    const label = t("charCounterLabel") || "characters";
-    charCounter.textContent = `${testInput.value.length} ${label}`;
-}
-
 function updateGenerateBtn() {
     generateBtn.disabled = !testInput.value.trim();
 }
 testInput.addEventListener("input", () => {
     updateCharCounter();
     updateGenerateBtn();
+    saveToHistory();
+    const hasContent = testInput.value.length > 0;
+    clearTextareaBtn.classList.toggle("visible", hasContent);
+    clearTimeout(draftTimeout);
+    draftTimeout = setTimeout(saveDraft, 1000);
 });
 updateGenerateBtn();
 
@@ -3333,12 +3333,6 @@ clearTextareaBtn.addEventListener("click", () => {
     showToast("Cleared", "info", 1500);
 });
 
-testInput.addEventListener("input", () => {
-    saveToHistory();
-    const hasContent = testInput.value.length > 0;
-    clearTextareaBtn.classList.toggle("visible", hasContent);
-});
-
 // ============================================================
 // NEW FEATURES: AUTO-SAVE DRAFT
 // ============================================================
@@ -3355,11 +3349,6 @@ function loadDraft() {
         saveToHistory();
     }
 }
-
-testInput.addEventListener("input", () => {
-    clearTimeout(draftTimeout);
-    draftTimeout = setTimeout(saveDraft, 1000);
-});
 
 // ============================================================
 // NEW FEATURES: CHARACTER LIMIT WARNING
