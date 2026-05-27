@@ -1,12 +1,13 @@
-const CACHE = "qa-studio-v2";
+const CACHE = "qa-studio-v3";
 const PRECACHE_URLS = [
   "/qa-studio/",
   "/qa-studio/index.html",
   "/qa-studio/app.html",
+  "/qa-studio/app.js",
   "/qa-studio/manifest.json",
   "/qa-studio/icon.svg",
   "/qa-studio/preview.png",
-  "https://unpkg.com/lucide@latest",
+  "https://unpkg.com/lucide@1.16.0/dist/umd/lucide.min.js",
   "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js",
   "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js",
   "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
