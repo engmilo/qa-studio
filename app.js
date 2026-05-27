@@ -321,8 +321,8 @@ if(savedTheme === "dark") {
 
 // Confetti toggle
 const confettiToggle = document.getElementById("confettiToggle");
-const confettiOn = localStorage.getItem("qa_confetti") !== "0";
 function updateConfettiBtn() {
+    if (!confettiToggle) return;
     const on = localStorage.getItem("qa_confetti") !== "0";
     confettiToggle.style.opacity = on ? "1" : "0.4";
     confettiToggle.title = on ? "Disable confetti celebration" : "Enable confetti celebration";
