@@ -276,6 +276,21 @@
             box-shadow: var(--shadow-sm);
         }
 
+        .back-link {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 6px 10px;
+            border-radius: 8px;
+            transition: background .2s, color .2s;
+            white-space: nowrap;
+        }
+        .back-link:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
         /* ── Main Content ── */
         .main-content {
             flex: 1;
@@ -2056,6 +2071,7 @@
       </button>
       <div class="sidebar-overlay" id="sidebarOverlay"></div>
       <div class="top-right-bar">
+        <a href="index.html" class="back-link">← <span data-i18n="back">Back</span></a>
         <span class="live-clock" id="liveClock"></span>
         <div class="lang-flags" id="langFlags">
             <button class="lang-btn" data-lang="fi" title="Suomi">FI</button>
@@ -2270,6 +2286,7 @@ const i18n = {
         selected: "selected",
         confirmBulkDelete: "Are you sure you want to delete {n} selected test case(s)?",
         deletedTests: "Deleted selected test cases",
+        back: "Back",
         footerText: "QA Studio by Milo Haireche — 20+ years of QA expertise",
         chips: ["Login flow","Password reset","File upload","Search & filter","User registration","Checkout"],
         chipStories: [
@@ -2342,6 +2359,7 @@ const i18n = {
         selected: "valittu",
         confirmBulkDelete: "Haluatko varmasti poistaa {n} valittua testitapausta?",
         deletedTests: "Valitut testitapaukset poistettu",
+        back: "Takaisin",
         footerText: "QA Studio, tekijä Milo Haireche — yli 20 vuoden QA-kokemus",
         chips: ["Kirjautuminen","Salasanan palautus","Tiedoston lataus","Haku ja suodatus","Rekisteröinti","Kassaprosessi"],
         chipStories: [
