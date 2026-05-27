@@ -487,11 +487,6 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     });
 });
 
-// ── Redirect returning visitors who already dismissed old hero ──
-if (localStorage.getItem("qa_hero_dismissed")) {
-    // They've used the app before, send them directly to app.html
-    location.href = "app.html";
-}
 </script>
 </body>
 </html>
