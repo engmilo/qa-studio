@@ -2400,6 +2400,23 @@
     </div>
 </div>
 
+<!-- Confirm Dialog -->
+<div id="confirmOverlay" class="modal-overlay">
+    <div class="modal" style="max-width:420px;">
+        <div class="modal-header">
+            <h2 id="confirmTitle">Confirm</h2>
+            <button id="confirmClose" class="close-btn"><i data-lucide="x"></i></button>
+        </div>
+        <div class="modal-content">
+            <p id="confirmMessage" style="margin:0 0 20px;line-height:1.6;"></p>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button id="confirmCancel" class="secondary-btn" style="padding:10px 20px;">Cancel</button>
+                <button id="confirmOk" class="primary-btn" style="padding:10px 20px;background:linear-gradient(135deg,var(--danger),#b91c1c);">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 // ============================================================
 // CONFIG
@@ -2860,6 +2877,23 @@ function openModal(title, contentHTML) {
     lucide.createIcons();
 }
 function closeModal() { modalOverlay.classList.remove("visible"); }
+
+function showConfirm(message, dangerLabel) {
+    return new Promise(resolve => {
+        const overlay = document.getElementById("confirmOverlay");
+        document.getElementById("confirmMessage").textContent = message;
+        const okBtn = document.getElementById("confirmOk");
+        okBtn.textContent = dangerLabel || "Delete";
+        okBtn.style.background = dangerLabel ? "linear-gradient(135deg,var(--danger),#b91c1c)" : "linear-gradient(135deg,var(--primary),var(--primary-dark))";
+        overlay.classList.add("visible");
+        lucide.createIcons();
+        const cleanup = () => { overlay.classList.remove("visible"); };
+        document.getElementById("confirmOk").onclick = () => { cleanup(); resolve(true); };
+        document.getElementById("confirmCancel").onclick = () => { cleanup(); resolve(false); };
+        document.getElementById("confirmClose").onclick = () => { cleanup(); resolve(false); };
+        overlay.addEventListener("click", e => { if (e.target === overlay) { cleanup(); resolve(false); } });
+    });
+}
 document.getElementById("modalClose").addEventListener("click", closeModal);
 modalOverlay.addEventListener("click", e => { if(e.target === modalOverlay) closeModal(); });
 
@@ -3270,8 +3304,9 @@ document.getElementById("clearHistoryBtn").addEventListener("click", () => {
     renderHistory();
 });
 
-document.getElementById("clearAllBtn").addEventListener("click", () => {
-    if(!confirm(t("confirmClearAll"))) return;
+document.getElementById("clearAllBtn").addEventListener("click", async () => {
+    const ok = await showConfirm(t("confirmClearAll"), t("clearAllData"));
+    if(!ok) return;
     state.usageTotal = 0;
     state.history = [];
     state.projects = [];
@@ -3291,9 +3326,10 @@ document.getElementById("clearAllBtn").addEventListener("click", () => {
 // ============================================================
 // PROJECTS
 // ============================================================
-function deleteProject(id, e) {
+async function deleteProject(id, e) {
     if(e) { e.stopPropagation(); e.preventDefault(); }
-    if(!confirm(t("confirmDelete"))) return;
+    const ok = await showConfirm(t("confirmDelete"), t("delete"));
+    if(!ok) return;
     state.projects = state.projects.filter(p => String(p.id) !== String(id));
     saveState();
     renderProjects();
@@ -3692,19 +3728,27 @@ function showSkeletonLoader() {
 // ============================================================
 // VISUAL CHARTS
 // ============================================================
-function renderPieChart(data, colors, container) {
+function renderPieChart(data, colors) {
     const total = data.reduce((a, b) => a + b, 0);
     if (total === 0) return '<div class="empty-state">No data</div>';
-    
-    let html = '<div class="pie-legend">';
+
+    const r = 40, cx = 50, cy = 50, circ = 2 * Math.PI * r;
+    let segments = '', cumPct = 0, legendHtml = '';
+
     data.forEach((value, i) => {
-        if (value > 0) {
-            const pct = Math.round((value / total) * 100);
-            html += `<div class="legend-item"><span class="legend-dot" style="background:${colors[i]}"></span>${value} (${pct}%)</div>`;
-        }
+        if (value === 0) return;
+        const pct = value / total;
+        const offset = circ * (1 - cumPct - pct / 2);
+        const dash = circ * pct;
+        segments += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${colors[i]}" stroke-width="20" stroke-dasharray="${dash} ${circ - dash}" stroke-dashoffset="${offset}" transform="rotate(-90 ${cx} ${cy})" />`;
+        legendHtml += `<div class="legend-item"><span class="legend-dot" style="background:${colors[i]}"></span>${value} (${Math.round(pct * 100)}%)</div>`;
+        cumPct += pct;
     });
-    html += '</div>';
-    return html;
+
+    return `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <svg width="120" height="120" viewBox="0 0 100 100" style="flex-shrink:0;">${segments}<circle cx="${cx}" cy="${cy}" r="18" fill="var(--card-bg)" /></svg>
+        <div class="pie-legend">${legendHtml}</div>
+    </div>`;
 }
 
 function renderTrendChart(history) {
@@ -3814,11 +3858,12 @@ document.getElementById("importFileInput").addEventListener("change", (e) => {
     if (!file) return;
     
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
         try {
             const data = JSON.parse(event.target.result);
             
-            if (!confirm("This will replace ALL your current data. Are you sure?")) return;
+            const ok = await showConfirm("This will replace ALL your current data. Are you sure?", "Import");
+            if (!ok) return;
             
             if (data.projects) state.projects = data.projects;
             if (data.history) state.history = data.history;
