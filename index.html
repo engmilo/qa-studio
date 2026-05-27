@@ -138,10 +138,12 @@ nav .container {
     padding: 16px 40px; font-size: 17px; font-weight: 700;
     background: linear-gradient(135deg, #3b82f6, #2563eb);
     color: #fff; border: none; border-radius: 14px;
-    font-family: inherit; cursor: pointer;
+    font-family: inherit;
+    opacity: .4; pointer-events: none; cursor: default;
     box-shadow: 0 8px 28px rgba(59,130,246,.35);
-    transition: all .25s;
+    transition: all .4s;
 }
+.hero:hover .hero-btn { opacity: 1; pointer-events: auto; cursor: pointer; }
 .hero-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(59,130,246,.5); }
 
 /* ── Sections ── */
@@ -283,6 +285,7 @@ body.dark .nav-lang button.active { background: #3b82f6; color: #fff; border-col
 body.dark .nav-lang button:hover:not(.active) { border-color: #60a5fa; color: #60a5fa; }
 body.dark .mobile-toggle { color: #e5e7eb; }
 body.dark .theme-toggle { border-color: #2d3139; color: #e5e7eb; }
+body.dark .theme-toggle:hover { border-color: #60a5fa; color: #60a5fa; }
 body.dark .hero { background: linear-gradient(135deg, #0f1117 0%, #151821 50%, #1a1d26 100%); }
 body.dark .hero p { color: #9ca3af; }
 body.dark .hero-benefits span { background: #1a1d26; border-color: #2d3139; color: #d1d5db; }
@@ -320,7 +323,7 @@ body.dark footer { border-color: #2d3139; color: #6b7280; }
                 <button data-lang="fi">FI</button>
                 <button data-lang="en" class="active">EN</button>
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-                    <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 </button>
             </div>
             <a href="app.html?t=1" class="nav-cta" data-i18n="navCta">Open App</a>
@@ -338,10 +341,10 @@ body.dark footer { border-color: #2d3139; color: #6b7280; }
         <h1>QA Studio</h1>
         <p data-i18n="heroDesc">AI-powered test case generator — describe a feature and get comprehensive test cases in seconds. Multi-language, exportable, trackable.</p>
         <div class="hero-benefits">
-            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> AI-Generated</span>
-            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> EN &bull; FI</span>
-            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg> Dashboard &amp; Stats</span>
-            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> Export (JSON / CSV / Excel / Word)</span>
+            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> <span data-i18n="benefitAi">AI-Generated</span></span>
+            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> <span data-i18n="benefitLang">EN &bull; FI</span></span>
+            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg> <span data-i18n="benefitDash">Dashboard &amp; Stats</span></span>
+            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> <span data-i18n="benefitExport">Export (JSON / CSV / Excel / Word)</span></span>
         </div>
         <a href="app.html?t=1" class="hero-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> <span data-i18n="heroCta">Get Started</span></a>
     </div>
@@ -442,6 +445,7 @@ const i18n = {
         navFeatures: "Features", navHow: "How it Works", navFaq: "FAQ", navCta: "Open App",
         heroDesc: "AI-powered test case generator — describe a feature and get comprehensive test cases in seconds. Multi-language, exportable, trackable.",
         heroCta: "Get Started",
+        benefitAi: "AI-Generated", benefitLang: "EN \u2022 FI", benefitDash: "Dashboard & Stats", benefitExport: "Export (JSON / CSV / Excel / Word)",
         featuresTitle: "Features", featuresSub: "Everything you need to generate and manage test cases efficiently.",
         featAiTitle: "AI-Powered Generation", featAiDesc: "Describe a feature in plain language and get comprehensive, structured test cases instantly. Powered by Anthropic's Claude.",
         featDashTitle: "Dashboard & Tracking", featDashDesc: "Visual charts for status distribution, priority breakdown, and generation trends. Track pass/fail/blocked per test case.",
@@ -463,6 +467,7 @@ const i18n = {
         navFeatures: "Ominaisuudet", navHow: "Toiminta", navFaq: "UKK", navCta: "Avaa sovellus",
         heroDesc: "AI-pohjainen testitapausten generaattori — kuvaile ominaisuus ja saat kattavat testitapaukset sekunneissa. Monikielinen, vietävissä, seurattavissa.",
         heroCta: "Aloita",
+        benefitAi: "AI-luotu", benefitLang: "EN \u2022 FI", benefitDash: "Hallintapaneeli ja tilastot", benefitExport: "Vienti (JSON / CSV / Excel / Word)",
         featuresTitle: "Ominaisuudet", featuresSub: "Kaikki mitä tarvitset testitapausten luomiseen ja hallintaan.",
         featAiTitle: "AI-pohjainen luonti", featAiDesc: "Kuvaile ominaisuus luonnollisella kielellä ja saat kattavia, jäsenneltyjä testitapauksia hetkessä. Pohjautuu Anthropic's Clauden tekoälyyn.",
         featDashTitle: "Hallintapaneeli", featDashDesc: "Visuaaliset kaaviot tilajakaumasta, prioriteeteista ja luontitrendeistä. Merkitse testitapaukset hyväksytyksi/hylätyksi/estetyksi.",
@@ -501,21 +506,22 @@ applyLang();
 const savedTheme = localStorage.getItem("qa_theme") || "light";
 if (savedTheme === "dark") {
     document.body.classList.add("dark");
-    document.getElementById("themeIcon").outerHTML = `<svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+    document.getElementById("themeIcon").outerHTML = `<svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
 }
 document.getElementById("themeToggle").addEventListener("click", () => {
     const isDark = document.body.classList.contains("dark");
     document.body.classList.toggle("dark", !isDark);
     localStorage.setItem("qa_theme", isDark ? "light" : "dark");
     document.getElementById("themeIcon").outerHTML = isDark
-        ? `<svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`
-        : `<svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+        ? `<svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`
+        : `<svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
 });
 
 document.querySelectorAll(".nav-lang button:not(.theme-toggle)").forEach(btn => {
     btn.addEventListener("click", () => {
         lang = btn.dataset.lang;
         localStorage.setItem("qa_landing_lang", lang);
+        localStorage.setItem("qa_lang", lang);
         applyLang();
     });
 });
