@@ -2,6 +2,7 @@ const CACHE = "qa-studio-v1";
 const PRECACHE_URLS = [
   "/qa-studio/",
   "/qa-studio/index.html",
+  "/qa-studio/app.html",
   "/qa-studio/manifest.json",
   "/qa-studio/icon.svg",
   "/qa-studio/preview.png",
@@ -27,7 +28,7 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(() => caches.match("/qa-studio/index.html"))
+      fetch(request).catch(() => caches.match("/qa-studio/app.html"))
     );
     return;
   }
