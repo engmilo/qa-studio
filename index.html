@@ -1315,39 +1315,52 @@
             transform: translateY(-1px);
         }
 
-        /* ── Feedback Buttons ── */
-        .feedback-btn {
+        /* ── Icon Button (compact) ── */
+        .icon-btn {
             background: transparent;
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 6px 8px;
+            padding: 6px;
             cursor: pointer;
             color: var(--text-muted);
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             transition: all 0.2s ease;
         }
 
-        .feedback-btn:hover {
+        .icon-btn:hover {
             border-color: var(--text-muted);
             color: var(--text);
+            background: var(--hover-bg);
         }
 
-        .feedback-btn.fb-active.fb-up {
+        .icon-btn i {
+            width: 16px;
+            height: 16px;
+        }
+
+        .icon-btn.fb-active.fb-up,
+        .icon-btn[data-action="fb-up"].fb-active {
             background: var(--success-light);
             border-color: var(--success);
             color: var(--success);
         }
 
-        .feedback-btn.fb-active.fb-down {
+        .icon-btn.fb-active.fb-down,
+        .icon-btn[data-action="fb-down"].fb-active {
             background: var(--danger-light);
             border-color: var(--danger);
             color: var(--danger);
         }
 
-        .feedback-btn i {
-            width: 16px;
-            height: 16px;
+        .clickable-title {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .clickable-title:hover {
+            color: var(--primary);
         }
 
         /* ── Copy Button ── */
@@ -3117,110 +3130,6 @@ function saveFeedback(fb) {
     localStorage.setItem("qa_feedback", JSON.stringify(fb));
 }
 
-function createTestCard(tc) {
-    const div = document.createElement("div");
-    div.className = "test-card";
-    const fb = getFeedback();
-    const cur = fb[tc.id] || "";
-    div.innerHTML = `
-        <div class="test-card-header">
-            <h3>${esc(tc.id)} — ${esc(tc.title)}</h3>
-            <span class="priority-badge priority-${esc(tc.priority)}">${esc(tc.priority)}</span>
-        </div>
-        <div class="test-card-actions">
-            <button class="primary-btn view-details-btn" style="padding:8px 16px;font-size:13px;">
-                <i data-lucide="eye"></i> ${t("viewDetails")}
-            </button>
-            <button class="status-btn pass-btn ${tc.status === "pass" ? "active-pass" : ""}">${t("pass")}</button>
-            <button class="status-btn fail-btn ${tc.status === "fail" ? "active-fail" : ""}">${t("fail")}</button>
-            <button class="status-btn blocked-btn ${tc.status === "blocked" ? "active-blocked" : ""}">${t("blocked")}</button>
-            <span style="flex:1"></span>
-            <button class="feedback-btn fb-up ${cur === "up" ? "fb-active" : ""}" data-id="${esc(tc.id)}" data-vote="up" title="Good test case">
-                <i data-lucide="thumbs-up"></i>
-            </button>
-            <button class="feedback-btn fb-down ${cur === "down" ? "fb-active" : ""}" data-id="${esc(tc.id)}" data-vote="down" title="Needs improvement">
-                <i data-lucide="thumbs-down"></i>
-            </button>
-        </div>`;
-    div.querySelector(".view-details-btn").addEventListener("click", () => {
-        const steps = (tc.steps || []).map(s => `<li>${esc(s)}</li>`).join("");
-        openModal(tc.title,
-            `<p><strong>Description:</strong><br>${esc(tc.description || "")}</p>` +
-            `<p><strong>Steps:</strong><ol>${steps}</ol></p>` +
-            `<p><strong>Expected:</strong><br>${esc(tc.expected || "")}</p>` +
-            `<p><strong>Tags:</strong> ${(tc.tags || []).map(esc).join(", ")}</p>` +
-            `<p><strong>Risk:</strong> ${esc(tc.risk || "")}</p>`
-        );
-    });
-    function setStatus(status) {
-        tc.status = tc.status === status ? null : status;
-        div.querySelector(".pass-btn").classList.toggle("active-pass", tc.status === "pass");
-        div.querySelector(".fail-btn").classList.toggle("active-fail", tc.status === "fail");
-        div.querySelector(".blocked-btn").classList.toggle("active-blocked", tc.status === "blocked");
-        saveLatestTestCases();
-        renderDashboard();
-    }
-    div.querySelector(".pass-btn").addEventListener("click",    () => setStatus("pass"));
-    div.querySelector(".fail-btn").addEventListener("click",    () => setStatus("fail"));
-    div.querySelector(".blocked-btn").addEventListener("click", () => setStatus("blocked"));
-    div.querySelectorAll(".feedback-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const id = btn.dataset.id;
-            const vote = btn.dataset.vote;
-            const fb = getFeedback();
-            if (fb[id] === vote) {
-                delete fb[id];
-            } else {
-                fb[id] = vote;
-            }
-            saveFeedback(fb);
-            div.querySelectorAll(".feedback-btn").forEach(b => b.classList.toggle("fb-active", fb[b.dataset.id] === b.dataset.vote));
-            showToast(vote === "up" ? "Marked as good" : "Marked for improvement", "info", 1500);
-        });
-    });
-    return div;
-}
-
-function renderSavedTestCards(filter) {
-    const wrap = document.getElementById("generatorSearchWrap");
-    const meta = document.getElementById("resultsMeta");
-    if (!latestTestCases.length) {
-        wrap.style.display = "none";
-        meta.innerHTML = "";
-        return;
-    }
-    wrap.style.display = "block";
-    const query = (filter || document.getElementById("generatorSearch").value || "").toLowerCase().trim();
-    const filtered = query
-        ? latestTestCases.filter(tc =>
-            (tc.id || "").toLowerCase().includes(query) ||
-            (tc.title || "").toLowerCase().includes(query) ||
-            (tc.priority || "").toLowerCase().includes(query) ||
-            (tc.tags || []).some(t => t.toLowerCase().includes(query)) ||
-            (tc.status || "").toLowerCase().includes(query)
-          )
-        : latestTestCases;
-    resultsEl.innerHTML = "";
-    filtered.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
-    lucide.createIcons();
-    const shown = filtered.length;
-    const total = latestTestCases.length;
-    meta.textContent = shown < total ? `Showing ${shown} of ${total} test cases` : `${total} test case${total !== 1 ? "s" : ""}`;
-    document.getElementById("generatorSearchClear").classList.toggle("visible", !!query);
-}
-
-let generatorSearchTimer;
-document.getElementById("generatorSearch").addEventListener("input", () => {
-    clearTimeout(generatorSearchTimer);
-    generatorSearchTimer = setTimeout(() => renderSavedTestCards(), 200);
-});
-document.getElementById("generatorSearchClear").addEventListener("click", () => {
-    document.getElementById("generatorSearch").value = "";
-    document.getElementById("generatorSearchClear").classList.remove("visible");
-    renderSavedTestCards("");
-    document.getElementById("generatorSearch").focus();
-});
-
 // ============================================================
 // EXPORTS
 // ============================================================
@@ -4132,49 +4041,18 @@ function makeEditable(element, initialValue, onSave) {
 }
 
 // ============================================================
-// UPDATED: createTestCard with new features
+// createTestCard — consolidated
 // ============================================================
-const originalCreateTestCard = createTestCard;
-createTestCard = function(tc) {
+function createTestCard(tc) {
     const div = document.createElement("div");
     div.className = "test-card";
     div.setAttribute("data-id", tc.id);
     div.setAttribute("draggable", "true");
-    
     const isSelected = selectedTestCases.has(tc.id);
-    
-    div.innerHTML = `
-        <div class="test-card-header">
-            <div style="display:flex;align-items:center;gap:12px;">
-                <div class="test-checkbox ${isSelected ? 'checked' : ''}" data-id="${tc.id}">
-                    <i data-lucide="check"></i>
-                </div>
-                <h3 id="title-${tc.id}">${esc(tc.id)} — ${esc(tc.title)}</h3>
-            </div>
-            <span class="priority-badge priority-${esc(tc.priority)}">${esc(tc.priority)}</span>
-        </div>
-        <div class="test-card-actions">
-            <button class="primary-btn view-details-btn" style="padding:6px 14px;font-size:13px;">
-                <i data-lucide="eye"></i> ${t("viewDetails")}
-            </button>
-            <button class="copy-btn copy-tc-btn" data-id="${tc.id}">
-                <i data-lucide="copy"></i> Copy
-            </button>
-            <button class="duplicate-btn" data-id="${tc.id}">
-                <i data-lucide="copy-plus"></i> Duplicate
-            </button>
-            <button class="status-btn pass-btn ${tc.status === "pass" ? "active-pass" : ""}">${t("pass")}</button>
-            <button class="status-btn fail-btn ${tc.status === "fail" ? "active-fail" : ""}">${t("fail")}</button>
-            <button class="status-btn blocked-btn ${tc.status === "blocked" ? "active-blocked" : ""}">${t("blocked")}</button>
-        </div>`;
-    
-    // Checkbox handler
-    div.querySelector(".test-checkbox").addEventListener("click", () => {
-        toggleTestCaseSelection(tc.id);
-    });
-    
-    // View details
-    div.querySelector(".view-details-btn").addEventListener("click", () => {
+    const fb = getFeedback();
+    const fbCur = fb[tc.id] || "";
+
+    function openDetails() {
         const steps = (tc.steps || []).map(s => `<li>${esc(s)}</li>`).join("");
         openModal(tc.title,
             `<p><strong>Description:</strong><br>${esc(tc.description || "")}</p>` +
@@ -4183,29 +4061,48 @@ createTestCard = function(tc) {
             `<p><strong>Tags:</strong> ${(tc.tags || []).map(esc).join(", ")}</p>` +
             `<p><strong>Risk:</strong> ${esc(tc.risk || "")}</p>`
         );
-    });
-    
-    // Copy button
-    div.querySelector(".copy-tc-btn").addEventListener("click", () => copyTestCase(tc));
-    
-    // Duplicate button
-    div.querySelector(".duplicate-btn").addEventListener("click", () => {
-        const idx = latestTestCases.findIndex(x => x.id === tc.id);
-        duplicateTestCase(tc, idx);
-    });
-    
-    // Inline edit title
+    }
+
+    div.innerHTML = `
+        <div class="test-card-header">
+            <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+                <div class="test-checkbox ${isSelected ? 'checked' : ''}" data-id="${tc.id}">
+                    <i data-lucide="check"></i>
+                </div>
+                <h3 id="title-${tc.id}" class="clickable-title" title="Click for details, double-click to edit">${esc(tc.id)} — ${esc(tc.title)}</h3>
+            </div>
+            <span class="priority-badge priority-${esc(tc.priority)}">${esc(tc.priority)}</span>
+        </div>
+        <div class="test-card-actions" style="flex-wrap:wrap;">
+            <button class="status-btn pass-btn ${tc.status === "pass" ? "active-pass" : ""}">${t("pass")}</button>
+            <button class="status-btn fail-btn ${tc.status === "fail" ? "active-fail" : ""}">${t("fail")}</button>
+            <button class="status-btn blocked-btn ${tc.status === "blocked" ? "active-blocked" : ""}">${t("blocked")}</button>
+            <span style="flex:1"></span>
+            <button class="icon-btn" data-action="copy" title="Copy to clipboard"><i data-lucide="copy"></i></button>
+            <button class="icon-btn" data-action="duplicate" title="Duplicate"><i data-lucide="copy-plus"></i></button>
+            <button class="icon-btn fb-up ${fbCur === 'up' ? 'fb-active' : ''}" data-action="fb-up" data-id="${esc(tc.id)}" title="Good"><i data-lucide="thumbs-up"></i></button>
+            <button class="icon-btn fb-down ${fbCur === 'down' ? 'fb-active' : ''}" data-action="fb-down" data-id="${esc(tc.id)}" title="Needs improvement"><i data-lucide="thumbs-down"></i></button>
+        </div>`;
+
+    // Title click → details modal
     const titleEl = div.querySelector(`#title-${tc.id}`);
-    titleEl.style.cursor = "pointer";
-    titleEl.addEventListener("dblclick", () => {
+    titleEl.addEventListener("click", openDetails);
+
+    // Title double-click → inline edit
+    titleEl.addEventListener("dblclick", (e) => {
+        e.stopPropagation();
         makeEditable(titleEl, tc.title, (newTitle) => {
             tc.title = newTitle;
             titleEl.innerHTML = `${esc(tc.id)} — ${esc(newTitle)}`;
+            titleEl.className = "clickable-title";
             saveLatestTestCases();
         });
     });
-    
-    // Status handlers
+
+    // Checkbox
+    div.querySelector(".test-checkbox").addEventListener("click", () => toggleTestCaseSelection(tc.id));
+
+    // Status
     function setStatus(status) {
         tc.status = tc.status === status ? null : status;
         div.querySelector(".pass-btn").classList.toggle("active-pass", tc.status === "pass");
@@ -4214,40 +4111,52 @@ createTestCard = function(tc) {
         saveLatestTestCases();
         renderDashboard();
     }
-    
     div.querySelector(".pass-btn").addEventListener("click", () => setStatus("pass"));
     div.querySelector(".fail-btn").addEventListener("click", () => setStatus("fail"));
     div.querySelector(".blocked-btn").addEventListener("click", () => setStatus("blocked"));
-    
+
+    // Icon buttons
+    div.querySelectorAll(".icon-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const action = btn.dataset.action;
+            if (action === "copy") { copyTestCase(tc); return; }
+            if (action === "duplicate") {
+                const idx = latestTestCases.findIndex(x => x.id === tc.id);
+                duplicateTestCase(tc, idx);
+                return;
+            }
+            if (action === "fb-up" || action === "fb-down") {
+                const vote = action === "fb-up" ? "up" : "down";
+                const id = btn.dataset.id;
+                const fb = getFeedback();
+                if (fb[id] === vote) { delete fb[id]; }
+                else { fb[id] = vote; }
+                saveFeedback(fb);
+                div.querySelectorAll(".icon-btn.fb-up, .icon-btn.fb-down").forEach(b =>
+                    b.classList.toggle("fb-active", fb[b.dataset.id] === (b.dataset.action === "fb-up" ? "up" : "down"))
+                );
+                showToast(vote === "up" ? "Marked as good" : "Marked for improvement", "info", 1500);
+            }
+        });
+    });
+
     // Drag and drop
     div.addEventListener("dragstart", (e) => {
         div.classList.add("dragging");
         e.dataTransfer.setData("text/plain", tc.id);
     });
-    
-    div.addEventListener("dragend", () => {
-        div.classList.remove("dragging");
-    });
-    
+    div.addEventListener("dragend", () => div.classList.remove("dragging"));
     div.addEventListener("dragover", (e) => {
         e.preventDefault();
-        const dragging = document.querySelector(".dragging");
-        if (dragging && dragging !== div) {
-            div.classList.add("drag-over");
-        }
+        if (document.querySelector(".dragging") && document.querySelector(".dragging") !== div) div.classList.add("drag-over");
     });
-    
-    div.addEventListener("dragleave", () => {
-        div.classList.remove("drag-over");
-    });
-    
+    div.addEventListener("dragleave", () => div.classList.remove("drag-over"));
     div.addEventListener("drop", (e) => {
         e.preventDefault();
         div.classList.remove("drag-over");
         const draggedId = e.dataTransfer.getData("text/plain");
         const draggedIdx = latestTestCases.findIndex(x => x.id === draggedId);
         const dropIdx = latestTestCases.findIndex(x => x.id === tc.id);
-        
         if (draggedIdx !== -1 && dropIdx !== -1 && draggedIdx !== dropIdx) {
             const [moved] = latestTestCases.splice(draggedIdx, 1);
             latestTestCases.splice(dropIdx, 0, moved);
@@ -4256,9 +4165,52 @@ createTestCard = function(tc) {
             showToast("Test case reordered", "info", 1500);
         }
     });
-    
+
     return div;
-};
+}
+
+// ============================================================
+// RENDER SAVED TEST CARDS (with search/filter)
+// ============================================================
+function renderSavedTestCards(filter) {
+    const wrap = document.getElementById("generatorSearchWrap");
+    const meta = document.getElementById("resultsMeta");
+    if (!latestTestCases.length) {
+        wrap.style.display = "none";
+        meta.innerHTML = "";
+        return;
+    }
+    wrap.style.display = "block";
+    const query = (filter || document.getElementById("generatorSearch").value || "").toLowerCase().trim();
+    const filtered = query
+        ? latestTestCases.filter(tc =>
+            (tc.id || "").toLowerCase().includes(query) ||
+            (tc.title || "").toLowerCase().includes(query) ||
+            (tc.priority || "").toLowerCase().includes(query) ||
+            (tc.tags || []).some(t => t.toLowerCase().includes(query)) ||
+            (tc.status || "").toLowerCase().includes(query)
+          )
+        : latestTestCases;
+    resultsEl.innerHTML = "";
+    filtered.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
+    lucide.createIcons();
+    const shown = filtered.length;
+    const total = latestTestCases.length;
+    meta.textContent = shown < total ? `Showing ${shown} of ${total} test cases` : `${total} test case${total !== 1 ? "s" : ""}`;
+    document.getElementById("generatorSearchClear").classList.toggle("visible", !!query);
+}
+
+let generatorSearchTimer;
+document.getElementById("generatorSearch").addEventListener("input", () => {
+    clearTimeout(generatorSearchTimer);
+    generatorSearchTimer = setTimeout(() => renderSavedTestCards(), 200);
+});
+document.getElementById("generatorSearchClear").addEventListener("click", () => {
+    document.getElementById("generatorSearch").value = "";
+    document.getElementById("generatorSearchClear").classList.remove("visible");
+    renderSavedTestCards("");
+    document.getElementById("generatorSearch").focus();
+});
 
 // ============================================================
 // UPDATED: Generate button with skeleton
