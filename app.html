@@ -10,6 +10,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="QA Studio">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://qa-proxy.eng-milo.workers.dev; img-src 'self' data:; manifest-src 'self'">
 
     <!-- ── Open Graph / LinkedIn preview tags ── -->
     <meta property="og:title" content="QA Studio" />
@@ -31,9 +32,9 @@
     <meta name="description" content="QA Studio — AI-powered test case generator. Generate, save, and track test cases by project. Supports EN and FI." />
     <meta name="author" content="Milo Haireche" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://unpkg.com/lucide@1.16.0/dist/umd/lucide.min.js" integrity="sha384-ZgnJ3Zpr70Xoify35DjOZWqHib1iYJBpYpQUIEpDASG9+fJ745WzNQuC004dwU0W" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js" integrity="sha384-0esPaJH+F9evp2lsJYN36SW7XkRbaYviuyF+PpnbjDXBC9i1CWGiJyGrXCyiyGqZ" crossorigin="anonymous"></script>
     <style>
         :root {
             --primary: #3b82f6;
@@ -2522,6 +2523,13 @@ function repairJSON(raw) {
 // ============================================================
 const savedTheme = localStorage.getItem("qa_theme") || "light";
 document.body.className = savedTheme;
+
+// Strip any persisted API key from previous sessions (security)
+const oldCfg = JSON.parse(localStorage.getItem("qa_api_config") || "{}");
+if (oldCfg.apiKey) {
+    delete oldCfg.apiKey;
+    localStorage.setItem("qa_api_config", JSON.stringify(oldCfg));
+}
 function closeSidebar() {
     document.querySelector(".sidebar")?.classList.remove("open");
     document.getElementById("sidebarOverlay")?.classList.remove("visible");
@@ -3549,7 +3557,7 @@ function loadApiConfig() {
     document.getElementById("apiUrlInput").value = config.url || "";
     document.getElementById("apiModelInput").value = config.model || "claude-sonnet-4-20250514";
     document.getElementById("apiTokensInput").value = config.tokens || 4096;
-    document.getElementById("apiKeyInput").value = config.apiKey || "";
+    // API key is NOT loaded from storage — session-only for security
 }
 
 function getApiConfig() {
@@ -3581,7 +3589,12 @@ document.getElementById("apiConfigClose").addEventListener("click", () => {
 });
 
 document.getElementById("saveApiConfig").addEventListener("click", () => {
-    localStorage.setItem("qa_api_config", JSON.stringify(getApiConfig()));
+    const cfg = getApiConfig();
+    localStorage.setItem("qa_api_config", JSON.stringify({
+        url: cfg.url,
+        model: cfg.model,
+        tokens: cfg.tokens
+    }));
     document.getElementById("apiConfigOverlay").classList.remove("visible");
     showToast("API configuration saved!", "success");
 });
@@ -3605,7 +3618,6 @@ document.getElementById("exportAllData").addEventListener("click", () => {
         history: state.history,
         usageTotal: state.usageTotal,
         latestTestCases: latestTestCases,
-        apiConfig: JSON.parse(localStorage.getItem("qa_api_config") || "{}"),
         settings: {
             lang: localStorage.getItem("qa_lang"),
             theme: localStorage.getItem("qa_theme")
@@ -3629,21 +3641,24 @@ document.getElementById("importFileInput").addEventListener("change", (e) => {
     reader.onload = async (event) => {
         try {
             const data = JSON.parse(event.target.result);
-            
+
+            // Schema validation
+            if (!data || typeof data !== "object") throw new Error("Invalid format");
+            if (data.version !== 2) throw new Error("Unsupported file version. Expected version 2.");
+
             const ok = await showConfirm("This will replace ALL your current data. Are you sure?", "Import");
             if (!ok) return;
-            
-            if (data.projects) state.projects = data.projects;
-            if (data.history) state.history = data.history;
-            if (data.usageTotal !== undefined) state.usageTotal = data.usageTotal;
-            if (data.latestTestCases) latestTestCases = data.latestTestCases;
-            if (data.apiConfig) localStorage.setItem("qa_api_config", JSON.stringify(data.apiConfig));
-            if (data.settings) {
-                if (data.settings.lang) {
+
+            if (Array.isArray(data.projects)) state.projects = data.projects;
+            if (Array.isArray(data.history)) state.history = data.history;
+            if (typeof data.usageTotal === "number") state.usageTotal = data.usageTotal;
+            if (Array.isArray(data.latestTestCases)) latestTestCases = data.latestTestCases;
+            if (data.settings && typeof data.settings === "object") {
+                if (data.settings.lang === "en" || data.settings.lang === "fi") {
                     lang = data.settings.lang;
                     localStorage.setItem("qa_lang", lang);
                 }
-                if (data.settings.theme) {
+                if (data.settings.theme === "light" || data.settings.theme === "dark") {
                     document.body.className = data.settings.theme;
                     localStorage.setItem("qa_theme", data.settings.theme);
                 }
