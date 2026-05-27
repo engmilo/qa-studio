@@ -2176,7 +2176,7 @@
             <button id="bulkDeleteClose" class="close-btn"><i data-lucide="x"></i></button>
         </div>
         <div class="modal-content">
-            <p>Are you sure you want to delete <strong id="bulkDeleteCount">0</strong> selected test case(s)?</p>
+            <p id="bulkDeleteText">Are you sure you want to delete <strong id="bulkDeleteCount">0</strong> selected test case(s)?</p>
             <div style="display:flex;gap:8px;margin-top:16px;">
                 <button id="confirmBulkDelete" class="primary-btn" style="flex:1;justify-content:center;background:linear-gradient(135deg,var(--danger),#b91c1c);">Delete</button>
                 <button id="cancelBulkDelete" class="secondary-btn" style="flex:1;justify-content:center;">Cancel</button>
@@ -2297,7 +2297,7 @@
                         <i data-lucide="wand-2"></i><span data-i18n="generate">Generate Test Cases</span>
                     </button>
                     <button id="demoBtn" class="secondary-btn" style="border-color:var(--warning);color:var(--warning);">
-                        <i data-lucide="flask-conical"></i> Demo
+                        <i data-lucide="flask-conical"></i><span data-i18n="demo">Demo</span>
                     </button>
                     <button id="exportJson" class="secondary-btn" disabled>
                         <i data-lucide="braces"></i><span data-i18n="exportJson">Export JSON</span>
@@ -2312,24 +2312,24 @@
                         <i data-lucide="file"></i><span data-i18n="exportWord">Export Word</span>
                     </button>
                     <button id="saveProjectBtn" class="secondary-btn" disabled>
-                        <i data-lucide="save"></i><span>Save</span>
+                        <i data-lucide="save"></i><span data-i18n="save">Save</span>
                     </button>
                 </div>
             </div>
 
             <!-- Bulk Actions Bar -->
             <div class="bulk-actions" id="bulkActions">
-                <span class="bulk-count"><span id="selectedCount">0</span> selected</span>
+                <span class="bulk-count"><span id="selectedCount">0</span> <span data-i18n="selected">selected</span></span>
                 <div class="bulk-buttons">
-                    <button class="secondary-btn" id="selectAllBtn"><i data-lucide="check-square"></i> Select All</button>
-                    <button class="secondary-btn" id="deselectAllBtn"><i data-lucide="square"></i> Deselect All</button>
+                    <button class="secondary-btn" id="selectAllBtn"><i data-lucide="check-square"></i> <span data-i18n="selectAll">Select All</span></button>
+                    <button class="secondary-btn" id="deselectAllBtn"><i data-lucide="square"></i> <span data-i18n="deselectAll">Deselect All</span></button>
                     <button class="danger-btn" id="deleteSelectedBtn"><i data-lucide="trash-2"></i> Delete</button>
                 </div>
             </div>
 
             <div class="search-wrapper" id="generatorSearchWrap" style="display:none;">
                 <i data-lucide="search" class="search-icon"></i>
-                <input type="text" id="generatorSearch" class="search-input" placeholder="Search by title, tags, priority…" />
+                <input type="text" id="generatorSearch" class="search-input" data-i18n-placeholder="generatorSearchPlaceholder" placeholder="Search by title, tags, priority…" />
                 <button class="search-clear" id="generatorSearchClear"><i data-lucide="x"></i></button>
             </div>
             <div id="results" class="results"></div>
@@ -2454,6 +2454,20 @@ const i18n = {
         pCritical: "Critical", pHigh: "High", pMedium: "Medium", pLow: "Low", pTrivial: "Trivial",
         clearAllData: "Clear All Data", confirmClearAll: "Clear ALL data (projects, history, test cases)? This cannot be undone.",
         confirmDelete: "Delete this project? This cannot be undone.",
+        demo: "Demo",
+        statusDistribution: "Status Distribution",
+        priorityDistribution: "Priority Distribution",
+        generationTrend: "Generation Trend (Last 7)",
+        searchHistory: "Search history…",
+        searchProjects: "Search projects…",
+        generatorSearchPlaceholder: "Search by title, tags, priority…",
+        showingResults: "Showing {n} of {total}",
+        testCasesLabel: "test case(s)",
+        selectAll: "Select All",
+        deselectAll: "Deselect All",
+        selected: "selected",
+        confirmBulkDelete: "Are you sure you want to delete {n} selected test case(s)?",
+        deletedTests: "Deleted selected test cases",
         heroSub: "AI-powered test case generator — describe a feature and get comprehensive test cases in seconds. Multi-language, exportable, trackable.",
         heroCta: "Get Started",
         heroFooter: "Built by Milo Haireche — 20+ years of QA expertise",
@@ -2515,6 +2529,20 @@ const i18n = {
         pCritical: "Kriittinen", pHigh: "Korkea", pMedium: "Keskitaso", pLow: "Matala", pTrivial: "Triviaali",
         clearAllData: "Tyhjennä kaikki", confirmClearAll: "Tyhjennä KAIKKI tiedot (projektit, historia, testitapaukset)? Toimintoa ei voi peruuttaa.",
         confirmDelete: "Poistetaanko tämä projekti? Toimintoa ei voi peruuttaa.",
+        demo: "Demo",
+        statusDistribution: "Tilajakauma",
+        priorityDistribution: "Prioriteettijakauma",
+        generationTrend: "Generointitrendi (7 viimeistä)",
+        searchHistory: "Hae historiasta…",
+        searchProjects: "Hae projekteista…",
+        generatorSearchPlaceholder: "Hae otsikolla, tagilla, prioriteetilla…",
+        showingResults: "Näytetään {n}/{total}",
+        testCasesLabel: "testitapausta",
+        selectAll: "Valitse kaikki",
+        deselectAll: "Poista valinnat",
+        selected: "valittu",
+        confirmBulkDelete: "Haluatko varmasti poistaa {n} valittua testitapausta?",
+        deletedTests: "Valitut testitapaukset poistettu",
         heroSub: "AI-pohjainen testitapausten generaattori — kuvaile ominaisuus ja saat kattavat testitapaukset sekunneissa. Monikielinen, vietävissä, seurattavissa.",
         heroCta: "Aloita",
         heroFooter: "Tekijä Milo Haireche — yli 20 vuoden QA-kokemus",
@@ -3155,16 +3183,16 @@ function renderDashboard() {
         </div>
         <div class="chart-grid">
             <div class="chart-container">
-                <div class="chart-title">Status Distribution</div>
+                <div class="chart-title">${t("statusDistribution")}</div>
                 ${statusChart}
             </div>
             <div class="chart-container">
-                <div class="chart-title">Priority Distribution</div>
+                <div class="chart-title">${t("priorityDistribution")}</div>
                 ${priorityChart}
             </div>
         </div>
         <div class="chart-container">
-            <div class="chart-title">Generation Trend (Last 7)</div>
+            <div class="chart-title">${t("generationTrend")}</div>
             ${trendChart}
         </div>
         <p class="dash-section-title">${t("dashSession")} ${total>0?`(${total} ${t("dashTotal").toLowerCase()})`:""}</p>
@@ -3212,7 +3240,7 @@ function renderHistory() {
         const searchInput = document.createElement("input");
         searchInput.type = "text";
         searchInput.className = "search-input";
-        searchInput.placeholder = "Search history...";
+        searchInput.placeholder = t("searchHistory");
         searchInput.id = "historySearch";
         
         const searchWrapper = document.createElement("div");
@@ -3338,7 +3366,7 @@ function renderProjects() {
         const searchInput = document.createElement("input");
         searchInput.type = "text";
         searchInput.className = "search-input";
-        searchInput.placeholder = "Search projects...";
+        searchInput.placeholder = t("searchProjects");
         searchInput.id = "projectsSearch";
         
         const searchWrapper = document.createElement("div");
@@ -3616,7 +3644,8 @@ function deselectAllTestCases() {
 
 function deleteSelectedTestCases() {
     if (selectedTestCases.size === 0) return;
-    document.getElementById("bulkDeleteCount").textContent = selectedTestCases.size;
+    const count = selectedTestCases.size;
+    document.getElementById("bulkDeleteText").innerHTML = t("confirmBulkDelete").replace("{n}", `<strong>${count}</strong>`);
     document.getElementById("bulkDeleteOverlay").classList.add("visible");
 }
 
@@ -3637,7 +3666,7 @@ document.getElementById("confirmBulkDelete").addEventListener("click", () => {
     updateBulkActions();
     toggleActionBtns();
     document.getElementById("bulkDeleteOverlay").classList.remove("visible");
-    showToast("Deleted selected test cases", "success");
+    showToast(t("deletedTests"), "success");
 });
 
 // ============================================================
@@ -3907,7 +3936,7 @@ function createTestCard(tc) {
                 </div>
                 <h3 id="title-${tc.id}" class="clickable-title" title="Click for details, double-click to edit">${esc(tc.id)} — ${esc(tc.title)}</h3>
             </div>
-            <span class="priority-badge priority-${esc(tc.priority)}">${esc(tc.priority)}</span>
+            <span class="priority-badge priority-${esc(tc.priority)}">${esc(priorityLabel(tc.priority))}</span>
         </div>
         <div class="test-card-actions" style="flex-wrap:wrap;">
             <button class="status-btn pass-btn ${tc.status === "pass" ? "active-pass" : ""}">${t("pass")}</button>
@@ -4032,7 +4061,9 @@ function renderSavedTestCards(filter) {
     lucide.createIcons();
     const shown = filtered.length;
     const total = latestTestCases.length;
-    meta.textContent = shown < total ? `Showing ${shown} of ${total} test cases` : `${total} test case${total !== 1 ? "s" : ""}`;
+    meta.textContent = shown < total
+        ? t("showingResults").replace("{n}", shown).replace("{total}", total)
+        : `${total} ${t("testCasesLabel")}`;
     document.getElementById("generatorSearchClear").classList.toggle("visible", !!query);
 }
 
