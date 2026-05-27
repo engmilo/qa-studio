@@ -2300,6 +2300,9 @@
                     <button id="generateBtn" class="primary-btn">
                         <i data-lucide="wand-2"></i><span data-i18n="generate">Generate Test Cases</span>
                     </button>
+                    <button id="demoBtn" class="secondary-btn" style="border-color:var(--warning);color:var(--warning);">
+                        <i data-lucide="flask-conical"></i> Demo
+                    </button>
                     <span class="usage-badge" id="usageBadge">0 generated</span>
                     <button id="exportJson" class="secondary-btn" disabled>
                         <i data-lucide="braces"></i><span data-i18n="exportJson">Export JSON</span>
@@ -4060,6 +4063,40 @@ document.getElementById("generatorSearchClear").addEventListener("click", () => 
     renderSavedTestCards("");
     document.getElementById("generatorSearch").focus();
 });
+
+// ============================================================
+// DEMO: generate mock test cases locally (no API call)
+// ============================================================
+function generateMockTestCases() {
+    const now = new Date();
+    const date = now.toISOString().slice(0, 10);
+    const time = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+    const mock = [
+        { id: "TC-001", title: "Valid user login with correct credentials", description: "Verify that a user can log in successfully with valid email and password.", steps: ["Navigate to login page", "Enter valid email address", "Enter valid password", "Click Sign In button"], expected: "User is redirected to dashboard and sees welcome message", priority: "Critical", tags: ["authentication", "smoke"], risk: "Users cannot access the platform if this fails" },
+        { id: "TC-002", title: "Password reset email delivery", description: "Verify that clicking 'Forgot Password' sends a reset link to the registered email.", steps: ["Click 'Forgot Password' link on login page", "Enter registered email", "Submit request", "Check email inbox"], expected: "Password reset email is received within 30 seconds", priority: "High", tags: ["authentication", "email"], risk: "Users are locked out if password reset fails" },
+        { id: "TC-003", title: "Search returns relevant results", description: "Verify that the search bar returns matching items based on keyword input.", steps: ["Type a product name in the search bar", "Press Enter", "Observe search results"], expected: "Relevant results appear within 2 seconds, sorted by relevance", priority: "Medium", tags: ["search", "usability"], risk: "Users cannot find products efficiently" },
+        { id: "TC-004", title: "File upload validates file type", description: "Verify that uploading an unsupported file type shows an error message.", steps: ["Click Upload button", "Select a .exe file", "Confirm upload"], expected: "Error message 'Unsupported file type' is shown and file is rejected", priority: "Medium", tags: ["upload", "validation"], risk: "Security risk if invalid files are accepted" },
+        { id: "TC-005", title: "Checkout applies discount code", description: "Verify that entering a valid promo code reduces the cart total.", steps: ["Add items to cart", "Go to checkout", "Enter discount code 'SAVE10'", "Apply code"], expected: "Total is reduced by 10% and success message is shown", priority: "High", tags: ["checkout", "payments"], risk: "Revenue loss if discount codes malfunction" },
+        { id: "TC-006", title: "Responsive layout on mobile viewport", description: "Verify that the dashboard renders correctly on a 375px wide screen.", steps: ["Open app on mobile device (375px width)", "Navigate to Dashboard", "Verify all sections are visible"], expected: "All dashboard cards stack vertically without horizontal scroll", priority: "Low", tags: ["responsive", "ui"], risk: "Poor mobile experience drives users away" },
+    ].map(tc => ({ ...tc, status: null }));
+
+    latestTestCases = mock;
+    saveLatestTestCases();
+    renderSavedTestCards();
+    toggleActionBtns();
+    updateUsageCounter();
+
+    state.usageTotal += mock.length;
+    state.history.unshift({ feature: "Demo — user login & checkout flows", date, time, count: mock.length });
+    if (state.history.length > 50) state.history.pop();
+    saveState();
+
+    renderDashboard();
+    closeSidebar();
+    showToast(`Loaded ${mock.length} demo test cases`, "success");
+}
+
+document.getElementById("demoBtn").addEventListener("click", generateMockTestCases);
 
 // ============================================================
 // UPDATED: Generate button with skeleton
