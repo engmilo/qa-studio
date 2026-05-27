@@ -1525,41 +1525,6 @@
             color: var(--text-muted);
         }
 
-        /* ── Templates Modal ── */
-        .template-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .template-item {
-            padding: 12px 16px;
-            background: var(--hover-bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .template-item:hover {
-            border-color: var(--primary);
-            background: var(--primary-light);
-        }
-
-        .template-name {
-            font-weight: 500;
-        }
-
-        .template-actions {
-            display: flex;
-            gap: 6px;
-        }
-
         /* ── API Config Modal ── */
         .api-config-section {
             margin-bottom: 20px;
@@ -2198,24 +2163,6 @@
     </div>
 </div>
 
-<!-- Templates Modal -->
-<div id="templatesOverlay" class="modal-overlay">
-    <div class="modal" style="max-width:560px;">
-        <div class="modal-header">
-            <h2 data-i18n="templates">Test Case Templates</h2>
-            <button id="templatesClose" class="close-btn"><i data-lucide="x"></i></button>
-        </div>
-        <div class="modal-content">
-            <p style="color:var(--text-muted);margin-bottom:16px;" data-i18n="templatesDescription">Save frequently used test case structures as templates.</p>
-            <div id="templateList" class="template-list"></div>
-            <div style="margin-top:16px;display:flex;gap:8px;">
-                <input type="text" id="newTemplateName" class="text-input" data-i18n-placeholder="templateNamePlaceholder" placeholder="Template name..." style="flex:1;" />
-                <button id="saveTemplateBtn" class="secondary-btn"><i data-lucide="plus"></i> <span data-i18n="saveCurrent">Save Current</span></button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Bulk Delete Confirm Modal -->
 <div id="bulkDeleteOverlay" class="modal-overlay">
     <div class="modal" style="max-width:400px;">
@@ -2281,9 +2228,6 @@
             </button>
         </nav>
         <div class="nav-divider"></div>
-        <button class="nav-item" id="openTemplatesBtn" data-tip="tipTemplates">
-            <i data-lucide="file-code"></i><span data-i18n="templates">Templates</span>
-        </button>
         <button class="nav-item" id="openApiConfigBtn" data-tip="tipApiConfig">
             <i data-lucide="settings"></i><span data-i18n="apiConfig">API Configuration</span>
         </button>
@@ -2469,8 +2413,7 @@ const i18n = {
         tipProjects: "Browse and manage saved projects",
         tipSuites: "View test suites grouped by project",
         tipHistory: "See your past generation history",
-        templates: "Templates", apiConfig: "API Configuration",
-        tipTemplates: "Save and load test case templates",
+        apiConfig: "API Configuration",
         tipApiConfig: "Configure API endpoint and model",
         generate: "Generate Test Cases", generating: "Generating…",
         exportJson: "Export JSON", exportCsv: "Export CSV", exportExcel: "Export Excel",
@@ -2515,9 +2458,6 @@ const i18n = {
         apiMaxTokens: "Max Tokens",
         apiTokensPlaceholder: "4096",
         saveConfig: "Save Configuration",
-        templatesDescription: "Save frequently used test case structures as templates.",
-        templateNamePlaceholder: "Template name...",
-        saveCurrent: "Save Current",
         dir: "ltr",
     },
     fi: {
@@ -2531,8 +2471,7 @@ const i18n = {
         tipProjects: "Selaa ja hallitse tallennettuja projekteja",
         tipSuites: "Näytä testipaketit projekteittain",
         tipHistory: "Katso aikaisempi luontihistoria",
-        templates: "Mallipohjat", apiConfig: "API-asetukset",
-        tipTemplates: "Tallenna ja lataa testitapausmalleja",
+        apiConfig: "API-asetukset",
         tipApiConfig: "Määritä API-päätepiste ja malli",
         generate: "Luo testitapaukset", generating: "Luodaan…",
         exportJson: "Vie JSON", exportCsv: "Vie CSV", exportExcel: "Vie Excel",
@@ -2577,9 +2516,6 @@ const i18n = {
         apiMaxTokens: "Enimmäistokens",
         apiTokensPlaceholder: "4096",
         saveConfig: "Tallenna asetukset",
-        templatesDescription: "Tallenna usein käytetyt testitapausrakenteet malleiksi.",
-        templateNamePlaceholder: "Mallin nimi...",
-        saveCurrent: "Tallenna nykyinen",
         dir: "ltr",
     },
     ar: {
@@ -2593,8 +2529,7 @@ const i18n = {
         tipProjects: "تصفّح وسيّر المشاريع المحفوظة",
         tipSuites: "شوف حزم الاختبار حسب المشروع",
         tipHistory: "شوف تاريخ التوليد السابق",
-        templates: "القوالب", apiConfig: "إعدادات API",
-        tipTemplates: "احفظ وادرج قوالب حالات الاختبار",
+        apiConfig: "إعدادات API",
         tipApiConfig: "اضبط نقطة نهاية API والنموذج",
         generate: "ولّد حالات الاختبار", generating: "جاري التوليد…",
         exportJson: "صدّر JSON", exportCsv: "صدّر CSV", exportExcel: "صدّر Excel",
@@ -2639,9 +2574,6 @@ const i18n = {
         apiMaxTokens: "الحد الأقصى للرموز",
         apiTokensPlaceholder: "4096",
         saveConfig: "حفظ الإعدادات",
-        templatesDescription: "احفظ الهياكل المستخدمة بكثرة كقوالب.",
-        templateNamePlaceholder: "اسم القالب...",
-        saveCurrent: "حفظ الحالي",
         dir: "rtl",
     }
 };
@@ -3780,84 +3712,7 @@ function renderTrendChart(history) {
 }
 
 // ============================================================
-// TEMPLATES
-// ============================================================
-let templates = JSON.parse(localStorage.getItem("qa_templates") || "[]");
-
-function saveTemplates() {
-    localStorage.setItem("qa_templates", JSON.stringify(templates));
-}
-
-function renderTemplates() {
-    const list = document.getElementById("templateList");
-    if (templates.length === 0) {
-        list.innerHTML = '<div class="empty-state">No templates saved yet. Save your current test cases as a template.</div>';
-        return;
-    }
-    
-    list.innerHTML = templates.map((tmpl, i) => `
-        <div class="template-item" data-idx="${i}">
-            <span class="template-name">${esc(tmpl.name)}</span>
-            <div class="template-actions">
-                <button class="secondary-btn use-template-btn" style="padding:4px 8px;font-size:12px;"><i data-lucide="play" style="width:14px;height:14px;"></i> Use</button>
-                <button class="danger-btn delete-template-btn" style="padding:4px 8px;"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
-            </div>
-        </div>
-    `).join("");
-    
-    list.querySelectorAll(".use-template-btn").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            const idx = parseInt(e.target.closest(".template-item").dataset.idx);
-            const tmpl = templates[idx];
-            testInput.value = tmpl.story;
-            updateCharCounter();
-            saveToHistory();
-            document.getElementById("templatesOverlay").classList.remove("visible");
-            showToast(`Template "${tmpl.name}" applied`, "success");
-        });
-    });
-    
-    list.querySelectorAll(".delete-template-btn").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            const idx = parseInt(e.target.closest(".template-item").dataset.idx);
-            templates.splice(idx, 1);
-            saveTemplates();
-            renderTemplates();
-            showToast("Template deleted", "info");
-        });
-    });
-    
-    lucide.createIcons();
-}
-
-document.getElementById("openTemplatesBtn").addEventListener("click", () => {
-    renderTemplates();
-    document.getElementById("templatesOverlay").classList.add("visible");
-    closeSidebar();
-});
-
-document.getElementById("templatesClose").addEventListener("click", () => {
-    document.getElementById("templatesOverlay").classList.remove("visible");
-});
-
-document.getElementById("saveTemplateBtn").addEventListener("click", () => {
-    const name = document.getElementById("newTemplateName").value.trim();
-    const story = testInput.value.trim();
-    
-    if (!name || !story) {
-        showToast("Please enter a name and have content in textarea", "warning");
-        return;
-    }
-    
-    templates.push({ name, story, created: new Date().toISOString() });
-    saveTemplates();
-    document.getElementById("newTemplateName").value = "";
-    renderTemplates();
-    showToast("Template saved!", "success");
-});
-
-// ============================================================
-// NEW FEATURES: API CONFIG
+// API CONFIG
 // ============================================================
 function loadApiConfig() {
     const config = JSON.parse(localStorage.getItem("qa_api_config") || "{}");
@@ -3908,7 +3763,6 @@ document.getElementById("exportAllData").addEventListener("click", () => {
         projects: state.projects,
         history: state.history,
         usageTotal: state.usageTotal,
-        templates: templates,
         latestTestCases: latestTestCases,
         apiConfig: JSON.parse(localStorage.getItem("qa_api_config") || "{}"),
         settings: {
@@ -3940,7 +3794,6 @@ document.getElementById("importFileInput").addEventListener("change", (e) => {
             if (data.projects) state.projects = data.projects;
             if (data.history) state.history = data.history;
             if (data.usageTotal !== undefined) state.usageTotal = data.usageTotal;
-            if (data.templates) templates = data.templates;
             if (data.latestTestCases) latestTestCases = data.latestTestCases;
             if (data.apiConfig) localStorage.setItem("qa_api_config", JSON.stringify(data.apiConfig));
             if (data.settings) {
@@ -3955,7 +3808,6 @@ document.getElementById("importFileInput").addEventListener("change", (e) => {
             }
             
             saveState();
-            saveTemplates();
             saveLatestTestCases();
             
             document.getElementById("importExportOverlay").classList.remove("visible");
