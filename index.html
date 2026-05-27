@@ -2362,7 +2362,7 @@
                         <i data-lucide="file"></i><span data-i18n="exportWord">Export Word</span>
                     </button>
                     <button id="saveProjectBtn" class="secondary-btn" disabled>
-                        <i data-lucide="save"></i><span data-i18n="saveProject">Save to Project</span>
+                        <i data-lucide="save"></i><span>Save</span>
                     </button>
                 </div>
             </div>
@@ -3909,6 +3909,7 @@ document.getElementById("exportAllData").addEventListener("click", () => {
         history: state.history,
         usageTotal: state.usageTotal,
         templates: templates,
+        latestTestCases: latestTestCases,
         apiConfig: JSON.parse(localStorage.getItem("qa_api_config") || "{}"),
         settings: {
             lang: localStorage.getItem("qa_lang"),
@@ -3940,6 +3941,7 @@ document.getElementById("importFileInput").addEventListener("change", (e) => {
             if (data.history) state.history = data.history;
             if (data.usageTotal !== undefined) state.usageTotal = data.usageTotal;
             if (data.templates) templates = data.templates;
+            if (data.latestTestCases) latestTestCases = data.latestTestCases;
             if (data.apiConfig) localStorage.setItem("qa_api_config", JSON.stringify(data.apiConfig));
             if (data.settings) {
                 if (data.settings.lang) {
@@ -3954,9 +3956,12 @@ document.getElementById("importFileInput").addEventListener("change", (e) => {
             
             saveState();
             saveTemplates();
+            saveLatestTestCases();
             
             document.getElementById("importExportOverlay").classList.remove("visible");
             applyLang();
+            renderSavedTestCards();
+            toggleActionBtns();
             renderDashboard();
             renderHistory();
             renderProjects();
