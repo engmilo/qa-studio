@@ -3558,6 +3558,7 @@ function loadApiConfig() {
     document.getElementById("apiModelInput").value = config.model || "claude-sonnet-4-20250514";
     document.getElementById("apiTokensInput").value = config.tokens || 4096;
     // API key is NOT loaded from storage — session-only for security
+    document.getElementById("apiKeyInput").value = "";
 }
 
 function getApiConfig() {
