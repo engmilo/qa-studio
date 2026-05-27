@@ -2156,6 +2156,14 @@
                 <label class="api-config-label" data-i18n="apiMaxTokens">Max Tokens</label>
                 <input type="number" id="apiTokensInput" class="api-input" data-i18n-placeholder="apiTokensPlaceholder" placeholder="4096" value="4096" />
             </div>
+            <div class="api-config-section">
+                <label class="api-config-label" data-i18n="apiKeyLabel">Anthropic API Key</label>
+                <div style="display:flex;gap:6px;">
+                    <input type="password" id="apiKeyInput" class="api-input" data-i18n-placeholder="apiKeyPlaceholder" placeholder="sk-ant-..." style="flex:1;" />
+                    <button id="toggleApiKey" class="secondary-btn" style="padding:8px 12px;" title="Show/hide key"><i data-lucide="eye"></i></button>
+                </div>
+                <p style="font-size:11px;color:var(--text-muted);margin:6px 0 0;" data-i18n="apiKeyHint">Your key is sent to the proxy and forwarded to Anthropic. Never shared.</p>
+            </div>
             <button id="saveApiConfig" class="primary-btn" style="width:100%;justify-content:center;margin-top:8px;">
                 <i data-lucide="save"></i> <span data-i18n="saveConfig">Save Configuration</span>
             </button>
@@ -2458,6 +2466,9 @@ const i18n = {
         apiMaxTokens: "Max Tokens",
         apiTokensPlaceholder: "4096",
         saveConfig: "Save Configuration",
+        apiKeyLabel: "Anthropic API Key",
+        apiKeyPlaceholder: "sk-ant-...",
+        apiKeyHint: "Your key is sent to the proxy and forwarded to Anthropic. Never shared.",
         dir: "ltr",
     },
     fi: {
@@ -2516,6 +2527,9 @@ const i18n = {
         apiMaxTokens: "Enimmäistokens",
         apiTokensPlaceholder: "4096",
         saveConfig: "Tallenna asetukset",
+        apiKeyLabel: "Anthropic API-avain",
+        apiKeyPlaceholder: "sk-ant-...",
+        apiKeyHint: "Avain lähetetään välityspalvelimelle ja edelleen Anthropicille. Ei jaeta.",
         dir: "ltr",
     },
     ar: {
@@ -2574,6 +2588,9 @@ const i18n = {
         apiMaxTokens: "الحد الأقصى للرموز",
         apiTokensPlaceholder: "4096",
         saveConfig: "حفظ الإعدادات",
+        apiKeyLabel: "مفتاح Anthropic API",
+        apiKeyPlaceholder: "sk-ant-...",
+        apiKeyHint: "مفتاحك يُرسل للبروكسي ويُمرّر لـ Anthropic. لا يُشارك أبداً.",
         dir: "rtl",
     }
 };
@@ -2928,6 +2945,7 @@ document.getElementById("suggestBtn").addEventListener("click", async () => {
             body: JSON.stringify({
                 model: config.model,
                 max_tokens: config.tokens,
+                apiKey: config.apiKey || undefined,
                 system: `You are a QA engineer. Generate 6 random realistic user stories for software testing.
 Return ONLY a JSON object with two arrays: "labels" (short feature name, 2-3 words) and "stories" (a complete user story in the format "As a [role], I want to [goal] so that [reason]", 1 sentence).
 Each story must be different and cover various app features (auth, payments, search, notifications, settings, etc.).
@@ -3719,15 +3737,26 @@ function loadApiConfig() {
     document.getElementById("apiUrlInput").value = config.url || "";
     document.getElementById("apiModelInput").value = config.model || "claude-sonnet-4-20250514";
     document.getElementById("apiTokensInput").value = config.tokens || 4096;
+    document.getElementById("apiKeyInput").value = config.apiKey || "";
 }
 
 function getApiConfig() {
     return {
         url: document.getElementById("apiUrlInput").value.trim(),
         model: document.getElementById("apiModelInput").value.trim() || "claude-sonnet-4-20250514",
-        tokens: parseInt(document.getElementById("apiTokensInput").value) || 4096
+        tokens: parseInt(document.getElementById("apiTokensInput").value) || 4096,
+        apiKey: document.getElementById("apiKeyInput").value.trim()
     };
 }
+
+document.getElementById("toggleApiKey").addEventListener("click", () => {
+    const inp = document.getElementById("apiKeyInput");
+    const btn = document.getElementById("toggleApiKey");
+    const isPassword = inp.type === "password";
+    inp.type = isPassword ? "text" : "password";
+    btn.innerHTML = isPassword ? '<i data-lucide="eye-off"></i>' : '<i data-lucide="eye"></i>';
+    lucide.createIcons();
+});
 
 document.getElementById("openApiConfigBtn").addEventListener("click", () => {
     loadApiConfig();
@@ -4062,6 +4091,7 @@ generateBtn.addEventListener("click", async () => {
             body: JSON.stringify({
                 model: config.model,
                 max_tokens: config.tokens,
+                apiKey: config.apiKey || undefined,
                 system: `You are a QA engineer. Given a feature description, generate 4-6 test cases as a JSON array.
 Each object must have exactly these fields:
 - id: string like "TC-001"
