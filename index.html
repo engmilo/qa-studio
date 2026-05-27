@@ -231,6 +231,24 @@
             z-index: 5;
         }
 
+        .back-splash-btn {
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: "Inter", sans-serif;
+            padding: 8px 10px;
+            border-radius: 8px;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .back-splash-btn:hover {
+            background: var(--primary-light);
+        }
+
         .lang-flags {
             display: flex;
             gap: 6px;
@@ -1849,7 +1867,12 @@
             .top-right-bar {
                 top: 14px;
                 right: 14px;
-                gap: 8px;
+                gap: 6px;
+            }
+
+            .back-splash-btn {
+                font-size: 12px;
+                padding: 6px 8px;
             }
 
             .live-clock {
@@ -2054,6 +2077,10 @@
 
         /* ── Very small phones ── */
         @media (max-width: 480px) {
+            .back-splash-btn {
+                display: none;
+            }
+
             .main-content {
                 padding: 65px 12px 20px;
             }
@@ -2254,6 +2281,7 @@
       </button>
       <div class="sidebar-overlay" id="sidebarOverlay"></div>
       <div class="top-right-bar">
+        <button id="showWelcomeBtn" class="back-splash-btn">← Back</button>
         <span class="live-clock" id="liveClock"></span>
         <div class="lang-flags" id="langFlags">
             <button class="lang-btn" data-lang="en" title="English">EN</button>
@@ -2361,10 +2389,7 @@
             </div>
         </section>
       </div>
-      <footer class="app-footer" style="display:flex;align-items:center;justify-content:center;gap:16px;">
-        <span data-i18n="footerText">QA Studio by Milo Haireche — 20+ years of QA expertise</span>
-        <button id="showWelcomeBtn" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:12px;font-weight:600;padding:4px 8px;border-radius:6px;transition:background 0.2s;" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='transparent'">Welcome</button>
-      </footer>
+      <footer class="app-footer" data-i18n="footerText">QA Studio by Milo Haireche — 20+ years of QA expertise</footer>
     </main>
 </div>
 
