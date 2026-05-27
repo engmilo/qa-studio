@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QA Studio — AI Test Case Generator</title>
+    <title>QA Studio</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#3b82f6">
@@ -28,7 +28,7 @@
     <meta name="twitter:image" content="https://engmilo.github.io/qa-studio/preview.png" />
 
     <!-- ── General SEO ── -->
-    <meta name="description" content="QA Studio — AI-powered test case generator. Generate, save, and track test cases by project. Supports EN, FI, and AR." />
+    <meta name="description" content="QA Studio — AI-powered test case generator. Generate, save, and track test cases by project. Supports EN and FI." />
     <meta name="author" content="Milo Haireche" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -1762,6 +1762,12 @@
             transform: translateY(-3px);
             box-shadow: 0 12px 36px rgba(59, 130, 246, 0.5);
         }
+        .hero-splash.desktop .hero-btn {
+            opacity: 1;
+            filter: grayscale(0);
+            pointer-events: auto;
+            cursor: pointer;
+        }
 
         .hero-footer {
             position: absolute;
@@ -2114,7 +2120,7 @@
     <p class="hero-sub" data-i18n="heroSub">AI-powered test case generator — describe a feature and get comprehensive test cases in seconds. Multi-language, exportable, trackable.</p>
     <div class="hero-benefits">
         <div class="hero-benefit"><i data-lucide="wand-2"></i> AI-Generated</div>
-        <div class="hero-benefit"><i data-lucide="globe"></i> EN &bull; FI &bull; AR</div>
+        <div class="hero-benefit"><i data-lucide="globe"></i> EN &bull; FI</div>
         <div class="hero-benefit"><i data-lucide="bar-chart-2"></i> Dashboard &amp; Stats</div>
         <div class="hero-benefit"><i data-lucide="download"></i> Export (JSON / CSV / Excel / Word)</div>
     </div>
@@ -2417,7 +2423,7 @@ const WORKER_URL = "https://qa-proxy.eng-milo.workers.dev";
 // ============================================================
 const i18n = {
     en: {
-        documentTitle: "QA Studio — Generator",
+        documentTitle: "QA Studio",
         generatorPageTitle: "Generator",
         pageSubtitle: "Generate, save, and track test cases by project.",
         appName: "QA Studio", generator: "Generator", dashboard: "Dashboard",
@@ -2478,7 +2484,7 @@ const i18n = {
         dir: "ltr",
     },
     fi: {
-        documentTitle: "QA Studio — Generaattori",
+        documentTitle: "QA Studio",
         generatorPageTitle: "Generaattori",
         pageSubtitle: "Luo, tallenna ja seuraa testitapauksia projekteittain.",
         appName: "QA Studio", generator: "Generaattori", dashboard: "Kojelauta",
@@ -4238,6 +4244,11 @@ loadDraft();
 updateUsageCounter();
 renderDashboard();
 toggleActionBtns();
+
+// Desktop app detection — skip hero dim
+if (navigator.userAgent.includes("Electron") || location.protocol === "file:") {
+    document.getElementById("heroSplash").classList.add("desktop");
+}
 </script>
 </body>
 </html>
