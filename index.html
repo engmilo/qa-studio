@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QA Studio — Generator</title>
+    <title>QA Studio — AI Test Case Generator</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
 
     <!-- ── Open Graph / LinkedIn preview tags ── -->
     <meta property="og:title" content="QA Studio — AI Test Case Generator" />
@@ -198,10 +199,25 @@
             font-weight: 600;
             color: var(--primary);
             text-align: center;
-            padding: 8px 12px;
+            padding: 12px;
             background: var(--primary-light);
             border-radius: 8px;
             margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .usage-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--hover-bg);
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            white-space: nowrap;
         }
 
         /* ── Top Right Bar ── */
@@ -1281,6 +1297,41 @@
             transform: translateY(-1px);
         }
 
+        /* ── Feedback Buttons ── */
+        .feedback-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 8px;
+            cursor: pointer;
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .feedback-btn:hover {
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+
+        .feedback-btn.fb-active.fb-up {
+            background: var(--success-light);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .feedback-btn.fb-active.fb-down {
+            background: var(--danger-light);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .feedback-btn i {
+            width: 16px;
+            height: 16px;
+        }
+
         /* ── Copy Button ── */
         .copy-btn {
             padding: 6px 12px;
@@ -1612,6 +1663,147 @@
             pointer-events: auto;
         }
 
+        /* ── Hero Splash ── */
+        .hero-splash {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: var(--body-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 32px 24px;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .hero-splash.hidden {
+            opacity: 0;
+            transform: scale(0.96);
+            pointer-events: none;
+        }
+
+        .hero-splash.hidden-done {
+            display: none;
+        }
+
+        .hero-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            line-height: 1;
+        }
+
+        .hero-title {
+            font-size: 42px;
+            font-weight: 800;
+            margin: 0 0 12px;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+        }
+
+        .hero-sub {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 540px;
+            margin: 0 auto 32px;
+            line-height: 1.6;
+        }
+
+        .hero-benefits {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 36px;
+        }
+
+        .hero-benefit {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text);
+            background: var(--card-bg);
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .hero-benefit i {
+            width: 20px;
+            height: 20px;
+            color: var(--primary);
+        }
+
+        .hero-btn {
+            padding: 16px 40px;
+            font-size: 17px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            font-family: "Inter", sans-serif;
+            box-shadow: 0 8px 28px rgba(59, 130, 246, 0.35);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hero-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 36px rgba(59, 130, 246, 0.5);
+        }
+
+        .hero-footer {
+            position: absolute;
+            bottom: 24px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 28px;
+            }
+            .hero-sub {
+                font-size: 15px;
+            }
+            .hero-icon {
+                font-size: 48px;
+            }
+            .hero-benefits {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .hero-benefit {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+            .hero-btn {
+                padding: 14px 32px;
+                font-size: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 24px;
+            }
+            .hero-sub {
+                font-size: 14px;
+            }
+        }
+
         /* ═══════════════════════════════════════════
            MOBILE RESPONSIVE
            ═══════════════════════════════════════════ */
@@ -1705,6 +1897,12 @@
 
             .btn-row .primary-btn,
             .btn-row .secondary-btn {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .usage-badge {
+                display: flex;
                 justify-content: center;
                 width: 100%;
             }
@@ -1903,6 +2101,23 @@
 </head>
 
 <body class="light">
+<!-- Hero Splash (dismissible landing) -->
+<div class="hero-splash" id="heroSplash">
+    <div class="hero-icon">🧪</div>
+    <h1 class="hero-title">QA Studio</h1>
+    <p class="hero-sub" data-i18n="heroSub">AI-powered test case generator — describe a feature and get comprehensive test cases in seconds. Multi-language, exportable, trackable.</p>
+    <div class="hero-benefits">
+        <div class="hero-benefit"><i data-lucide="wand-2"></i> AI-Generated</div>
+        <div class="hero-benefit"><i data-lucide="globe"></i> EN &bull; FI &bull; AR</div>
+        <div class="hero-benefit"><i data-lucide="bar-chart-2"></i> Dashboard &amp; Stats</div>
+        <div class="hero-benefit"><i data-lucide="download"></i> Export (JSON / CSV / Excel / Word)</div>
+    </div>
+    <button class="hero-btn" id="heroCta">
+        <i data-lucide="arrow-right"></i> <span data-i18n="heroCta">Get Started</span>
+    </button>
+    <div class="hero-footer" data-i18n="heroFooter">Built by Milo Haireche &mdash; 20+ years of QA expertise</div>
+</div>
+
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -2059,6 +2274,11 @@
 
             <div class="generator-panel">
                 <div class="chips-row" id="chipsRow"></div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+                    <button id="suggestBtn" class="secondary-btn" style="font-size:13px;">
+                        <i data-lucide="sparkles"></i> <span data-i18n="suggestFeatures">Suggest Features</span>
+                    </button>
+                </div>
                 <div class="textarea-wrapper">
                     <textarea id="testInput" placeholder="Describe the feature you want test cases for…"></textarea>
                     <button class="clear-textarea" id="clearTextarea" title="Clear">
@@ -2077,6 +2297,8 @@
                     <button id="generateBtn" class="primary-btn">
                         <i data-lucide="wand-2"></i><span data-i18n="generate">Generate Test Cases</span>
                     </button>
+                    <span class="usage-badge" id="usageBadge">0 generated</span>
+                    <button id="exportJson" class="secondary-btn" disabled>
                     <button id="exportJson" class="secondary-btn" disabled>
                         <i data-lucide="braces"></i><span data-i18n="exportJson">Export JSON</span>
                     </button>
@@ -2213,6 +2435,9 @@ const i18n = {
         pCritical: "Critical", pHigh: "High", pMedium: "Medium", pLow: "Low", pTrivial: "Trivial",
         clearAllData: "Clear All Data", confirmClearAll: "Clear ALL data (projects, history, test cases)? This cannot be undone.",
         confirmDelete: "Delete this project? This cannot be undone.",
+        heroSub: "AI-powered test case generator — describe a feature and get comprehensive test cases in seconds. Multi-language, exportable, trackable.",
+        heroCta: "Get Started",
+        heroFooter: "Built by Milo Haireche — 20+ years of QA expertise",
         footerText: "QA Studio by Milo Haireche — 20+ years of QA expertise",
         chips: ["Login flow","Password reset","File upload","Search & filter","User registration","Checkout"],
         chipStories: [
@@ -2225,6 +2450,7 @@ const i18n = {
         ],
         usageFn: n => `${n} test case${n !== 1 ? "s" : ""} generated`,
         charCounterLabel: "characters",
+        suggestFeatures: "Suggest Features",
         livePreviewLabel: "// live preview",
         apiEndpointUrl: "API Endpoint URL",
         apiEndpointPlaceholder: "https://your-api.com/endpoint",
@@ -2271,6 +2497,9 @@ const i18n = {
         pCritical: "Kriittinen", pHigh: "Korkea", pMedium: "Keskitaso", pLow: "Matala", pTrivial: "Triviaali",
         clearAllData: "Tyhjennä kaikki", confirmClearAll: "Tyhjennä KAIKKI tiedot (projektit, historia, testitapaukset)? Toimintoa ei voi peruuttaa.",
         confirmDelete: "Poistetaanko tämä projekti? Toimintoa ei voi peruuttaa.",
+        heroSub: "AI-pohjainen testitapausten generaattori — kuvaile ominaisuus ja saat kattavat testitapaukset sekunneissa. Monikielinen, vietävissä, seurattavissa.",
+        heroCta: "Aloita",
+        heroFooter: "Tekijä Milo Haireche — yli 20 vuoden QA-kokemus",
         footerText: "QA Studio, tekijä Milo Haireche — yli 20 vuoden QA-kokemus",
         chips: ["Kirjautuminen","Salasanan palautus","Tiedoston lataus","Haku ja suodatus","Rekisteröinti","Kassaprosessi"],
         chipStories: [
@@ -2283,6 +2512,7 @@ const i18n = {
         ],
         usageFn: n => `${n} testitapausta luotu`,
         charCounterLabel: "merkkiä",
+        suggestFeatures: "Ehdota ominaisuuksia",
         livePreviewLabel: "// suora esikatselu",
         apiEndpointUrl: "API-päätepisteen URL",
         apiEndpointPlaceholder: "https://your-api.com/endpoint",
@@ -2329,6 +2559,9 @@ const i18n = {
         pCritical: "حرج", pHigh: "عالي", pMedium: "متوسط", pLow: "منخفض", pTrivial: "بسيط",
         clearAllData: "امسح كل شيء", confirmClearAll: "تمسح كل شيء (المشاريع، السجل، حالات الاختبار)؟ ما تقدرش ترجع.",
         confirmDelete: "تحذف هذا المشروع؟ ما تقدرش ترجع.",
+        heroSub: "مولّد حالات اختبار بالذكاء الاصطناعي — صف الميزة واحصل على حالات اختبار شاملة في ثوانٍ. متعدد اللغات، قابل للتصدير، قابل للتتبع.",
+        heroCta: "ابدأ",
+        heroFooter: "من Milo Haireche — أكثر من 20 سنة خبرة في ضمان الجودة",
         footerText: "QA Studio من Milo Haireche — أكثر من 20 سنة خبرة في ضمان الجودة",
         chips: ["تسجيل الدخول","استرجاع كلمة السر","رفع الملفات","البحث والتصفية","تسجيل المستخدم","الدفع"],
         chipStories: [
@@ -2341,6 +2574,7 @@ const i18n = {
         ],
         usageFn: n => `${n} حالات اختبار تولّدت`,
         charCounterLabel: "حرف",
+        suggestFeatures: "اقتراح ميزات",
         livePreviewLabel: "// معاينة مباشرة",
         apiEndpointUrl: "رابط نقطة نهاية API",
         apiEndpointPlaceholder: "https://your-api.com/endpoint",
@@ -2508,6 +2742,20 @@ document.getElementById("themeToggle").addEventListener("click", () => {
 });
 if(savedTheme === "dark") document.getElementById("themeIcon").setAttribute("data-lucide","moon");
 
+// ── Hero splash dismiss ──
+(function() {
+    const hero = document.getElementById("heroSplash");
+    const dismissed = localStorage.getItem("qa_hero_dismissed");
+    if (dismissed) {
+        hero.classList.add("hidden", "hidden-done");
+    }
+    document.getElementById("heroCta").addEventListener("click", () => {
+        hero.classList.add("hidden");
+        setTimeout(() => hero.classList.add("hidden-done"), 600);
+        localStorage.setItem("qa_hero_dismissed", "1");
+    });
+})();
+
 // ============================================================
 // LANGUAGE (flag buttons)
 // ============================================================
@@ -2650,11 +2898,11 @@ document.getElementById("projectNameInput").addEventListener("keydown", e => {
 // ============================================================
 // CHIPS
 // ============================================================
-function buildChips() {
+function buildChips(overrides) {
     const row = document.getElementById("chipsRow");
     row.innerHTML = "";
-    const labels  = t("chips") || [];
-    const stories = t("chipStories") || [];
+    const labels  = overrides?.labels || t("chips") || [];
+    const stories = overrides?.stories || t("chipStories") || [];
     labels.forEach((label, idx) => {
         const btn = document.createElement("button");
         btn.className = "chip";
@@ -2671,13 +2919,59 @@ function buildChips() {
     });
 }
 
+// ── Suggest features via AI ──
+document.getElementById("suggestBtn").addEventListener("click", async () => {
+    const btn = document.getElementById("suggestBtn");
+    const orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader"></i> Suggesting…';
+    lucide.createIcons();
+    try {
+        const config = getApiConfig();
+        const apiUrl = config.url || WORKER_URL;
+        const res = await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                model: config.model,
+                max_tokens: config.tokens,
+                system: `You are a QA engineer. Suggest 6 feature areas for software testing. 
+Return ONLY a JSON object with two arrays: "labels" (short feature names, 2-3 words each) and "stories" (detailed feature descriptions for test case generation, 1-2 sentences each).
+Write all text in ${lang === "fi" ? "Finnish" : lang === "ar" ? "Arabic" : "English"}.
+Return ONLY the raw JSON, no markdown.`,
+                messages: [{ role: "user", content: "Suggest features for testing" }],
+            }),
+        });
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        const data = await res.json();
+        const raw = data.content.map(b => b.text || "").join("").trim();
+        const parsed = JSON.parse(raw);
+        if (parsed.labels && parsed.stories) {
+            buildChips({ labels: parsed.labels, stories: parsed.stories });
+            showToast("Features suggested! Click one to load it.", "success");
+        } else {
+            throw new Error("Unexpected response format");
+        }
+    } catch (err) {
+        showToast("Suggest failed: " + err.message, "error");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = orig;
+        lucide.createIcons();
+    }
+});
+
 // ============================================================
 // USAGE COUNTER
 // ============================================================
 function updateUsageCounter() {
     const fn = i18n[lang]?.usageFn;
-    document.getElementById("usageCounter").textContent =
-        typeof fn === "function" ? fn(state.usageTotal) : `${state.usageTotal}`;
+    const total = state.usageTotal || 0;
+    document.getElementById("usageCounter").innerHTML =
+        `<span style="display:block;font-size:18px;font-weight:800;">${total}</span>` +
+        (typeof fn === "function" ? fn(total) : "generated");
+    const badge = document.getElementById("usageBadge");
+    if (badge) badge.textContent = `${total} generated`;
 }
 
 // ============================================================
@@ -2773,9 +3067,18 @@ testInput.addEventListener("input", updateCharCounter);
 const priorityOrder  = { Critical:1, High:2, Medium:3, Low:4, Trivial:5 };
 const priorityColors = { Critical:"#dc2626", High:"#f97316", Medium:"#3b82f6", Low:"#10b981", Trivial:"#6b7280" };
 
+function getFeedback() {
+    try { return JSON.parse(localStorage.getItem("qa_feedback") || "{}"); } catch(e) { return {}; }
+}
+function saveFeedback(fb) {
+    localStorage.setItem("qa_feedback", JSON.stringify(fb));
+}
+
 function createTestCard(tc) {
     const div = document.createElement("div");
     div.className = "test-card";
+    const fb = getFeedback();
+    const cur = fb[tc.id] || "";
     div.innerHTML = `
         <div class="test-card-header">
             <h3>${esc(tc.id)} — ${esc(tc.title)}</h3>
@@ -2788,6 +3091,13 @@ function createTestCard(tc) {
             <button class="status-btn pass-btn ${tc.status === "pass" ? "active-pass" : ""}">${t("pass")}</button>
             <button class="status-btn fail-btn ${tc.status === "fail" ? "active-fail" : ""}">${t("fail")}</button>
             <button class="status-btn blocked-btn ${tc.status === "blocked" ? "active-blocked" : ""}">${t("blocked")}</button>
+            <span style="flex:1"></span>
+            <button class="feedback-btn fb-up ${cur === "up" ? "fb-active" : ""}" data-id="${esc(tc.id)}" data-vote="up" title="Good test case">
+                <i data-lucide="thumbs-up"></i>
+            </button>
+            <button class="feedback-btn fb-down ${cur === "down" ? "fb-active" : ""}" data-id="${esc(tc.id)}" data-vote="down" title="Needs improvement">
+                <i data-lucide="thumbs-down"></i>
+            </button>
         </div>`;
     div.querySelector(".view-details-btn").addEventListener("click", () => {
         const steps = (tc.steps || []).map(s => `<li>${esc(s)}</li>`).join("");
@@ -2810,6 +3120,21 @@ function createTestCard(tc) {
     div.querySelector(".pass-btn").addEventListener("click",    () => setStatus("pass"));
     div.querySelector(".fail-btn").addEventListener("click",    () => setStatus("fail"));
     div.querySelector(".blocked-btn").addEventListener("click", () => setStatus("blocked"));
+    div.querySelectorAll(".feedback-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const id = btn.dataset.id;
+            const vote = btn.dataset.vote;
+            const fb = getFeedback();
+            if (fb[id] === vote) {
+                delete fb[id];
+            } else {
+                fb[id] = vote;
+            }
+            saveFeedback(fb);
+            div.querySelectorAll(".feedback-btn").forEach(b => b.classList.toggle("fb-active", fb[b.dataset.id] === b.dataset.vote));
+            showToast(vote === "up" ? "Marked as good" : "Marked for improvement", "info", 1500);
+        });
+    });
     return div;
 }
 
@@ -2819,77 +3144,6 @@ function renderSavedTestCards() {
     latestTestCases.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
     lucide.createIcons();
 }
-
-generateBtn.addEventListener("click", async () => {
-    const feature = testInput.value.trim();
-    if(!feature) return;
-    if(!WORKER_URL || WORKER_URL.includes("YOUR-WORKER")) {
-        resultsEl.innerHTML = `<p class="status-msg" style="color:#dc2626;">
-            ⚠️ Please set your WORKER_URL in the config at the top of the &lt;script&gt; block.</p>`;
-        return;
-    }
-    generateBtn.disabled = true;
-    generateBtn.querySelector("span").textContent = t("generating");
-    resultsEl.innerHTML = "";
-    latestTestCases = [];
-    startProgress();
-    try {
-        const res = await fetch(WORKER_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                model: "claude-sonnet-4-20250514",
-                max_tokens: 4096,
-                system: `You are a QA engineer. Given a feature description, generate 4-6 test cases as a JSON array.
-Each object must have exactly these fields:
-- id: string like "TC-001"
-- title: short string
-- description: one sentence
-- steps: array of 3-5 step strings
-- expected: string
-- priority: one of "Critical", "High", "Medium", "Low", "Trivial"
-- tags: array of 1-3 tag strings
-- risk: one sentence
-IMPORTANT: Write all text content (title, description, steps, expected, tags, risk) in ${lang === "fi" ? "Finnish" : lang === "ar" ? "Arabic" : "English"}. The priority field must always use the English values (Critical/High/Medium/Low/Trivial).
-Return ONLY the raw JSON array, no markdown, no explanation.`,
-                messages: [{ role: "user", content: `Feature: ${feature}` }],
-            }),
-        });
-        if(!res.ok) {
-            const errText = await res.text();
-            throw new Error(`Server error ${res.status}: ${errText.slice(0,200)}`);
-        }
-        const data = await res.json();
-        const raw  = data.content.map(b => b.text || "").join("").trim();
-        latestTestCases = repairJSON(raw);
-        latestTestCases.sort((a,b) => (priorityOrder[a.priority]||9) - (priorityOrder[b.priority]||9));
-        latestTestCases.forEach(tc => { if(!tc.status) tc.status = null; });
-        saveLatestTestCases();
-        resultsEl.innerHTML = "";
-        latestTestCases.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
-        lucide.createIcons();
-        finishProgress(true);
-        confetti({ particleCount:130, spread:80, origin:{y:0.55}, colors:["#3b82f6","#8b5cf6","#10b981","#f97316"] });
-        toggleActionBtns();
-        state.usageTotal += latestTestCases.length;
-        state.history.unshift({
-            feature: feature.slice(0,60),
-            date: new Date().toISOString().slice(0,10),
-            time: now24h(),
-            count: latestTestCases.length,
-        });
-        if(state.history.length > 50) state.history.pop();
-        saveState();
-        updateUsageCounter();
-        renderDashboard();
-    } catch(err) {
-        finishProgress(false);
-        resultsEl.innerHTML = `<p class="status-msg" style="color:#dc2626;">Error: ${esc(err.message)}</p>`;
-    } finally {
-        generateBtn.disabled = false;
-        generateBtn.querySelector("span").textContent = t("generate");
-    }
-});
 
 // ============================================================
 // EXPORTS
@@ -3978,7 +4232,14 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
         
         if(!res.ok) {
             const errText = await res.text();
-            throw new Error(`Server error ${res.status}: ${errText.slice(0,200)}`);
+            const status = res.status;
+            let msg = `Server error (HTTP ${status})`;
+            if (status === 429) msg = "Rate limit reached — please wait a moment and try again.";
+            else if (status === 502 || status === 503) msg = "The AI service is temporarily unavailable. Please try again in a few seconds.";
+            else if (status === 401 || status === 403) msg = "API authentication failed. Check your API configuration in Settings.";
+            else if (status >= 500) msg = "The AI server encountered an error. Try again or use a different model.";
+            else if (errText) msg += `: ${errText.slice(0,150)}`;
+            throw new Error(msg);
         }
         
         const data = await res.json();
@@ -4013,8 +4274,20 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
         
     } catch(err) {
         finishProgress(false);
-        resultsEl.innerHTML = `<p class="status-msg" style="color:#dc2626;">Error: ${esc(err.message)}</p>`;
-        showToast("Generation failed", "error");
+        const msg = err.message || "Unknown error";
+        const isNetwork = msg.includes("fetch") || msg.includes("network") || msg.includes("Failed to fetch");
+        const displayMsg = isNetwork
+            ? "Could not reach the AI service. Check your API URL in Settings (gear icon in sidebar) or your internet connection."
+            : msg;
+        resultsEl.innerHTML = `<div class="table-card" style="text-align:center;padding:40px 24px;">
+            <p style="font-size:40px;margin:0 0 12px;">⚠️</p>
+            <p style="font-size:16px;font-weight:600;margin:0 0 8px;color:var(--danger);">Generation Failed</p>
+            <p style="color:var(--text-muted);font-size:14px;margin:0;line-height:1.6;">${esc(displayMsg)}</p>
+            <button class="secondary-btn" style="margin-top:16px;" onclick="document.getElementById('generateBtn').click()">
+                <i data-lucide="refresh-cw"></i> Retry
+            </button>
+        </div>`;
+        showToast(msg.slice(0,80), "error", 5000);
     } finally {
         generateBtn.disabled = false;
         generateBtn.querySelector("span").textContent = t("generate");
