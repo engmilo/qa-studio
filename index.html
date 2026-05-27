@@ -54,6 +54,7 @@
             margin: 0;
             overflow: hidden;
             font-family: "Inter", sans-serif;
+            font-size: 14px;
         }
 
         body.light {
@@ -540,7 +541,7 @@
 
         .btn-row { 
             display: flex; 
-            gap: 10px; 
+            gap: 8px; 
             flex-wrap: wrap; 
             margin-top: 18px; 
         }
@@ -583,7 +584,7 @@
 
         /* ── Refined Secondary Button ── */
         .secondary-btn {
-            padding: 12px 18px;
+            padding: 10px 14px;
             background: var(--card-bg);
             color: var(--text);
             border: 1px solid var(--border);
@@ -2348,7 +2349,6 @@
                         <i data-lucide="wand-2"></i><span data-i18n="generate">Generate Test Cases</span>
                     </button>
                     <span class="usage-badge" id="usageBadge">0 generated</span>
-                    <button id="exportJson" class="secondary-btn" disabled>
                     <button id="exportJson" class="secondary-btn" disabled>
                         <i data-lucide="braces"></i><span data-i18n="exportJson">Export JSON</span>
                     </button>
