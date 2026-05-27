@@ -309,12 +309,15 @@ function toggleTheme() {
     document.body.className = isDark ? "light" : "dark";
     localStorage.setItem("qa_theme", isDark ? "light" : "dark");
     document.getElementById("themeIcon").setAttribute("data-lucide", isDark ? "sun" : "moon");
+    const themeToggle = document.getElementById("themeToggle");
+    if (themeToggle) themeToggle.innerHTML = `<i data-lucide="${isDark ? "sun" : "moon"}" id="themeIcon"></i><span data-i18n="theme">Theme</span>`;
     const headerBtn = document.getElementById("themeToggleBtn");
     if (headerBtn) headerBtn.innerHTML = `<i data-lucide="${isDark ? "sun" : "moon"}" id="themeToggleBtnIcon"></i>`;
     lucide.createIcons();
 }
 if(savedTheme === "dark") {
-    document.getElementById("themeIcon").setAttribute("data-lucide","moon");
+    const themeToggle = document.getElementById("themeToggle");
+    if (themeToggle) themeToggle.innerHTML = '<i data-lucide="moon" id="themeIcon"></i><span data-i18n="theme">Theme</span>';
     const headerBtn = document.getElementById("themeToggleBtn");
     if (headerBtn) headerBtn.innerHTML = '<i data-lucide="moon" id="themeToggleBtnIcon"></i>';
 }
