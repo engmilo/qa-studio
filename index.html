@@ -212,19 +212,7 @@
             line-height: 1.5;
         }
 
-        .usage-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            background: var(--hover-bg);
-            padding: 8px 14px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            white-space: nowrap;
-        }
+
 
         /* ── Top Right Bar ── */
         .top-right-bar {
@@ -1908,12 +1896,6 @@
                 width: 100%;
             }
 
-            .usage-badge {
-                display: flex;
-                justify-content: center;
-                width: 100%;
-            }
-
             .test-card {
                 padding: 16px;
             }
@@ -2302,9 +2284,6 @@
                     <button id="demoBtn" class="secondary-btn" style="border-color:var(--warning);color:var(--warning);">
                         <i data-lucide="flask-conical"></i> Demo
                     </button>
-                    <span class="usage-badge" id="usageBadge">0 generated</span>
-                </div>
-                <div class="btn-row">
                     <button id="exportJson" class="secondary-btn" disabled>
                         <i data-lucide="braces"></i><span data-i18n="exportJson">Export JSON</span>
                     </button>
@@ -2958,8 +2937,6 @@ function updateUsageCounter() {
     document.getElementById("usageCounter").innerHTML =
         `<span style="display:block;font-size:18px;font-weight:800;">${total}</span>` +
         (typeof fn === "function" ? fn(total) : "generated");
-    const badge = document.getElementById("usageBadge");
-    if (badge) badge.textContent = `${total} generated`;
 }
 
 // ============================================================
