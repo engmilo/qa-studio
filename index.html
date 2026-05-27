@@ -1566,6 +1566,339 @@
             background: var(--border);
             margin: 8px 12px;
         }
+
+        /* ── Hamburger Button ── */
+        .hamburger {
+            display: none;
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 15;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 10px;
+            cursor: pointer;
+            color: var(--text);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .hamburger:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .hamburger i {
+            width: 22px;
+            height: 22px;
+            display: block;
+        }
+
+        /* ── Sidebar Overlay (mobile) ── */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 9;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ═══════════════════════════════════════════
+           MOBILE RESPONSIVE
+           ═══════════════════════════════════════════ */
+
+        /* ── Tablets & small screens ── */
+        @media (max-width: 1024px) {
+            .main-content {
+                padding: 24px 24px 24px 24px;
+            }
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 768px) {
+            /* Sidebar becomes a drawer */
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 20;
+                width: 280px;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay {
+                display: block;
+            }
+
+            .sidebar-overlay.visible {
+                display: block;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 70px 16px 24px;
+            }
+
+            .top-right-bar {
+                top: 14px;
+                right: 14px;
+                gap: 8px;
+            }
+
+            .live-clock {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+
+            .lang-btn {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+
+            .topbar {
+                font-size: 22px;
+                margin-bottom: 4px;
+            }
+
+            .page-subtitle {
+                font-size: 13px;
+            }
+
+            .generator-panel {
+                padding: 20px 16px;
+            }
+
+            .chips-row {
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+
+            .chip {
+                padding: 6px 14px;
+                font-size: 12px;
+            }
+
+            textarea {
+                min-height: 100px;
+                padding: 12px 14px;
+                font-size: 14px;
+            }
+
+            .btn-row {
+                flex-direction: column;
+            }
+
+            .btn-row .primary-btn,
+            .btn-row .secondary-btn {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .test-card {
+                padding: 16px;
+            }
+
+            .test-card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .test-card h3 {
+                font-size: 15px;
+            }
+
+            .test-card-actions {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .status-btn {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+
+            .table-card {
+                padding: 14px;
+                overflow-x: auto;
+            }
+
+            table {
+                font-size: 13px;
+                min-width: 600px;
+            }
+
+            th, td {
+                padding: 10px 12px;
+            }
+
+            .dash-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .dash-card {
+                padding: 16px;
+            }
+
+            .dash-value {
+                font-size: 28px;
+            }
+
+            .dash-label {
+                font-size: 12px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .section-header h2 {
+                font-size: 18px;
+            }
+
+            .modal {
+                width: 96%;
+                max-width: 96%;
+                max-height: 90vh;
+                padding: 20px 16px;
+            }
+
+            .modal-header h2 {
+                font-size: 17px;
+            }
+
+            .modal-content {
+                font-size: 14px;
+            }
+
+            .app-footer {
+                font-size: 12px;
+                padding: 16px;
+            }
+
+            .bulk-actions.visible {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            .bulk-buttons {
+                flex-wrap: wrap;
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toast {
+                min-width: auto;
+                max-width: calc(100vw - 32px);
+                font-size: 13px;
+                padding: 12px 16px;
+            }
+
+            .search-input {
+                font-size: 13px;
+                padding: 10px 14px 10px 38px;
+            }
+
+            .api-input-group {
+                flex-direction: column;
+            }
+
+            /* Fix RTL sidebar on mobile */
+            body[dir="rtl"] .sidebar {
+                transform: translateX(100%);
+                left: auto;
+                right: 0;
+                border-left: 1px solid var(--border);
+                border-right: none;
+            }
+
+            body[dir="rtl"] .sidebar.open {
+                transform: translateX(0);
+            }
+
+            body[dir="rtl"] .hamburger {
+                left: auto;
+                right: 16px;
+            }
+
+            body[dir="rtl"] .main-content {
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            body[dir="rtl"] .top-right-bar {
+                right: auto;
+                left: 14px;
+            }
+        }
+
+        /* ── Very small phones ── */
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 65px 12px 20px;
+            }
+
+            .generator-panel {
+                padding: 16px 12px;
+            }
+
+            .dash-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .dash-value {
+                font-size: 24px;
+            }
+
+            .dash-card {
+                padding: 12px;
+            }
+
+            .modal {
+                padding: 16px 12px;
+            }
+
+            .sidebar {
+                width: 260px;
+            }
+
+            .topbar {
+                font-size: 20px;
+            }
+
+            .chip {
+                padding: 5px 10px;
+                font-size: 11px;
+            }
+
+            textarea {
+                min-height: 80px;
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 
@@ -1701,6 +2034,10 @@
     </aside>
 
     <main class="main-content" style="position:relative;">
+      <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
+        <i data-lucide="menu"></i>
+      </button>
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
       <div class="top-right-bar">
         <span class="live-clock" id="liveClock"></span>
         <div class="lang-flags" id="langFlags">
@@ -2156,13 +2493,18 @@ function repairJSON(raw) {
 // ============================================================
 const savedTheme = localStorage.getItem("qa_theme") || "light";
 document.body.className = savedTheme;
+function closeSidebar() {
+    document.querySelector(".sidebar")?.classList.remove("open");
+    document.getElementById("sidebarOverlay")?.classList.remove("visible");
+}
+
 document.getElementById("themeToggle").addEventListener("click", () => {
     const isDark = document.body.classList.contains("dark");
     document.body.className = isDark ? "light" : "dark";
     localStorage.setItem("qa_theme", isDark ? "light" : "dark");
-    // Light mode shows MOON icon, Dark mode shows SUN icon
     document.getElementById("themeIcon").setAttribute("data-lucide", isDark ? "sun" : "moon");
     lucide.createIcons();
+    closeSidebar();
 });
 if(savedTheme === "dark") document.getElementById("themeIcon").setAttribute("data-lucide","moon");
 
@@ -2228,7 +2570,25 @@ document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
         if(view === "projects")  renderProjects();
         if(view === "suites")    renderSuites();
         if(view === "history")   renderHistory();
+        closeSidebar();
     });
+});
+
+// ── Mobile sidebar toggle ──
+const hamburgerBtn = document.getElementById("hamburgerBtn");
+const sidebar = document.querySelector(".sidebar");
+const sidebarOverlay = document.getElementById("sidebarOverlay");
+hamburgerBtn.addEventListener("click", () => {
+    const isOpen = sidebar.classList.toggle("open");
+    sidebarOverlay.classList.toggle("visible");
+    hamburgerBtn.innerHTML = isOpen ? '<i data-lucide="x"></i>' : '<i data-lucide="menu"></i>';
+    lucide.createIcons();
+});
+sidebarOverlay.addEventListener("click", () => {
+    sidebar.classList.remove("open");
+    sidebarOverlay.classList.remove("visible");
+    hamburgerBtn.innerHTML = '<i data-lucide="menu"></i>';
+    lucide.createIcons();
 });
 
 // ============================================================
@@ -2681,6 +3041,7 @@ document.getElementById("clearAllBtn").addEventListener("click", () => {
     renderHistory();
     renderProjects();
     renderSuites();
+    closeSidebar();
 });
 
 // ============================================================
@@ -3270,6 +3631,7 @@ function renderTemplates() {
 document.getElementById("openTemplatesBtn").addEventListener("click", () => {
     renderTemplates();
     document.getElementById("templatesOverlay").classList.add("visible");
+    closeSidebar();
 });
 
 document.getElementById("templatesClose").addEventListener("click", () => {
@@ -3313,6 +3675,7 @@ function getApiConfig() {
 document.getElementById("openApiConfigBtn").addEventListener("click", () => {
     loadApiConfig();
     document.getElementById("apiConfigOverlay").classList.add("visible");
+    closeSidebar();
 });
 
 document.getElementById("apiConfigClose").addEventListener("click", () => {
