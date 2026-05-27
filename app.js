@@ -299,14 +299,40 @@ function closeSidebar() {
 }
 
 document.getElementById("themeToggle").addEventListener("click", () => {
+    toggleTheme();
+    closeSidebar();
+});
+document.getElementById("themeToggleBtn")?.addEventListener("click", toggleTheme);
+
+function toggleTheme() {
     const isDark = document.body.classList.contains("dark");
     document.body.className = isDark ? "light" : "dark";
     localStorage.setItem("qa_theme", isDark ? "light" : "dark");
     document.getElementById("themeIcon").setAttribute("data-lucide", isDark ? "sun" : "moon");
+    const headerBtn = document.getElementById("themeToggleBtnIcon");
+    if (headerBtn) headerBtn.setAttribute("data-lucide", isDark ? "sun" : "moon");
     lucide.createIcons();
-    closeSidebar();
+}
+if(savedTheme === "dark") {
+    document.getElementById("themeIcon").setAttribute("data-lucide","moon");
+    const headerBtn = document.getElementById("themeToggleBtnIcon");
+    if (headerBtn && savedTheme === "dark") headerBtn.setAttribute("data-lucide","moon");
+}
+
+// Confetti toggle
+const confettiToggle = document.getElementById("confettiToggle");
+const confettiOn = localStorage.getItem("qa_confetti") !== "0";
+function updateConfettiBtn() {
+    const on = localStorage.getItem("qa_confetti") !== "0";
+    confettiToggle.style.opacity = on ? "1" : "0.4";
+    confettiToggle.title = on ? "Disable confetti celebration" : "Enable confetti celebration";
+}
+updateConfettiBtn();
+confettiToggle?.addEventListener("click", () => {
+    const on = localStorage.getItem("qa_confetti") === "0";
+    localStorage.setItem("qa_confetti", on ? "1" : "0");
+    updateConfettiBtn();
 });
-if(savedTheme === "dark") document.getElementById("themeIcon").setAttribute("data-lucide","moon");
 
 // ============================================================
 // LANGUAGE (flag buttons)
@@ -395,13 +421,40 @@ sidebarOverlay.addEventListener("click", () => {
 // MODALS
 // ============================================================
 const modalOverlay = document.getElementById("modalOverlay");
+let trapCleanup = null;
+function trapFocus(container) {
+    const prev = document.activeElement;
+    const focusable = container.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+    if (!focusable.length) return () => {};
+    const first = focusable[0];
+    const last  = focusable[focusable.length - 1];
+    const handler = (e) => {
+        if (e.key !== "Tab") return;
+        if (e.shiftKey) {
+            if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+        } else {
+            if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+    };
+    container.addEventListener("keydown", handler);
+    setTimeout(() => first.focus(), 50);
+    return () => {
+        container.removeEventListener("keydown", handler);
+        if (prev && prev.focus) prev.focus();
+    };
+}
 function openModal(title, contentHTML) {
+    if (trapCleanup) trapCleanup();
     document.getElementById("modalTitle").textContent = title;
     document.getElementById("modalContent").innerHTML = contentHTML;
     modalOverlay.classList.add("visible");
     lucide.createIcons();
+    trapCleanup = trapFocus(modalOverlay);
 }
-function closeModal() { modalOverlay.classList.remove("visible"); }
+function closeModal() {
+    modalOverlay.classList.remove("visible");
+    if (trapCleanup) { trapCleanup(); trapCleanup = null; }
+}
 
 function showConfirm(message, dangerLabel) {
     return new Promise(resolve => {
@@ -421,6 +474,20 @@ function showConfirm(message, dangerLabel) {
 }
 document.getElementById("modalClose").addEventListener("click", closeModal);
 modalOverlay.addEventListener("click", e => { if(e.target === modalOverlay) closeModal(); });
+
+// Focus trap for all modal overlays
+document.querySelectorAll(".modal-overlay").forEach(overlay => {
+    new MutationObserver((mutations) => {
+        const visible = mutations.some(m => m.target.classList.contains("visible"));
+        if (visible) {
+            if (trapCleanup) trapCleanup();
+            trapCleanup = trapFocus(overlay);
+        } else if (trapCleanup && !document.querySelector(".modal-overlay.visible")) {
+            trapCleanup();
+            trapCleanup = null;
+        }
+    }).observe(overlay, { attributes: true, attributeFilter: ["class"] });
+});
 
 const saveModalOverlay = document.getElementById("saveModalOverlay");
 document.getElementById("saveModalClose").addEventListener("click",
@@ -810,7 +877,12 @@ function renderHistory() {
 
         const searchWrapper = document.createElement("div");
         searchWrapper.className = "search-wrapper";
-        searchWrapper.innerHTML = `<i data-lucide="search" class="search-icon"></i>`;
+        const historyLabel = document.createElement("label");
+        historyLabel.className = "sr-only";
+        historyLabel.textContent = t("searchHistory");
+        historyLabel.htmlFor = "historySearch";
+        searchWrapper.appendChild(historyLabel);
+        searchWrapper.innerHTML += `<i data-lucide="search" class="search-icon"></i>`;
         searchWrapper.appendChild(searchInput);
         searchWrapper.innerHTML += `<button class="search-clear" id="clearHistorySearch"><i data-lucide="x"></i></button>`;
 
@@ -936,7 +1008,12 @@ function renderProjects() {
 
         const searchWrapper = document.createElement("div");
         searchWrapper.className = "search-wrapper";
-        searchWrapper.innerHTML = `<i data-lucide="search" class="search-icon"></i>`;
+        const projLabel = document.createElement("label");
+        projLabel.className = "sr-only";
+        projLabel.textContent = t("searchProjects");
+        projLabel.htmlFor = "projectsSearch";
+        searchWrapper.appendChild(projLabel);
+        searchWrapper.innerHTML += `<i data-lucide="search" class="search-icon"></i>`;
         searchWrapper.appendChild(searchInput);
         searchWrapper.innerHTML += `<button class="search-clear" id="clearProjectsSearch"><i data-lucide="x"></i></button>`;
 
@@ -1732,7 +1809,9 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
         saveLatestTestCases();
         renderSavedTestCards();
         finishProgress(true);
-        confetti({ particleCount:130, spread:80, origin:{y:0.55}, colors:["#3b82f6","#8b5cf6","#10b981","#f97316"] });
+        if (localStorage.getItem("qa_confetti") !== "0") {
+            confetti({ particleCount:130, spread:80, origin:{y:0.55}, colors:["#3b82f6","#8b5cf6","#10b981","#f97316"] });
+        }
         toggleActionBtns();
 
         state.usageTotal += latestTestCases.length;
@@ -1815,6 +1894,7 @@ if (navigator.storage && navigator.storage.estimate) {
 // ============================================================
 // INIT
 // ============================================================
+document.getElementById("initialSkeleton")?.remove();
 loadLatestTestCases();
 renderSavedTestCards();
 applyLang();

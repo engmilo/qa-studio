@@ -292,6 +292,34 @@
             color: var(--primary);
         }
 
+        .theme-header-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 10px;
+            cursor: pointer;
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .2s;
+            box-shadow: var(--shadow-sm);
+            line-height: 1;
+        }
+        .theme-header-btn:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .sr-only {
+            position: absolute; width: 1px; height: 1px;
+            padding: 0; margin: -1px; overflow: hidden;
+            clip: rect(0,0,0,0); white-space: nowrap;
+            border: 0;
+        }
+
         /* ── Main Content ── */
         .main-content {
             flex: 1;
@@ -1005,6 +1033,18 @@
             border-top: 1px solid var(--border);
             margin-top: auto;
             flex-shrink: 0;
+        }
+
+        /* ── Initial Loading Skeleton ── */
+        .skeleton-block {
+            background: linear-gradient(90deg, var(--border) 25%, var(--hover-bg) 50%, var(--border) 75%);
+            background-size: 200% 100%;
+            animation: skeletonShimmer 1.5s ease-in-out infinite;
+            border-radius: 8px;
+        }
+        @keyframes skeletonShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
 
         /* ── RTL Support ── */
@@ -1950,7 +1990,7 @@
 <body class="light">
 <!-- Hero Splash (dismissible landing) -->
 <!-- Toast Container -->
-<div class="toast-container" id="toastContainer"></div>
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
 <!-- API Config Modal -->
 <div id="apiConfigOverlay" class="modal-overlay">
@@ -2072,7 +2112,10 @@
       </button>
       <div class="sidebar-overlay" id="sidebarOverlay"></div>
       <div class="top-right-bar">
-        <a href="index.html?t=1" class="back-link">← <span data-i18n="back">Back</span></a>
+        <button id="themeToggleBtn" class="theme-header-btn" aria-label="Toggle theme">
+          <i data-lucide="moon" id="themeToggleBtnIcon"></i>
+        </button>
+        <a href="index.html" class="back-link">← <span data-i18n="back">Back</span></a>
         <span class="live-clock" id="liveClock"></span>
         <div class="lang-flags" id="langFlags">
             <button class="lang-btn" data-lang="fi" title="Suomi">FI</button>
@@ -2080,10 +2123,17 @@
         </div>
       </div>
       <div class="main-content-inner">
-        <header class="topbar" id="pageTitle">Generator</header>
+        <h1 class="topbar" id="pageTitle">Generator</h1>
         <p class="page-subtitle" id="pageSubtitle">Generate, save, and track test cases by project.</p>
 
         <section id="view-generator">
+            <!-- Initial loading skeleton (hidden by JS on first render) -->
+            <div id="initialSkeleton" aria-live="off">
+                <div class="skeleton-block" style="height:24px;width:200px;margin-bottom:8px;"></div>
+                <div class="skeleton-block" style="height:16px;width:320px;margin-bottom:28px;"></div>
+                <div class="skeleton-block" style="height:100px;width:100%;margin-bottom:16px;"></div>
+                <div class="skeleton-block" style="height:44px;width:200px;margin-bottom:20px;"></div>
+            </div>
             <!-- Live Preview Banner -->
             <div class="live-preview-banner">
                 <span class="live-preview-label" data-i18n="livePreviewLabel">// live preview</span>
@@ -2095,6 +2145,9 @@
                 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
                     <button id="suggestBtn" class="secondary-btn" style="font-size:13px;">
                         <i data-lucide="shuffle"></i> <span data-i18n="suggestFeatures">Random Stories</span>
+                    </button>
+                    <button id="confettiToggle" class="secondary-btn" style="font-size:13px;" aria-label="Toggle confetti celebration">
+                        <i data-lucide="sparkles"></i>
                     </button>
                 </div>
                 <div class="textarea-wrapper">
@@ -2147,6 +2200,7 @@
             </div>
 
             <div class="search-wrapper" id="generatorSearchWrap" style="display:none;">
+                <label for="generatorSearch" class="sr-only" data-i18n="searchHistory">Search</label>
                 <i data-lucide="search" class="search-icon"></i>
                 <input type="text" id="generatorSearch" class="search-input" data-i18n-placeholder="generatorSearchPlaceholder" placeholder="Search by title, tags, priority…" />
                 <button class="search-clear" id="generatorSearchClear"><i data-lucide="x"></i></button>
