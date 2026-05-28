@@ -1303,6 +1303,48 @@
             cursor: pointer;
         }
 
+        .edit-step-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .edit-step-num {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            min-width: 24px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .edit-step-input {
+            flex: 1;
+        }
+
+        .edit-step-remove {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .edit-step-remove:hover {
+            color: var(--danger);
+            background: var(--hover-bg);
+        }
+
+        .edit-step-remove i {
+            width: 16px;
+            height: 16px;
+        }
+
         /* ── Duplicate Button ── */
         .duplicate-btn {
             padding: 6px 12px;

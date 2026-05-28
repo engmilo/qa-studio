@@ -1442,9 +1442,18 @@ function makeEditable(element, initialValue, onSave) {
 // openEditModal — edit all test case fields
 // ============================================================
 function openEditModal(tc, cardDiv) {
-    const stepsVal = (tc.steps || []).join("\n");
     const tagsVal = (tc.tags || []).join(", ");
     const priorities = ["Critical", "High", "Medium", "Low", "Trivial"];
+
+    function stepsHTML(arr) {
+        return (arr || [""]).map((s, i) => `
+            <div class="edit-step-row">
+                <span class="edit-step-num">${i + 1}.</span>
+                <input class="api-input edit-step-input" value="${esc(s)}" />
+                <button class="edit-step-remove" ${(arr||[]).length <= 1 ? "style='visibility:hidden'" : ""}><i data-lucide="x"></i></button>
+            </div>
+        `).join("");
+    }
 
     const html = `
         <div class="edit-form">
@@ -1454,8 +1463,9 @@ function openEditModal(tc, cardDiv) {
             <label style="margin-top:12px;">Description</label>
             <textarea id="edit-desc" class="api-input" rows="2">${esc(tc.description || "")}</textarea>
 
-            <label style="margin-top:12px;">Steps (one per line)</label>
-            <textarea id="edit-steps" class="api-input" rows="4">${esc(stepsVal)}</textarea>
+            <label style="margin-top:12px;">Steps</label>
+            <div id="edit-steps-container">${stepsHTML(tc.steps)}</div>
+            <button id="edit-step-add" class="secondary-btn" style="margin-top:6px;font-size:12px;padding:4px 12px;"><i data-lucide="plus"></i> Add step</button>
 
             <label style="margin-top:12px;">Expected Result</label>
             <textarea id="edit-expected" class="api-input" rows="2">${esc(tc.expected || "")}</textarea>
@@ -1479,10 +1489,36 @@ function openEditModal(tc, cardDiv) {
 
     openModal("Edit Test Case", html);
 
+    const container = document.getElementById("edit-steps-container");
+
+    function renumberSteps() {
+        container.querySelectorAll(".edit-step-row").forEach((row, i) => {
+            row.querySelector(".edit-step-num").textContent = `${i + 1}.`;
+            row.querySelector(".edit-step-remove").style.visibility = container.children.length <= 1 ? "hidden" : "visible";
+        });
+    }
+
+    container.addEventListener("click", (e) => {
+        const removeBtn = e.target.closest(".edit-step-remove");
+        if (removeBtn && container.children.length > 1) {
+            removeBtn.closest(".edit-step-row").remove();
+            renumberSteps();
+        }
+    });
+
+    document.getElementById("edit-step-add").addEventListener("click", () => {
+        const row = document.createElement("div");
+        row.className = "edit-step-row";
+        row.innerHTML = `<span class="edit-step-num">${container.children.length + 1}.</span><input class="api-input edit-step-input" value="" /><button class="edit-step-remove"><i data-lucide="x"></i></button>`;
+        container.appendChild(row);
+        renumberSteps();
+        lucide.createIcons();
+    });
+
     document.getElementById("edit-save").addEventListener("click", () => {
         tc.title = document.getElementById("edit-title").value.trim() || tc.title;
         tc.description = document.getElementById("edit-desc").value.trim();
-        tc.steps = document.getElementById("edit-steps").value.split("\n").map(s => s.trim()).filter(Boolean);
+        tc.steps = Array.from(container.querySelectorAll(".edit-step-input")).map(inp => inp.value.trim()).filter(Boolean);
         tc.expected = document.getElementById("edit-expected").value.trim();
         tc.priority = document.getElementById("edit-priority").value;
         tc.tags = document.getElementById("edit-tags").value.split(",").map(s => s.trim()).filter(Boolean);
