@@ -793,7 +793,7 @@ function renderDashboard() {
     const trendChart = renderTrendChart(state.history);
 
     document.getElementById("dashContent").innerHTML = `
-        <div class="dash-card" style="margin-bottom:12px;display:flex;align-items:center;gap:12px;padding:10px 16px;">
+        <div class="dash-card" style="margin-bottom:10px;display:flex;align-items:center;gap:10px;padding:8px 12px;">
             <div style="font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${state.usageTotal}</div>
             <div style="color:var(--text-muted);font-size:13px;font-weight:500;">${t("dashTotalAll")}</div>
         </div>
