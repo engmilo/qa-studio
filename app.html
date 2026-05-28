@@ -210,11 +210,12 @@
         .top-right-bar {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             position: absolute;
             top: 20px;
-            right: 32px;
+            right: 28px;
             z-index: 5;
+            flex-wrap: nowrap;
         }
 
 
@@ -261,8 +262,8 @@
             color: var(--text-muted);
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 8px 14px;
+            border-radius: 8px;
+            padding: 5px 10px;
             font-family: "Inter", sans-serif;
             white-space: nowrap;
             box-shadow: var(--shadow-sm);
@@ -273,7 +274,7 @@
             font-weight: 500;
             color: var(--text-muted);
             text-decoration: none;
-            padding: 6px 10px;
+            padding: 4px 8px;
             border-radius: 8px;
             transition: background .2s, color .2s;
             white-space: nowrap;
@@ -325,6 +326,7 @@
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
         .main-content-inner { flex: 1; }
@@ -1719,13 +1721,13 @@
 
             .top-right-bar {
                 top: 14px;
-                right: 14px;
-                gap: 6px;
+                right: 12px;
+                gap: 4px;
             }
 
             .live-clock {
-                font-size: 12px;
-                padding: 6px 10px;
+                font-size: 11px;
+                padding: 4px 8px;
             }
 
             .lang-btn {
