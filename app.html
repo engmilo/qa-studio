@@ -207,15 +207,19 @@
 
 
         /* ── Top Right Bar ── */
+        .top-bar-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
         .top-right-bar {
             display: flex;
             align-items: center;
             gap: 8px;
-            position: absolute;
-            top: 20px;
-            right: 32px;
-            z-index: 5;
+            margin-left: auto;
             flex-wrap: nowrap;
+            flex-shrink: 0;
         }
 
 
@@ -1634,10 +1638,6 @@
         /* ── Hamburger Button ── */
         .hamburger {
             display: none;
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            z-index: 15;
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 10px;
@@ -1711,6 +1711,30 @@
 
             .hamburger {
                 display: flex;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 24px 16px;
+            }
+
+            .top-right-bar {
+                gap: 4px;
+            }
+
+            .live-clock {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+
+            .lang-btn {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+
+            .topbar {
+                font-size: 22px;
+                margin-bottom: 4px;
             }
 
             .main-content {
@@ -1916,17 +1940,13 @@
                 margin-right: 0;
             }
 
-            body[dir="rtl"] .top-right-bar {
-                right: auto;
-                left: 16px;
-            }
         }
 
         /* ── Very small phones ── */
         @media (max-width: 480px) {
 
             .main-content {
-                padding: 65px 12px 20px;
+                padding: 24px 12px;
             }
 
             .generator-panel {
@@ -2085,22 +2105,24 @@
         </div>
     </aside>
 
-    <main class="main-content" style="position:relative;">
-      <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
-        <i data-lucide="menu"></i>
-      </button>
-      <div class="sidebar-overlay" id="sidebarOverlay"></div>
-      <div class="top-right-bar">
-        <a href="index.html" class="back-link">← <span data-i18n="back">Back</span></a>
-        <span class="live-clock" id="liveClock"></span>
-        <div class="lang-flags" id="langFlags">
-            <button class="lang-btn" data-lang="fi" title="Suomi">FI</button>
-            <button class="lang-btn" data-lang="en" title="English">EN</button>
-        </div>
-        <button id="themeToggleBtn" class="theme-header-btn" aria-label="Toggle theme">
-          <i data-lucide="moon" id="themeToggleBtnIcon"></i>
+    <main class="main-content">
+      <div class="top-bar-row">
+        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
+          <i data-lucide="menu"></i>
         </button>
+        <div class="top-right-bar">
+          <a href="index.html" class="back-link">← <span data-i18n="back">Back</span></a>
+          <span class="live-clock" id="liveClock"></span>
+          <div class="lang-flags" id="langFlags">
+              <button class="lang-btn" data-lang="fi" title="Suomi">FI</button>
+              <button class="lang-btn" data-lang="en" title="English">EN</button>
+          </div>
+          <button id="themeToggleBtn" class="theme-header-btn" aria-label="Toggle theme">
+            <i data-lucide="moon" id="themeToggleBtnIcon"></i>
+          </button>
+        </div>
       </div>
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
       <div class="main-content-inner">
         <h1 class="topbar" id="pageTitle">Generator</h1>
         <p class="page-subtitle" id="pageSubtitle">Generate, save, and track test cases by project.</p>
