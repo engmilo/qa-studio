@@ -286,7 +286,8 @@ function repairJSON(raw) {
 // THEME
 // ============================================================
 const savedTheme = localStorage.getItem("qa_theme") || "light";
-document.body.className = savedTheme;
+document.body.classList.remove("light", "dark");
+document.body.classList.add(savedTheme);
 
 const oldCfg = JSON.parse(localStorage.getItem("qa_api_config") || "{}");
 if (oldCfg.apiKey) {
@@ -298,27 +299,31 @@ function closeSidebar() {
     document.getElementById("sidebarOverlay")?.classList.remove("visible");
 }
 
-document.getElementById("themeToggle").addEventListener("click", () => {
+document.getElementById("themeToggle")?.addEventListener("click", () => {
     toggleTheme();
     closeSidebar();
 });
 document.getElementById("themeToggleBtn")?.addEventListener("click", toggleTheme);
 
 function toggleTheme() {
-    const isDark = document.body.classList.contains("dark");
-    document.body.className = isDark ? "light" : "dark";
-    localStorage.setItem("qa_theme", isDark ? "light" : "dark");
+    const next = document.body.classList.contains("dark") ? "light" : "dark";
+    document.body.classList.remove("light", "dark");
+    document.body.classList.add(next);
+    void document.body.offsetHeight;
+    localStorage.setItem("qa_theme", next);
+    const isDark = next === "dark";
     const themeToggle = document.getElementById("themeToggle");
-    if (themeToggle) themeToggle.innerHTML = `<i data-lucide="${isDark ? "sun" : "moon"}" id="themeIcon"></i><span data-i18n="theme">Theme</span>`;
+    if (themeToggle) themeToggle.innerHTML = `<i data-lucide="${isDark ? "moon" : "sun"}" id="themeIcon"></i><span data-i18n="theme">Theme</span>`;
     const headerBtn = document.getElementById("themeToggleBtn");
-    if (headerBtn) headerBtn.innerHTML = `<i data-lucide="${isDark ? "sun" : "moon"}" id="themeToggleBtnIcon"></i>`;
-    lucide.createIcons();
+    if (headerBtn) headerBtn.innerHTML = `<i data-lucide="${isDark ? "moon" : "sun"}" id="themeToggleBtnIcon"></i>`;
+    try { lucide.createIcons(); } catch (_) {}
 }
 if(savedTheme === "dark") {
     const themeToggle = document.getElementById("themeToggle");
     if (themeToggle) themeToggle.innerHTML = '<i data-lucide="moon" id="themeIcon"></i><span data-i18n="theme">Theme</span>';
     const headerBtn = document.getElementById("themeToggleBtn");
     if (headerBtn) headerBtn.innerHTML = '<i data-lucide="moon" id="themeToggleBtnIcon"></i>';
+    try { lucide.createIcons(); } catch (_) {}
 }
 
 // Confetti toggle
@@ -1483,7 +1488,9 @@ document.getElementById("importFileInput").addEventListener("change", (e) => {
                     localStorage.setItem("qa_lang", lang);
                 }
                 if (data.settings.theme === "light" || data.settings.theme === "dark") {
-                    document.body.className = data.settings.theme;
+                    document.body.classList.remove("light", "dark");
+                    document.body.classList.add(data.settings.theme);
+                    void document.body.offsetHeight;
                     localStorage.setItem("qa_theme", data.settings.theme);
                 }
             }
