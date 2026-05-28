@@ -1773,7 +1773,10 @@ generateBtn.addEventListener("click", async () => {
                 model: config.model,
                 max_tokens: config.tokens,
                 apiKey: config.apiKey || undefined,
-                system: `You are a QA engineer. Given a feature description, generate 10-14 test cases covering positive, negative, and edge cases as a JSON array.
+                system: `You are a QA engineer. Given a feature description, generate 14-18 test cases covering as many of the following categories as applicable as a JSON array:
+
+Case type categories to cover: Positive (happy paths), Negative (error/unhappy paths), Boundary/edge cases, Validation cases, UI/UX cases, Functional workflow cases, API cases, Integration cases, Regression cases, Security cases (if applicable).
+
 Each object must have exactly these fields:
 - id: string like "TC-001"
 - title: short string
@@ -1781,9 +1784,9 @@ Each object must have exactly these fields:
 - steps: array of 3-5 step strings
 - expected: string
 - priority: one of "Critical", "High", "Medium", "Low", "Trivial"
-- tags: array of 1-3 tag strings — include a tag "positive", "negative", or "edge" to indicate the case type
+- tags: array of 2-4 tag strings — ALWAYS include one tag indicating the case type (e.g. "positive", "negative", "boundary", "validation", "ui-ux", "functional", "api", "integration", "regression", "security")
 - risk: one sentence
-IMPORTANT: Write all text content (title, description, steps, expected, tags, risk) in ${lang === "fi" ? "Finnish" : "English"}. The priority field must always use the English values (Critical/High/Medium/Low/Trivial). Ensure a good mix of positive, negative, and edge cases.
+IMPORTANT: Write all text content (title, description, steps, expected, tags, risk) in ${lang === "fi" ? "Finnish" : "English"}. The priority field must always use the English values (Critical/High/Medium/Low/Trivial). Distribute the case types evenly.
 Return ONLY the raw JSON array, no markdown, no explanation.`,
                 messages: [{ role: "user", content: `Feature: ${feature}` }],
             }),
