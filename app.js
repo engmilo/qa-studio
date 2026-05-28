@@ -1342,7 +1342,7 @@ function renderTrendChart(history) {
 
     let html = '<div class="trend-chart">';
     last7.forEach(h => {
-        const height = Math.max((h.count / max) * 80, 4);
+        const height = Math.max((h.count / max) * 42, 4);
         html += `<div class="trend-bar" style="height:${height}px" data-count="${h.count}"></div>`;
     });
     html += '</div>';
