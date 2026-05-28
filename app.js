@@ -489,7 +489,7 @@ document.getElementById("confirmSaveBtn").addEventListener("click", () => {
     updateGenerateBtn();
     latestTestCases = [];
     saveLatestTestCases();
-    document.getElementById("results").innerHTML = "";
+    renderSavedTestCards();
     toggleActionBtns();
 });
 
