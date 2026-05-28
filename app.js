@@ -816,7 +816,7 @@ document.getElementById("clearAllBtn").addEventListener("click", async () => {
     latestTestCases = [];
     saveState();
     saveLatestTestCases();
-    document.getElementById("results").innerHTML = "";
+    renderSavedTestCards();
     toggleActionBtns();
     updateUsageCounter();
     renderDashboard();
