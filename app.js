@@ -1439,6 +1439,66 @@ function makeEditable(element, initialValue, onSave) {
 }
 
 // ============================================================
+// openEditModal — edit all test case fields
+// ============================================================
+function openEditModal(tc, cardDiv) {
+    const stepsVal = (tc.steps || []).join("\n");
+    const tagsVal = (tc.tags || []).join(", ");
+    const priorities = ["Critical", "High", "Medium", "Low", "Trivial"];
+
+    const html = `
+        <div class="edit-form">
+            <label>Title</label>
+            <input id="edit-title" class="api-input" value="${esc(tc.title)}" />
+
+            <label style="margin-top:12px;">Description</label>
+            <textarea id="edit-desc" class="api-input" rows="2">${esc(tc.description || "")}</textarea>
+
+            <label style="margin-top:12px;">Steps (one per line)</label>
+            <textarea id="edit-steps" class="api-input" rows="4">${esc(stepsVal)}</textarea>
+
+            <label style="margin-top:12px;">Expected Result</label>
+            <textarea id="edit-expected" class="api-input" rows="2">${esc(tc.expected || "")}</textarea>
+
+            <label style="margin-top:12px;">Priority</label>
+            <select id="edit-priority" class="api-input">
+                ${priorities.map(p => `<option value="${p}" ${tc.priority === p ? "selected" : ""}>${p}</option>`).join("")}
+            </select>
+
+            <label style="margin-top:12px;">Tags (comma separated)</label>
+            <input id="edit-tags" class="api-input" value="${esc(tagsVal)}" />
+
+            <label style="margin-top:12px;">Risk</label>
+            <textarea id="edit-risk" class="api-input" rows="2">${esc(tc.risk || "")}</textarea>
+
+            <div style="display:flex;gap:8px;margin-top:16px;">
+                <button id="edit-save" class="primary-btn" style="flex:1;justify-content:center;"><i data-lucide="save"></i> Save</button>
+                <button id="edit-cancel" class="secondary-btn" style="flex:1;justify-content:center;">Cancel</button>
+            </div>
+        </div>`;
+
+    openModal("Edit Test Case", html);
+
+    document.getElementById("edit-save").addEventListener("click", () => {
+        tc.title = document.getElementById("edit-title").value.trim() || tc.title;
+        tc.description = document.getElementById("edit-desc").value.trim();
+        tc.steps = document.getElementById("edit-steps").value.split("\n").map(s => s.trim()).filter(Boolean);
+        tc.expected = document.getElementById("edit-expected").value.trim();
+        tc.priority = document.getElementById("edit-priority").value;
+        tc.tags = document.getElementById("edit-tags").value.split(",").map(s => s.trim()).filter(Boolean);
+        tc.risk = document.getElementById("edit-risk").value.trim();
+        saveLatestTestCases();
+        const newCard = createTestCard(tc);
+        cardDiv.replaceWith(newCard);
+        lucide.createIcons();
+        closeModal();
+        showToast("Test case updated", "success");
+    });
+
+    document.getElementById("edit-cancel").addEventListener("click", closeModal);
+}
+
+// ============================================================
 // createTestCard — consolidated
 // ============================================================
 function createTestCard(tc) {
@@ -1476,6 +1536,7 @@ function createTestCard(tc) {
             <button class="status-btn fail-btn ${tc.status === "fail" ? "active-fail" : ""}">${t("fail")}</button>
             <button class="status-btn blocked-btn ${tc.status === "blocked" ? "active-blocked" : ""}">${t("blocked")}</button>
             <span style="flex:1"></span>
+            <button class="icon-btn" data-action="edit" title="Edit"><i data-lucide="pencil"></i></button>
             <button class="icon-btn" data-action="copy" title="Copy to clipboard"><i data-lucide="copy"></i></button>
             <button class="icon-btn" data-action="duplicate" title="Duplicate"><i data-lucide="copy-plus"></i></button>
             <button class="icon-btn fb-up ${fbCur === 'up' ? 'fb-active' : ''}" data-action="fb-up" data-id="${esc(tc.id)}" title="Good"><i data-lucide="thumbs-up"></i></button>
@@ -1512,6 +1573,7 @@ function createTestCard(tc) {
     div.querySelectorAll(".icon-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             const action = btn.dataset.action;
+            if (action === "edit") { openEditModal(tc, div); return; }
             if (action === "copy") { copyTestCase(tc); return; }
             if (action === "duplicate") {
                 const idx = latestTestCases.findIndex(x => x.id === tc.id);
