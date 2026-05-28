@@ -491,6 +491,9 @@ document.getElementById("confirmSaveBtn").addEventListener("click", () => {
     saveLatestTestCases();
     renderSavedTestCards();
     toggleActionBtns();
+    updateUsageCounter();
+    renderDashboard();
+    closeSidebar();
 });
 
 document.getElementById("projectNameInput").addEventListener("keydown", e => {
