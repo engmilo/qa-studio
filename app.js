@@ -599,7 +599,6 @@ function updateGenerateBtn() {
 testInput.addEventListener("input", () => {
     updateCharCounter();
     updateGenerateBtn();
-    saveToHistory();
     const hasContent = testInput.value.length > 0;
     clearTextareaBtn.classList.toggle("visible", hasContent);
     clearTimeout(draftTimeout);
@@ -1009,55 +1008,15 @@ document.addEventListener("keydown", (e) => {
         }
     }
     if (e.ctrlKey && e.key === "z" && !e.shiftKey) {
-        const undoBtn = document.getElementById("undoBtn");
-        if (undoBtn.classList.contains("visible")) {
-            undoBtn.click();
-        }
+        // Do nothing (Ctrl+Z)
     }
 });
 
-// ============================================================
-// NEW FEATURES: UNDO FUNCTIONALITY
-// ============================================================
-let textareaHistory = [];
-let historyIndex = -1;
-const MAX_HISTORY = 20;
 
-function saveToHistory() {
-    const current = testInput.value;
-    if (textareaHistory[historyIndex] !== current) {
-        textareaHistory = textareaHistory.slice(0, historyIndex + 1);
-        textareaHistory.push(current);
-        if (textareaHistory.length > MAX_HISTORY) {
-            textareaHistory.shift();
-        }
-        historyIndex = textareaHistory.length - 1;
-    }
-    updateUndoButton();
-}
-
-function undoTextarea() {
-    if (historyIndex > 0) {
-        historyIndex--;
-        testInput.value = textareaHistory[historyIndex] || "";
-        updateCharCounter();
-        updateUndoButton();
-        showToast("Undone", "info", 1500);
-    }
-}
-
-function updateUndoButton() {
-    const undoBtn = document.getElementById("undoBtn");
-    undoBtn.classList.toggle("visible", historyIndex > 0 && textareaHistory.length > 1);
-}
-
-const undoBtn = document.getElementById("undoBtn");
-undoBtn.addEventListener("click", undoTextarea);
 
 const clearTextareaBtn = document.getElementById("clearTextarea");
 clearTextareaBtn.addEventListener("click", () => {
     testInput.value = "";
-    saveToHistory();
     updateCharCounter();
     updateGenerateBtn();
     clearTextareaBtn.classList.remove("visible");
@@ -1077,7 +1036,6 @@ function loadDraft() {
         testInput.value = draft;
         updateCharCounter();
         clearTextareaBtn.classList.toggle("visible", draft.length > 0);
-        saveToHistory();
     }
 }
 

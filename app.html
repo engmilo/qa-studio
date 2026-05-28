@@ -1659,23 +1659,6 @@
         .clear-textarea:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
 
         /* ── Undo Button ── */
-        .undo-btn {
-            padding: 4px 8px;
-            background: var(--warning-light);
-            color: var(--warning);
-            border: 1px solid rgba(249, 115, 22, 0.3);
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            display: none;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.2s ease;
-        }
-
-        .undo-btn.visible { display: inline-flex; }
-        .undo-btn:hover { background: var(--warning); color: white; }
-
         /* ── Keyboard Shortcut Hint ── */
         .kbd {
             background: var(--hover-bg);
@@ -2178,8 +2161,7 @@
                         <i data-lucide="x"></i> Clear
                     </button>
                 </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
-                    <button class="undo-btn" id="undoBtn"><i data-lucide="undo-2"></i> Undo</button>
+                <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:6px;">
                     <span class="char-counter" id="charCounter">0 characters</span>
                 </div>
                 <div class="progress-wrap" id="progressWrap">
