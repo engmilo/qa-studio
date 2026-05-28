@@ -299,10 +299,6 @@ function closeSidebar() {
     document.getElementById("sidebarOverlay")?.classList.remove("visible");
 }
 
-document.getElementById("themeToggle")?.addEventListener("click", () => {
-    toggleTheme();
-    closeSidebar();
-});
 document.getElementById("themeToggleBtn")?.addEventListener("click", toggleTheme);
 
 function toggleTheme() {
@@ -312,15 +308,11 @@ function toggleTheme() {
     void document.body.offsetHeight;
     localStorage.setItem("qa_theme", next);
     const isDark = next === "dark";
-    const themeToggle = document.getElementById("themeToggle");
-    if (themeToggle) themeToggle.innerHTML = `<i data-lucide="${isDark ? "moon" : "sun"}" id="themeIcon"></i><span data-i18n="theme">Theme</span>`;
     const headerBtn = document.getElementById("themeToggleBtn");
     if (headerBtn) headerBtn.innerHTML = `<i data-lucide="${isDark ? "moon" : "sun"}" id="themeToggleBtnIcon"></i>`;
     try { lucide.createIcons(); } catch (_) {}
 }
 if(savedTheme === "dark") {
-    const themeToggle = document.getElementById("themeToggle");
-    if (themeToggle) themeToggle.innerHTML = '<i data-lucide="moon" id="themeIcon"></i><span data-i18n="theme">Theme</span>';
     const headerBtn = document.getElementById("themeToggleBtn");
     if (headerBtn) headerBtn.innerHTML = '<i data-lucide="moon" id="themeToggleBtnIcon"></i>';
     try { lucide.createIcons(); } catch (_) {}
