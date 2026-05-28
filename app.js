@@ -1501,8 +1501,6 @@ function createTestCard(tc) {
     div.setAttribute("data-id", tc.id);
     div.setAttribute("draggable", "true");
     const isSelected = selectedTestCases.has(tc.id);
-    const fb = getFeedback();
-    const fbCur = fb[tc.id] || "";
 
     function openDetails() {
         const steps = (tc.steps || []).map(s => `<li>${esc(s)}</li>`).join("");
@@ -1531,10 +1529,6 @@ function createTestCard(tc) {
             <button class="status-btn blocked-btn ${tc.status === "blocked" ? "active-blocked" : ""}">${t("blocked")}</button>
             <span style="flex:1"></span>
             <button class="icon-btn" data-action="edit" title="Edit"><i data-lucide="pencil"></i></button>
-            <button class="icon-btn" data-action="copy" title="Copy to clipboard"><i data-lucide="copy"></i></button>
-            <button class="icon-btn" data-action="duplicate" title="Duplicate"><i data-lucide="copy-plus"></i></button>
-            <button class="icon-btn fb-up ${fbCur === 'up' ? 'fb-active' : ''}" data-action="fb-up" data-id="${esc(tc.id)}" title="Good"><i data-lucide="thumbs-up"></i></button>
-            <button class="icon-btn fb-down ${fbCur === 'down' ? 'fb-active' : ''}" data-action="fb-down" data-id="${esc(tc.id)}" title="Needs improvement"><i data-lucide="thumbs-down"></i></button>
         </div>`;
 
     const titleEl = div.querySelector(`#title-${tc.id}`);
@@ -1566,26 +1560,7 @@ function createTestCard(tc) {
 
     div.querySelectorAll(".icon-btn").forEach(btn => {
         btn.addEventListener("click", () => {
-            const action = btn.dataset.action;
-            if (action === "edit") { openEditModal(tc, div); return; }
-            if (action === "copy") { copyTestCase(tc); return; }
-            if (action === "duplicate") {
-                const idx = latestTestCases.findIndex(x => x.id === tc.id);
-                duplicateTestCase(tc, idx);
-                return;
-            }
-            if (action === "fb-up" || action === "fb-down") {
-                const vote = action === "fb-up" ? "up" : "down";
-                const id = btn.dataset.id;
-                const fb = getFeedback();
-                if (fb[id] === vote) { delete fb[id]; }
-                else { fb[id] = vote; }
-                saveFeedback(fb);
-                div.querySelectorAll(".icon-btn.fb-up, .icon-btn.fb-down").forEach(b =>
-                    b.classList.toggle("fb-active", fb[b.dataset.id] === (b.dataset.action === "fb-up" ? "up" : "down"))
-                );
-                showToast(vote === "up" ? "Marked as good" : "Marked for improvement", "info", 1500);
-            }
+            if (btn.dataset.action === "edit") openEditModal(tc, div);
         });
     });
 
