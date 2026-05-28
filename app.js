@@ -1604,6 +1604,7 @@ function renderSavedTestCards(filter) {
     if (!latestTestCases.length) {
         wrap.style.display = "none";
         meta.innerHTML = "";
+        resultsEl.innerHTML = "";
         return;
     }
     wrap.style.display = "block";
