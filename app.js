@@ -1773,7 +1773,7 @@ generateBtn.addEventListener("click", async () => {
                 model: config.model,
                 max_tokens: config.tokens,
                 apiKey: config.apiKey || undefined,
-                system: `You are a QA engineer. Given a feature description, generate 4-6 test cases as a JSON array.
+                system: `You are a QA engineer. Given a feature description, generate 10-14 test cases covering positive, negative, and edge cases as a JSON array.
 Each object must have exactly these fields:
 - id: string like "TC-001"
 - title: short string
@@ -1781,9 +1781,9 @@ Each object must have exactly these fields:
 - steps: array of 3-5 step strings
 - expected: string
 - priority: one of "Critical", "High", "Medium", "Low", "Trivial"
-- tags: array of 1-3 tag strings
+- tags: array of 1-3 tag strings — include a tag "positive", "negative", or "edge" to indicate the case type
 - risk: one sentence
-IMPORTANT: Write all text content (title, description, steps, expected, tags, risk) in ${lang === "fi" ? "Finnish" : "English"}. The priority field must always use the English values (Critical/High/Medium/Low/Trivial).
+IMPORTANT: Write all text content (title, description, steps, expected, tags, risk) in ${lang === "fi" ? "Finnish" : "English"}. The priority field must always use the English values (Critical/High/Medium/Low/Trivial). Ensure a good mix of positive, negative, and edge cases.
 Return ONLY the raw JSON array, no markdown, no explanation.`,
                 messages: [{ role: "user", content: `Feature: ${feature}` }],
             }),
