@@ -1336,7 +1336,7 @@ function renderPieChart(data, colors) {
     data.forEach((value, i) => {
         if (value === 0) return;
         const pct = value / total;
-        const offset = circ * (1 - cumPct - pct / 2);
+        const offset = circ * (1 - cumPct);
         const dash = circ * pct;
         segments += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${colors[i]}" stroke-width="20" stroke-dasharray="${dash} ${circ - dash}" stroke-dashoffset="${offset}" transform="rotate(-90 ${cx} ${cy})" />`;
         legendHtml += `<div class="legend-item"><span class="legend-dot" style="background:${colors[i]}"></span>${value} (${Math.round(pct * 100)}%)</div>`;
