@@ -808,9 +808,9 @@ function renderDashboard() {
     const trendChart = renderTrendChart(state.history);
 
     document.getElementById("dashContent").innerHTML = `
-        <div class="dash-card" style="margin-bottom:24px;display:flex;align-items:center;gap:20px;padding:20px 24px;">
-            <div style="font-size:42px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${state.usageTotal}</div>
-            <div style="color:var(--text-muted);font-size:15px;font-weight:500;">${t("dashTotalAll")}</div>
+        <div class="dash-card" style="margin-bottom:12px;display:flex;align-items:center;gap:12px;padding:10px 16px;">
+            <div style="font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${state.usageTotal}</div>
+            <div style="color:var(--text-muted);font-size:13px;font-weight:500;">${t("dashTotalAll")}</div>
         </div>
         <div class="chart-grid">
             <div class="chart-container">
@@ -1343,8 +1343,8 @@ function renderPieChart(data, colors) {
         cumPct += pct;
     });
 
-    return `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-        <svg width="120" height="120" viewBox="0 0 100 100" style="flex-shrink:0;">${segments}<circle cx="${cx}" cy="${cy}" r="18" fill="var(--card-bg)" /></svg>
+    return `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <svg width="80" height="80" viewBox="0 0 100 100" style="flex-shrink:0;">${segments}<circle cx="${cx}" cy="${cy}" r="26" fill="var(--card-bg)" /></svg>
         <div class="pie-legend">${legendHtml}</div>
     </div>`;
 }

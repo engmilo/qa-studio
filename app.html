@@ -836,54 +836,54 @@
         /* ── Dashboard Grid ── */
         .dash-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-            gap: 16px; 
-            margin-bottom: 28px; 
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); 
+            gap: 10px; 
+            margin-bottom: 14px; 
         }
 
         .dash-card { 
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 22px;
+            border-radius: 12px;
+            padding: 12px 14px;
             box-shadow: var(--shadow-sm);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .dash-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
 
         .dash-value { 
-            font-size: 36px; 
+            font-size: 24px; 
             font-weight: 700; 
-            margin-bottom: 8px; 
+            margin-bottom: 4px; 
             line-height: 1;
             letter-spacing: -0.02em;
         }
 
         .dash-label { 
-            font-size: 13px; 
+            font-size: 11px; 
             color: var(--text-muted);
             font-weight: 500;
             display: flex; 
             align-items: center; 
-            gap: 8px;
+            gap: 6px;
         }
 
         .dash-dot { 
-            width: 10px; 
-            height: 10px; 
+            width: 8px; 
+            height: 8px; 
             border-radius: 50%; 
             flex-shrink: 0;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .dash-section-title { 
-            font-size: 18px; 
+            font-size: 14px; 
             font-weight: 700; 
-            margin: 0 0 16px;
+            margin: 0 0 10px;
             letter-spacing: -0.01em;
         }
 
@@ -1441,21 +1441,26 @@
         .chart-container {
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
         }
 
         .chart-title {
-            font-size: 16px;
+            font-size: 13px;
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
         }
 
         .chart-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            gap: 10px;
+        }
+
+        .chart-container svg {
+            width: 80px !important;
+            height: 80px !important;
         }
 
         @media (max-width: 768px) {
@@ -1475,20 +1480,20 @@
         .pie-legend {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 6px;
             justify-content: center;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 13px;
+            gap: 4px;
+            font-size: 11px;
         }
 
         .legend-dot {
-            width: 12px;
-            height: 12px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
         }
 
@@ -1497,8 +1502,8 @@
             display: flex;
             align-items: flex-end;
             gap: 4px;
-            height: 100px;
-            padding: 10px 0;
+            height: 50px;
+            padding: 4px 0;
         }
 
         .trend-bar {
@@ -1821,20 +1826,20 @@
 
             .dash-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-                margin-bottom: 20px;
+                gap: 8px;
+                margin-bottom: 10px;
             }
 
             .dash-card {
-                padding: 16px;
+                padding: 10px 12px;
             }
 
             .dash-value {
-                font-size: 28px;
+                font-size: 22px;
             }
 
             .dash-label {
-                font-size: 12px;
+                font-size: 11px;
             }
 
             .section-header {
@@ -1943,15 +1948,15 @@
 
             .dash-grid {
                 grid-template-columns: 1fr 1fr;
-                gap: 8px;
+                gap: 6px;
             }
 
             .dash-value {
-                font-size: 24px;
+                font-size: 20px;
             }
 
             .dash-card {
-                padding: 12px;
+                padding: 8px 10px;
             }
 
             .modal {
