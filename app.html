@@ -430,17 +430,6 @@
             position: relative;
         }
 
-        .generator-panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 24px;
-            right: 24px;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--purple));
-            border-radius: 0 0 4px 4px;
-        }
-
         textarea {
             width: 100%;
             min-height: 130px;
@@ -1020,8 +1009,7 @@
         body[dir="rtl"] .section-header { flex-direction: row-reverse; }
         body[dir="rtl"] textarea { text-align: right; }
         body[dir="rtl"] .live-preview-banner::before { left: auto; right: 0; }
-        body[dir="rtl"] .generator-panel::before { left: 24px; right: 24px; }
-
+        
         /* ── Scrollbar Styling ── */
         ::-webkit-scrollbar {
             width: 8px;
