@@ -1811,7 +1811,7 @@ Each object must have exactly these fields:
 - title: short string
 - description: one sentence
 - steps: array of 3-5 step strings
-- expectedResults: array of strings — each step MUST have a corresponding expected result (same length as steps)
+- expectedResults: array of strings — each step MUST have its own UNIQUE corresponding expected result (same length as steps). Example: steps: ["Open login page","Enter email","Click Login"] → expectedResults: ["Login page loads","Email field accepts input","User is redirected to dashboard"]. Every step gets a distinct expected result, never repeated.
 - priority: one of "Critical", "High", "Medium", "Low", "Trivial"
 - tags: array of 2-4 tag strings — ALWAYS include one tag indicating the case type (e.g. "positive", "negative", "boundary", "validation", "ui-ux", "functional", "api", "integration", "regression", "security")
 - risk: one sentence
