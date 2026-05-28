@@ -282,14 +282,18 @@
             font-weight: 500;
             color: var(--text-muted);
             text-decoration: none;
-            padding: 4px 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            transition: background .2s, color .2s;
+            padding: 5px 10px;
             white-space: nowrap;
+            box-shadow: var(--shadow-sm);
+            transition: background .2s, color .2s, border-color .2s;
         }
         .back-link:hover {
             background: var(--primary-light);
             color: var(--primary);
+            border-color: var(--primary);
         }
 
         .theme-header-btn {
