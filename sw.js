@@ -9,7 +9,6 @@ const PRECACHE_URLS = [
   "/qa-studio/preview.png",
   "https://unpkg.com/lucide@1.16.0/dist/umd/lucide.min.js",
   "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js",
-  "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js",
   "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
 ];
 

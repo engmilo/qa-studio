@@ -318,21 +318,6 @@ if(savedTheme === "dark") {
     try { lucide.createIcons(); } catch (_) {}
 }
 
-// Confetti toggle
-const confettiToggle = document.getElementById("confettiToggle");
-function updateConfettiBtn() {
-    if (!confettiToggle) return;
-    const on = localStorage.getItem("qa_confetti") !== "0";
-    confettiToggle.style.opacity = on ? "1" : "0.4";
-    confettiToggle.title = on ? "Disable confetti celebration" : "Enable confetti celebration";
-}
-updateConfettiBtn();
-confettiToggle?.addEventListener("click", () => {
-    const on = localStorage.getItem("qa_confetti") === "0";
-    localStorage.setItem("qa_confetti", on ? "1" : "0");
-    updateConfettiBtn();
-});
-
 // ============================================================
 // LANGUAGE (flag buttons)
 // ============================================================
@@ -1813,9 +1798,6 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
         saveLatestTestCases();
         renderSavedTestCards();
         finishProgress(true);
-        if (localStorage.getItem("qa_confetti") !== "0") {
-            confetti({ particleCount:130, spread:80, origin:{y:0.55}, colors:["#3b82f6","#8b5cf6","#10b981","#f97316"] });
-        }
         toggleActionBtns();
 
         state.usageTotal += latestTestCases.length;
