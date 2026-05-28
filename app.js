@@ -1902,3 +1902,6 @@ loadDraft();
 updateUsageCounter();
 renderDashboard();
 toggleActionBtns();
+window.addEventListener("pageshow", () => {
+    try { lucide.createIcons(); } catch (_) {}
+});
