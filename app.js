@@ -591,9 +591,11 @@ Return ONLY the raw JSON, no markdown.`,
 // USAGE COUNTER
 // ============================================================
 function updateUsageCounter() {
+    const el = document.getElementById("usageCounter");
+    if (!el) return;
     const fn = i18n[lang]?.usageFn;
     const total = state.usageTotal || 0;
-    document.getElementById("usageCounter").innerHTML =
+    el.innerHTML =
         `<span style="display:block;font-size:18px;font-weight:800;">${total}</span>` +
         (typeof fn === "function" ? fn(total) : "generated");
 }
