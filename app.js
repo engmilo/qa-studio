@@ -1859,13 +1859,15 @@ if (navigator.storage && navigator.storage.estimate) {
 // ============================================================
 // INIT
 // ============================================================
-loadLatestTestCases();
-renderSavedTestCards();
-applyLang();
-loadDraft();
-updateUsageCounter();
-renderDashboard();
-toggleActionBtns();
+try {
+    loadLatestTestCases();
+    applyLang();
+    renderSavedTestCards();
+    loadDraft();
+    updateUsageCounter();
+    renderDashboard();
+    toggleActionBtns();
+} catch (_) {}
 window.addEventListener("pageshow", () => {
     try { lucide.createIcons(); } catch (_) {}
 });
