@@ -437,42 +437,6 @@
             border-radius: 0 0 4px 4px;
         }
 
-        .chips-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-
-        .chip {
-            padding: 8px 18px;
-            border-radius: 50px;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: "Inter", sans-serif;
-        }
-
-        .chip:hover { 
-            border-color: var(--primary);
-            color: var(--primary);
-            background: var(--primary-light);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px var(--primary-glow);
-        }
-
-        .chip.active-chip { 
-            border-color: var(--primary);
-            color: var(--primary);
-            background: var(--primary-light);
-            font-weight: 600;
-            box-shadow: 0 4px 12px var(--primary-glow);
-        }
-
         textarea {
             width: 100%;
             min-height: 130px;
@@ -1590,6 +1554,30 @@
             position: relative;
         }
 
+        .import-prompt {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--card-bg);
+            border: 1px dashed var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+        }
+
+        .import-prompt-icon {
+            width: 22px;
+            height: 22px;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .import-prompt-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
         .clear-textarea {
             position: absolute;
             right: 12px;
@@ -1749,14 +1737,8 @@
                 padding: 20px 16px;
             }
 
-            .chips-row {
-                gap: 8px;
-                margin-bottom: 12px;
-            }
-
-            .chip {
-                padding: 6px 14px;
-                font-size: 12px;
+            .import-prompt {
+                padding: 12px 14px;
             }
 
             textarea {
@@ -1956,11 +1938,6 @@
                 font-size: 20px;
             }
 
-            .chip {
-                padding: 5px 10px;
-                font-size: 11px;
-            }
-
             textarea {
                 min-height: 80px;
                 font-size: 13px;
@@ -2113,11 +2090,9 @@
             </div>
 
             <div class="generator-panel">
-                <div class="chips-row" id="chipsRow"></div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
-                    <button id="suggestBtn" class="secondary-btn" style="font-size:13px;">
-                        <i data-lucide="shuffle"></i> <span data-i18n="suggestFeatures">Random Stories</span>
-                    </button>
+                <div class="import-prompt">
+                  <i data-lucide="clipboard-list" class="import-prompt-icon"></i>
+                  <span class="import-prompt-text" data-i18n="importPrompt">Paste or type your user stories below — copy them directly from Jira, Notion, spreadsheets, or any requirements document.</span>
                 </div>
                 <div class="textarea-wrapper">
                     <textarea id="testInput" placeholder="Describe the feature you want test cases for…"></textarea>

@@ -55,18 +55,9 @@ const i18n = {
         deletedTests: "Deleted selected test cases",
         back: "Back",
         footerText: "QA Studio by Milo Haireche — 20+ years of QA expertise",
-        chips: ["Login flow","Password reset","File upload","Search & filter","User registration","Checkout"],
-        chipStories: [
-            "As a registered user, I want to log in with my email and password so that I can access my account dashboard. The system should support 'Remember me', show/hide password toggle, account lockout after 5 failed attempts, and display clear error messages for invalid credentials.",
-            "As a user who forgot my password, I want to reset it via a link sent to my email so that I can regain access to my account. The reset link should expire after 30 minutes, enforce strong password rules, and confirm the change with a success notification.",
-            "As a user, I want to upload documents (PDF, DOCX, JPG, PNG) up to 10MB so that I can attach them to my profile or project. The system should show an upload progress bar, validate file type and size before upload, and display a preview of the uploaded file.",
-            "As a user, I want to search products by keyword and filter results by category, price range, rating, and availability so that I can quickly find what I need. The search should support auto-suggestions, highlight matching terms, and remember recent searches.",
-            "As a new visitor, I want to create an account using my name, email, and password so that I can access the platform. The system should validate email format, enforce password strength (min 8 chars, uppercase, number, symbol), check for duplicate accounts, and send a verification email.",
-            "As a customer, I want to review my cart, enter shipping details, select a delivery method, and complete payment so that I can place my order. The system should support credit card, PayPal, and Apple Pay, apply discount codes, calculate tax and shipping, and send an order confirmation email."
-        ],
+        importPrompt: "Paste or type your user stories below — copy them directly from Jira, Notion, spreadsheets, or any requirements document.",
         usageFn: n => `${n} test case${n !== 1 ? "s" : ""} generated`,
         charCounterLabel: "characters",
-        suggestFeatures: "Random Stories",
         livePreviewLabel: "// live preview",
         apiEndpointUrl: "API Endpoint URL",
         apiEndpointPlaceholder: "https://your-api.com/endpoint",
@@ -128,18 +119,9 @@ const i18n = {
         deletedTests: "Valitut testitapaukset poistettu",
         back: "Takaisin",
         footerText: "QA Studio, tekijä Milo Haireche — yli 20 vuoden QA-kokemus",
-        chips: ["Kirjautuminen","Salasanan palautus","Tiedoston lataus","Haku ja suodatus","Rekisteröinti","Kassaprosessi"],
-        chipStories: [
-            "Rekisteröityneenä käyttäjänä haluan kirjautua sisään sähköpostilla ja salasanalla päästäkseni tilini hallintapaneeliin. Järjestelmän tulee tukea 'Muista minut' -toimintoa, salasanan näyttämistä/piilottamista, tilin lukitsemista 5 epäonnistuneen yrityksen jälkeen ja selkeiden virheilmoitusten näyttämistä.",
-            "Salasanansa unohtaneena käyttäjänä haluan palauttaa sen sähköpostiini lähetetyn linkin kautta päästäkseni takaisin tililleni. Palautuslinkin tulee vanhentua 30 minuutin jälkeen, vaatia vahva uusi salasana ja vahvistaa muutos onnistumisilmoituksella.",
-            "Käyttäjänä haluan ladata asiakirjoja (PDF, DOCX, JPG, PNG) enintään 10 Mt koossa liittääkseni ne profiiliini tai projektiini. Järjestelmän tulee näyttää latauksen edistymispalkki, vahvistaa tiedostotyyppi ja koko ennen latausta sekä näyttää esikatselu ladatusta tiedostosta.",
-            "Käyttäjänä haluan hakea tuotteita avainsanalla ja suodattaa tuloksia kategorian, hintaluokan, arvosanan ja saatavuuden mukaan löytääkseni tarvitsemani nopeasti. Haun tulee tukea automaattisia ehdotuksia, korostaa vastaavia termejä ja muistaa viimeisimmät haut.",
-            "Uutena vierailijana haluan luoda tilin nimellä, sähköpostilla ja salasanalla päästäkseni alustalle. Järjestelmän tulee vahvistaa sähköpostin muoto, vaatia vahva salasana (vähintään 8 merkkiä, iso kirjain, numero, erikoismerkki), tarkistaa päällekkäiset tilit ja lähettää vahvistussähköposti.",
-            "Asiakkaana haluan tarkistaa ostoskorini, syöttää toimitustiedot, valita toimitustavan ja suorittaa maksun tilatakseni. Järjestelmän tulee tukea luottokorttia, PayPalia ja Apple Payta, hyväksyä alennuskoodit, laskea vero ja toimituskulut sekä lähettää tilausvahvistus sähköpostitse."
-        ],
+        importPrompt: "Liitä tai kirjoita user story -kuvauksesi alle — kopioi ne suoraan Jirasta, Notionista, taulukoista tai mistä tahansa vaatimusdokumentista.",
         usageFn: n => `${n} testitapausta luotu`,
         charCounterLabel: "merkkiä",
-        suggestFeatures: "Satunnaistarinoita",
         livePreviewLabel: "// suora esikatselu",
         apiEndpointUrl: "API-päätepisteen URL",
         apiEndpointPlaceholder: "https://your-api.com/endpoint",
@@ -186,15 +168,13 @@ function applyLang() {
     });
     document.body.dir = t("dir");
     if (lang === "fi") {
-        testInput.setAttribute("placeholder", "Kuvaile ominaisuus, jolle haluat testitapaukset…");
+        testInput.setAttribute("placeholder", "Liitä user storysi tähän…");
     } else {
-        testInput.setAttribute("placeholder", "Describe the feature you want test cases for…");
+        testInput.setAttribute("placeholder", "Paste your user story here…");
     }
     testInput.dir = "ltr";
     testInput.value = "";
-    document.querySelectorAll("#chipsRow .chip").forEach(c => c.classList.remove("active-chip"));
     updateCharCounter();
-    buildChips();
     updateUsageCounter();
     renderSavedTestCards();
     lucide.createIcons();
@@ -510,81 +490,11 @@ document.getElementById("confirmSaveBtn").addEventListener("click", () => {
     latestTestCases = [];
     saveLatestTestCases();
     document.getElementById("results").innerHTML = "";
-    document.getElementById("chipsRow").querySelectorAll(".chip")
-        .forEach(c => c.classList.remove("active-chip"));
     toggleActionBtns();
 });
 
 document.getElementById("projectNameInput").addEventListener("keydown", e => {
     if(e.key === "Enter") document.getElementById("confirmSaveBtn").click();
-});
-
-// ============================================================
-// CHIPS
-// ============================================================
-function buildChips(overrides) {
-    const row = document.getElementById("chipsRow");
-    row.innerHTML = "";
-    const labels  = overrides?.labels || t("chips") || [];
-    const stories = overrides?.stories || t("chipStories") || [];
-    labels.forEach((label, idx) => {
-        const btn = document.createElement("button");
-        btn.className = "chip";
-        btn.textContent = label;
-        btn.addEventListener("click", () => {
-            row.querySelectorAll(".chip").forEach(c => c.classList.remove("active-chip"));
-            btn.classList.add("active-chip");
-            const story = stories[idx] || label;
-            testInput.value = story;
-            updateCharCounter();
-            updateGenerateBtn();
-            testInput.focus();
-        });
-        row.appendChild(btn);
-    });
-}
-
-document.getElementById("suggestBtn").addEventListener("click", async () => {
-    const btn = document.getElementById("suggestBtn");
-    const orig = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<i data-lucide="loader"></i> Generating…';
-    lucide.createIcons();
-    try {
-        const config = getApiConfig();
-        const apiUrl = config.url || WORKER_URL;
-        const res = await fetch(apiUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                model: config.model,
-                max_tokens: config.tokens,
-                apiKey: config.apiKey || undefined,
-                system: `You are a QA engineer. Generate 6 random realistic user stories for software testing.
-Return ONLY a JSON object with two arrays: "labels" (short feature name, 2-3 words) and "stories" (a complete user story in the format "As a [role], I want to [goal] so that [reason]", 1 sentence).
-Each story must be different and cover various app features (auth, payments, search, notifications, settings, etc.).
-Write all text in ${lang === "fi" ? "Finnish" : "English"}.
-Return ONLY the raw JSON, no markdown.`,
-                messages: [{ role: "user", content: "Generate random user stories for testing" }],
-            }),
-        });
-        if (!res.ok) throw new Error(`Server error ${res.status}`);
-        const data = await res.json();
-        const raw = data.content.map(b => b.text || "").join("").trim();
-        const parsed = JSON.parse(raw);
-        if (parsed.labels && parsed.stories) {
-            buildChips({ labels: parsed.labels, stories: parsed.stories });
-            showToast("Random stories loaded! Click one to try it.", "success");
-        } else {
-            throw new Error("Unexpected response format");
-        }
-    } catch (err) {
-        showToast("Suggest failed: " + err.message, "error");
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = orig;
-        lucide.createIcons();
-    }
 });
 
 // ============================================================
@@ -1151,7 +1061,6 @@ clearTextareaBtn.addEventListener("click", () => {
     updateCharCounter();
     updateGenerateBtn();
     clearTextareaBtn.classList.remove("visible");
-    document.querySelectorAll("#chipsRow .chip").forEach(c => c.classList.remove("active-chip"));
     showToast("Cleared", "info", 1500);
 });
 
