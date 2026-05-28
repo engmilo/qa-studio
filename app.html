@@ -213,17 +213,17 @@
             margin-bottom: 20px;
         }
 
-        .top-bar-row .back-link {
-            margin-right: 10px;
-        }
-
         .top-right-bar {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-left: auto;
             flex-wrap: nowrap;
             flex-shrink: 0;
+            flex: 1;
+        }
+
+        .top-right-bar .back-link {
+            margin-right: auto;
         }
 
 
@@ -1726,6 +1726,21 @@
                 gap: 4px;
             }
 
+            .live-clock {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+
+            .lang-btn {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+
+            .topbar {
+                font-size: 22px;
+                margin-bottom: 4px;
+            }
+
             .page-subtitle {
                 font-size: 13px;
             }
@@ -2073,9 +2088,9 @@
         <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
           <i data-lucide="menu"></i>
         </button>
-        <a href="index.html" class="back-link">← <span data-i18n="back">Back</span></a>
-        <span class="live-clock" id="liveClock"></span>
         <div class="top-right-bar">
+          <a href="index.html" class="back-link">← <span data-i18n="back">Back</span></a>
+          <span class="live-clock" id="liveClock"></span>
           <div class="lang-flags" id="langFlags">
               <button class="lang-btn" data-lang="fi" title="Suomi">FI</button>
               <button class="lang-btn" data-lang="en" title="English">EN</button>
