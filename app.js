@@ -1219,93 +1219,25 @@ function renderPieChart(data, colors) {
 }
 
 function renderTrendChart(history) {
-    if (history.length === 0) return '<div class="empty-state" style="padding:12px;">No history data</div>';
+    if (history.length === 0) return '<div class="empty-state">No history data</div>';
 
-    const today = new Date();
-    const days = [];
-    for (let i = 6; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().slice(0, 10);
-        const label = d.toLocaleDateString(t("dir") === "ltr" ? "en" : "fi", { weekday: "short" }).slice(0, 3);
-        days.push({ date: dateStr, label, count: 0 });
-    }
+    const last7 = history.slice(0, 7).reverse();
+    const max = Math.max(...last7.map(h => h.count), 1);
 
-    const weekAgo = new Date(today);
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    const weekAgoStr = weekAgo.toISOString().slice(0, 10);
-    const twoWeeksAgo = new Date(weekAgo);
-    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 7);
-    const twoWeeksAgoStr = twoWeeksAgo.toISOString().slice(0, 10);
-    const todayStr = today.toISOString().slice(0, 10);
-
-    let prevTotal = 0;
-    history.forEach(h => {
-        if (h.date >= weekAgoStr && h.date <= todayStr) {
-            const day = days.find(d => d.date === h.date);
-            if (day) day.count += h.count;
-        }
-        if (h.date >= twoWeeksAgoStr && h.date < weekAgoStr) {
-            prevTotal += h.count;
-        }
+    let html = '<div class="trend-chart">';
+    last7.forEach(h => {
+        const height = Math.max((h.count / max) * 42, 4);
+        html += `<div class="trend-bar" style="height:${height}px" data-count="${h.count}"></div>`;
     });
+    html += '</div>';
 
-    const thisTotal = days.reduce((s, d) => s + d.count, 0);
-    const todayCount = days.find(d => d.date === todayStr)?.count || 0;
-
-    let trendText = "";
-    if (prevTotal > 0) {
-        const pct = Math.round(((thisTotal - prevTotal) / prevTotal) * 100);
-        if (pct !== 0) {
-            const arrow = pct > 0 ? "↑" : "↓";
-            trendText = `${arrow} ${Math.abs(pct)}% vs last week`;
-        }
-    }
-
-    const max = Math.max(...days.map(d => d.count), 1);
-    const sw = 200, sh = 40, pad = 4;
-    const step = sw / (days.length - 1);
-
-    const pts = days.map((d, i) => ({
-        x: Math.round(i * step),
-        y: Math.round(sh - ((d.count / max) * (sh - pad * 2)) - pad)
-    }));
-
-    let pathD = "";
-    pts.forEach((p, i) => {
-        if (i === 0) { pathD += `M${p.x},${p.y}`; return; }
-        const prev = pts[i - 1];
-        const dx = (p.x - prev.x) / 3;
-        pathD += ` C${prev.x + dx},${prev.y} ${p.x - dx},${p.y} ${p.x},${p.y}`;
+    html += '<div class="trend-labels">';
+    last7.forEach(h => {
+        html += `<span class="trend-label">${h.date.slice(5)}</span>`;
     });
+    html += '</div>';
 
-    const first = pts[0], last = pts[pts.length - 1];
-    const fillD = pathD + ` L${last.x},${sh} L${first.x},${sh} Z`;
-    const dotHtml = pts.map(p =>
-        `<circle cx="${p.x}" cy="${p.y}" r="2.5" fill="var(--card-bg)" stroke="var(--primary)" stroke-width="2"/>`
-    ).join("");
-
-    const labelsHtml = days.map(d => `<span class="tr-label">${esc(d.label)}</span>`).join("");
-
-    return `<div class="tr-wrap">
-        <div class="tr-left">
-            <div class="tr-badge">${trendText || '<span style="opacity:.35">—</span>'}</div>
-            <svg width="100%" height="40" viewBox="0 0 ${sw} ${sh}" preserveAspectRatio="none">
-                <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="var(--primary)" stop-opacity=".3"/>
-                    <stop offset="100%" stop-color="var(--primary)" stop-opacity="0"/>
-                </linearGradient></defs>
-                <path d="${fillD}" fill="url(#sg)"/>
-                <path d="${pathD}" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                ${dotHtml}
-            </svg>
-            <div class="tr-labels">${labelsHtml}</div>
-        </div>
-        <div class="tr-right">
-            <div class="tr-stat"><span class="tr-sn">${thisTotal}</span><span class="tr-sl">${t("testsLabel")}</span></div>
-            <div class="tr-stat"><span class="tr-sn" style="color:var(--primary)">${todayCount > 0 ? "+" + todayCount : "—"}</span><span class="tr-sl">today</span></div>
-        </div>
-    </div>`;
+    return html;
 }
 
 // ============================================================
