@@ -69,6 +69,8 @@ const i18n = {
         apiKeyLabel: "Anthropic API Key",
         apiKeyPlaceholder: "sk-ant-...",
         apiKeyHint: "Your key is sent to the proxy and forwarded to Anthropic. Never shared.",
+        detailDescription: "Description", detailSteps: "Steps", detailExpected: "Expected", detailTags: "Tags", detailRisk: "Risk Note",
+        noSearchResults: "No results matching your search.",
         dir: "ltr",
     },
     fi: {
@@ -133,6 +135,8 @@ const i18n = {
         apiKeyLabel: "Anthropic API-avain",
         apiKeyPlaceholder: "sk-ant-...",
         apiKeyHint: "Avain lähetetään välityspalvelimelle ja edelleen Anthropicille. Ei jaeta.",
+        detailDescription: "Kuvaus", detailSteps: "Vaiheet", detailExpected: "Odotettu tulos", detailTags: "Tagit", detailRisk: "Riskimuistio",
+        noSearchResults: "Ei hakutuloksia.",
         dir: "ltr",
     },
 };
@@ -486,7 +490,7 @@ document.getElementById("confirmSaveBtn").addEventListener("click", () => {
     saveModalOverlay.classList.remove("visible");
 
     testInput.value = "";
-    charCounter.textContent = "0 characters";
+    charCounter.textContent = "0 " + t("charCounterLabel");
     updateGenerateBtn();
     latestTestCases = [];
     saveLatestTestCases();
@@ -766,7 +770,8 @@ function renderHistory() {
                     <td>${h.count}</td>
                 </tr>`).join("")}
             </tbody>
-        </table>`;
+        </table>
+        <div id="historyEmpty" class="empty-state" style="display:none;padding:24px;">${t("noSearchResults")}</div>`;
 
     el.innerHTML = tableHtml;
 
@@ -790,9 +795,14 @@ function renderHistory() {
         document.getElementById("historySearch").addEventListener("input", (e) => {
             const query = e.target.value.toLowerCase();
             document.getElementById("clearHistorySearch").classList.toggle("visible", query.length > 0);
+            let shown = 0;
             document.querySelectorAll("#historyBody tr").forEach(row => {
-                row.style.display = row.textContent.toLowerCase().includes(query) ? "" : "none";
+                const match = row.textContent.toLowerCase().includes(query);
+                row.style.display = match ? "" : "none";
+                if (match) shown++;
             });
+            const empty = document.getElementById("historyEmpty");
+            if (empty) empty.style.display = shown === 0 && query ? "" : "none";
         });
 
         document.getElementById("clearHistorySearch").addEventListener("click", () => {
@@ -871,7 +881,8 @@ function renderProjects() {
                     </td>
                 </tr>`).join("")}
             </tbody>
-        </table>`;
+        </table>
+        <div id="projectsEmpty" class="empty-state" style="display:none;padding:24px;">${t("noSearchResults")}</div>`;
 
     el.innerHTML = tableHtml;
 
@@ -913,10 +924,15 @@ function renderProjects() {
         document.getElementById("projectsSearch").addEventListener("input", (e) => {
             const query = e.target.value.toLowerCase();
             document.getElementById("clearProjectsSearch").classList.toggle("visible", query.length > 0);
+            let shown = 0;
             document.querySelectorAll("#projectsBody tr").forEach(row => {
                 const name = row.cells[0]?.textContent.toLowerCase() || "";
-                row.style.display = name.includes(query) ? "" : "none";
+                const match = name.includes(query);
+                row.style.display = match ? "" : "none";
+                if (match) shown++;
             });
+            const empty = document.getElementById("projectsEmpty");
+            if (empty) empty.style.display = shown === 0 && query ? "" : "none";
         });
 
         document.getElementById("clearProjectsSearch").addEventListener("click", () => {
@@ -1502,11 +1518,11 @@ function createTestCard(tc) {
     function openDetails() {
         const steps = (tc.steps || []).map(s => `<li>${esc(s)}</li>`).join("");
         openModal(tc.title,
-            `<p><strong>Description:</strong><br>${esc(tc.description || "")}</p>` +
-            `<p><strong>Steps:</strong><ol>${steps}</ol></p>` +
-            `<p><strong>Expected:</strong><br>${esc(tc.expected || "")}</p>` +
-            `<p><strong>Tags:</strong> ${(tc.tags || []).map(esc).join(", ")}</p>` +
-            `<p><strong>Risk:</strong> ${esc(tc.risk || "")}</p>`
+            `<p><strong>${t("detailDescription")}:</strong><br>${esc(tc.description || "")}</p>` +
+            `<p><strong>${t("detailSteps")}:</strong><ol>${steps}</ol></p>` +
+            `<p><strong>${t("detailExpected")}:</strong><br>${esc(tc.expected || "")}</p>` +
+            `<p><strong>${t("detailTags")}:</strong> ${(tc.tags || []).map(esc).join(", ")}</p>` +
+            `<p><strong>${t("detailRisk")}:</strong> ${esc(tc.risk || "")}</p>`
         );
     }
 
