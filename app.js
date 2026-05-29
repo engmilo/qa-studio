@@ -876,7 +876,7 @@ function renderProjects() {
                     <td style="color:var(--text-muted);font-size:13px;">${p.testCases.length} ${t("testsLabel")}</td>
                     <td>
                         <button class="danger-btn delete-project-btn" data-pid="${p.id}">
-                            <i data-lucide="trash-2"></i> ${t("delete")}
+                            ${t("delete")}
                         </button>
                     </td>
                 </tr>`).join("")}
