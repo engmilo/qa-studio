@@ -777,18 +777,15 @@ function renderHistory() {
 
         const searchWrapper = document.createElement("div");
         searchWrapper.className = "search-wrapper";
-        const historyLabel = document.createElement("label");
-        historyLabel.className = "sr-only";
-        historyLabel.textContent = t("searchHistory");
-        historyLabel.htmlFor = "historySearch";
-        searchWrapper.appendChild(historyLabel);
-        searchWrapper.innerHTML += `<i data-lucide="search" class="search-icon"></i>`;
-        searchWrapper.appendChild(searchInput);
-        searchWrapper.innerHTML += `<button class="search-clear" id="clearHistorySearch"><i data-lucide="x"></i></button>`;
+        searchWrapper.innerHTML = `
+            <label class="sr-only" for="historySearch">${esc(t("searchHistory"))}</label>
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="historySearch" class="search-input" placeholder="${esc(t("searchHistory"))}" />
+            <button class="search-clear" id="clearHistorySearch"><i data-lucide="x"></i></button>`;
 
         el.parentNode.insertBefore(searchWrapper, el);
 
-        searchInput.addEventListener("input", (e) => {
+        document.getElementById("historySearch").addEventListener("input", (e) => {
             const query = e.target.value.toLowerCase();
             document.getElementById("clearHistorySearch").classList.toggle("visible", query.length > 0);
             document.querySelectorAll("#historyBody tr").forEach(row => {
@@ -797,8 +794,9 @@ function renderHistory() {
         });
 
         document.getElementById("clearHistorySearch").addEventListener("click", () => {
-            searchInput.value = "";
-            searchInput.dispatchEvent(new Event("input"));
+            const input = document.getElementById("historySearch");
+            input.value = "";
+            input.dispatchEvent(new Event("input"));
         });
 
         lucide.createIcons();
@@ -900,26 +898,17 @@ function renderProjects() {
     lucide.createIcons();
 
     if (!document.getElementById("projectsSearch")) {
-        const searchInput = document.createElement("input");
-        searchInput.type = "text";
-        searchInput.className = "search-input";
-        searchInput.placeholder = t("searchProjects");
-        searchInput.id = "projectsSearch";
-
         const searchWrapper = document.createElement("div");
         searchWrapper.className = "search-wrapper";
-        const projLabel = document.createElement("label");
-        projLabel.className = "sr-only";
-        projLabel.textContent = t("searchProjects");
-        projLabel.htmlFor = "projectsSearch";
-        searchWrapper.appendChild(projLabel);
-        searchWrapper.innerHTML += `<i data-lucide="search" class="search-icon"></i>`;
-        searchWrapper.appendChild(searchInput);
-        searchWrapper.innerHTML += `<button class="search-clear" id="clearProjectsSearch"><i data-lucide="x"></i></button>`;
+        searchWrapper.innerHTML = `
+            <label class="sr-only" for="projectsSearch">${esc(t("searchProjects"))}</label>
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="projectsSearch" class="search-input" placeholder="${esc(t("searchProjects"))}" />
+            <button class="search-clear" id="clearProjectsSearch"><i data-lucide="x"></i></button>`;
 
         el.parentNode.insertBefore(searchWrapper, el);
 
-        searchInput.addEventListener("input", (e) => {
+        document.getElementById("projectsSearch").addEventListener("input", (e) => {
             const query = e.target.value.toLowerCase();
             document.getElementById("clearProjectsSearch").classList.toggle("visible", query.length > 0);
             document.querySelectorAll("#projectsBody tr").forEach(row => {
@@ -928,8 +917,9 @@ function renderProjects() {
         });
 
         document.getElementById("clearProjectsSearch").addEventListener("click", () => {
-            searchInput.value = "";
-            searchInput.dispatchEvent(new Event("input"));
+            const input = document.getElementById("projectsSearch");
+            input.value = "";
+            input.dispatchEvent(new Event("input"));
         });
 
         lucide.createIcons();
