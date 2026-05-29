@@ -467,6 +467,7 @@ saveModalOverlay.addEventListener("click",
 document.getElementById("saveProjectBtn").addEventListener("click", () => {
     if(!latestTestCases.length) return;
     document.getElementById("projectNameInput").value = "";
+    document.getElementById("projectDescInput").value = "";
     saveModalOverlay.classList.add("visible");
     lucide.createIcons();
     setTimeout(() => document.getElementById("projectNameInput").focus(), 80);
@@ -482,7 +483,7 @@ document.getElementById("confirmSaveBtn").addEventListener("click", () => {
     state.projects.unshift({
         id: Date.now(),
         name,
-        description: testInput.value.trim().slice(0, 90),
+        description: document.getElementById("projectDescInput").value.trim().slice(0, 120) || testInput.value.trim().slice(0, 90),
         created: new Date().toISOString().slice(0, 10),
         testCases: JSON.parse(JSON.stringify(latestTestCases)),
     });
