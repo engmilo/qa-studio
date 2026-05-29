@@ -911,8 +911,12 @@ function renderProjects() {
         document.getElementById("projectsSearch").addEventListener("input", (e) => {
             const query = e.target.value.toLowerCase();
             document.getElementById("clearProjectsSearch").classList.toggle("visible", query.length > 0);
-            document.querySelectorAll("#projectsBody tr").forEach(row => {
-                row.style.display = row.textContent.toLowerCase().includes(query) ? "" : "none";
+            const rows = document.querySelectorAll("#projectsBody tr");
+            console.log("search query:", JSON.stringify(query), "rows:", rows.length);
+            rows.forEach(row => {
+                const match = row.textContent.toLowerCase().includes(query);
+                row.style.display = match ? "" : "none";
+                if (match) console.log("  MATCH:", row.textContent.trim().slice(0, 60));
             });
         });
 
