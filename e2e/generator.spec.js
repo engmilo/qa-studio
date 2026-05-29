@@ -83,8 +83,9 @@ test("save to project and verify in projects view", async ({ page }) => {
   await page.locator("#saveProjectBtn").click();
   await expect(page.locator("#saveModalOverlay")).toHaveClass(/visible/);
 
-  // Type project name and save
+  // Type project name and description, then save
   await page.locator("#projectNameInput").fill("Login Tests");
+  await page.locator("#projectDescInput").fill("User login feature tests");
   await page.locator("#confirmSaveBtn").click();
   await page.waitForTimeout(200);
 
@@ -95,6 +96,7 @@ test("save to project and verify in projects view", async ({ page }) => {
   // Navigate to projects view
   await page.locator('[data-view="projects"]').click();
   await expect(page.locator("#projectsContent")).toContainText("Login Tests");
+  await expect(page.locator("#projectsContent")).toContainText("User login feature tests");
   await expect(page.locator("#projectsContent")).toContainText("16");
 });
 
