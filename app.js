@@ -42,8 +42,7 @@ const i18n = {
         demo: "Demo",
         statusDistribution: "Status Distribution",
         priorityDistribution: "Priority Distribution",
-        testHealth: "Test Health",
-        byPriority: "By Priority",
+        generationTrend: "Generation Trend (Last 7)",
         searchHistory: "Search history…",
         searchProjects: "Search projects…",
         generatorSearchPlaceholder: "Search by title, tags, priority…",
@@ -109,8 +108,7 @@ const i18n = {
         demo: "Demo",
         statusDistribution: "Tilajakauma",
         priorityDistribution: "Prioriteettijakauma",
-        testHealth: "Testien tila",
-        byPriority: "Prioriteetin mukaan",
+        generationTrend: "Generointitrendi (7 viimeistä)",
         searchHistory: "Hae historiasta…",
         searchProjects: "Hae projekteista…",
         generatorSearchPlaceholder: "Hae otsikolla, tagilla, prioriteetilla…",
@@ -713,6 +711,8 @@ function renderDashboard() {
     const priorityData = ["Critical","High","Medium","Low","Trivial"].map(p => priorityCounts[p] || 0);
     const pColors = ["#dc2626","#f97316","#3b82f6","#10b981","#6b7280"];
     const priorityChart = renderPieChart(priorityData, pColors);
+    const trendChart = renderTrendChart(state.history);
+
     document.getElementById("dashContent").innerHTML = `
         <div class="dash-card" style="margin-bottom:10px;display:flex;align-items:center;gap:10px;padding:8px 12px;">
             <div style="font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${state.usageTotal}</div>
@@ -729,8 +729,8 @@ function renderDashboard() {
             </div>
         </div>
         <div class="chart-container">
-            <div class="chart-title">${t("testHealth")}</div>
-            ${renderHealthChart(allTests)}
+            <div class="chart-title">${t("generationTrend")}</div>
+            ${trendChart}
         </div>
         <div class="chart-container">
             <div class="chart-title">${t("dashSession")} ${total>0?`(${total} ${t("dashTotal").toLowerCase()})`:""}</div>
@@ -1218,86 +1218,24 @@ function renderPieChart(data, colors) {
     </div>`;
 }
 
-function renderHealthChart(allTests) {
-    const total = allTests.length;
-    if (total === 0) return '';
+function renderTrendChart(history) {
+    if (history.length === 0) return '<div class="empty-state">No history data</div>';
 
-    const pass = allTests.filter(tc => tc.status === "pass").length;
-    const fail = allTests.filter(tc => tc.status === "fail").length;
-    const blocked = allTests.filter(tc => tc.status === "blocked").length;
-    const untested = allTests.filter(tc => !tc.status).length;
-    const passRate = total > 0 ? Math.round((pass / total) * 100) : 0;
+    const last7 = history.slice(0, 7).reverse();
+    const max = Math.max(...last7.map(h => h.count), 1);
 
-    const r = 52, circ = 2 * Math.PI * r;
-    const offset = circ * (1 - passRate / 100);
-    const ringColor = passRate >= 70 ? '#10b981' : passRate >= 40 ? '#f97316' : '#dc2626';
-
-    const statusRows = [
-        { label: t("dashPass"), count: pass, color: "#10b981", pct: total > 0 ? pass / total : 0 },
-        { label: t("dashFail"), count: fail, color: "#dc2626", pct: total > 0 ? fail / total : 0 },
-        { label: t("dashBlocked"), count: blocked, color: "#f97316", pct: total > 0 ? blocked / total : 0 },
-        { label: t("dashUntested"), count: untested, color: "#9ca3af", pct: total > 0 ? untested / total : 0 }
-    ];
-
-    let html = `<div class="health-ring-wrap">
-        <div class="health-ring">
-            <svg width="120" height="120" viewBox="0 0 120 120">
-                <circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--border)" stroke-width="8"/>
-                <circle cx="60" cy="60" r="${r}" fill="none" stroke="${ringColor}" stroke-width="8"
-                    stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
-            </svg>
-            <div class="health-ring-center">
-                <div class="health-ring-pct">${passRate}<span>%</span></div>
-                <div class="health-ring-lbl">${t("dashPass").toLowerCase()}</div>
-            </div>
-        </div>
-        <div class="health-details">
-            ${statusRows.map(({label, count, color, pct}) => `
-            <div class="health-row">
-                <span class="health-dot" style="background:${color}"></span>
-                <span class="health-row-label">${label}</span>
-                <div class="health-bar-track"><div class="health-bar-fill" style="width:${Math.round(pct * 120)}px;background:${color}"></div></div>
-                <span class="health-row-count" style="color:${color}">${count}</span>
-            </div>`).join("")}
-        </div>
-    </div>`;
-
-    const priorityMeta = [
-        { key: "Critical", i18nKey: "pCritical", cls: "critical" },
-        { key: "High", i18nKey: "pHigh", cls: "high" },
-        { key: "Medium", i18nKey: "pMedium", cls: "medium" },
-        { key: "Low", i18nKey: "pLow", cls: "low" },
-        { key: "Trivial", i18nKey: "pTrivial", cls: "trivial" }
-    ];
-
-    const priorityCounts = {};
-    const priorityStatus = {};
-    allTests.forEach(tc => {
-        if (tc.priority) {
-            priorityCounts[tc.priority] = (priorityCounts[tc.priority] || 0) + 1;
-            if (!priorityStatus[tc.priority]) priorityStatus[tc.priority] = { pass: 0, fail: 0, blocked: 0, untested: 0 };
-            if (tc.status === "pass") priorityStatus[tc.priority].pass++;
-            else if (tc.status === "fail") priorityStatus[tc.priority].fail++;
-            else if (tc.status === "blocked") priorityStatus[tc.priority].blocked++;
-            else priorityStatus[tc.priority].untested++;
-        }
+    let html = '<div class="trend-chart">';
+    last7.forEach(h => {
+        const height = Math.max((h.count / max) * 42, 4);
+        html += `<div class="trend-bar" style="height:${height}px" data-count="${h.count}"></div>`;
     });
+    html += '</div>';
 
-    html += `<div class="health-divider"></div>
-        <div class="health-prio-title">${t("byPriority")}</div>
-        <div class="health-prio-grid">
-        ${priorityMeta.map(({key, i18nKey, cls}) => {
-            const cnt = priorityCounts[key] || 0;
-            const st = priorityStatus[key] || { pass: 0, fail: 0, blocked: 0, untested: 0 };
-            let sub = "";
-            if (cnt === 0) sub = "—";
-            else if (st.fail > 0) sub = `${st.fail} ${t("dashFail").toLowerCase()}`;
-            else if (st.blocked > 0) sub = `${st.blocked} ${t("dashBlocked").toLowerCase()}`;
-            else if (st.untested > 0) sub = `${st.untested} ${t("dashUntested").toLowerCase()}`;
-            else sub = `${t("dashPass").toLowerCase()}`;
-            return `<div class="health-prio-item"><div class="health-prio-num ${cls}">${cnt}</div><div class="health-prio-lbl">${t(i18nKey)}</div><div class="health-prio-sub">${esc(sub)}</div></div>`;
-        }).join("")}
-        </div>`;
+    html += '<div class="trend-labels">';
+    last7.forEach(h => {
+        html += `<span class="trend-label">${h.date.slice(5)}</span>`;
+    });
+    html += '</div>';
 
     return html;
 }
