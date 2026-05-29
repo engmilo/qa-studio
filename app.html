@@ -1505,56 +1505,52 @@
             border-radius: 50%;
         }
 
-        /* ── Trend Chart ── */
-        .trend-chart {
+        /* ── Trend Sparkline ── */
+        .tr-wrap {
             display: flex;
-            align-items: flex-end;
-            gap: 4px;
-            height: 50px;
-            padding: 4px 0;
+            align-items: center;
+            gap: 16px;
         }
-
-        .trend-bar {
-            flex: 1;
-            background: var(--primary);
-            border-radius: 4px 4px 0 0;
-            min-height: 4px;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        .trend-bar:hover {
-            opacity: 0.8;
-        }
-
-        .trend-bar::after {
-            content: attr(data-count);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
+        .tr-left { flex: 1; min-width: 0; }
+        .tr-badge {
             font-size: 11px;
+            font-weight: 600;
             color: var(--text-muted);
-            opacity: 0;
-            transition: opacity 0.2s;
-            white-space: nowrap;
+            margin-bottom: 6px;
         }
-
-        .trend-bar:hover::after {
-            opacity: 1;
-        }
-
-        .trend-labels {
+        .tr-labels {
             display: flex;
-            gap: 4px;
-            margin-top: 8px;
+            margin-top: 4px;
         }
-
-        .trend-label {
+        .tr-label {
             flex: 1;
             text-align: center;
+            font-size: 9px;
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+        .tr-right {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .tr-stat { text-align: center; }
+        .tr-sn {
+            display: block;
+            font-size: 22px;
+            font-weight: 800;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .tr-sl {
             font-size: 10px;
             color: var(--text-muted);
+            font-weight: 500;
+            display: block;
+            margin-top: 2px;
         }
 
         /* ── API Config Modal ── */
