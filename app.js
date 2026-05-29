@@ -47,11 +47,11 @@ const i18n = {
         searchProjects: "Search projects…",
         generatorSearchPlaceholder: "Search by title, tags, priority…",
         showingResults: "Showing {n} of {total}",
-        testCasesLabel: "test case(s)",
+        testCasesLabel: n => `test case${n !== 1 ? "s" : ""}`,
         selectAll: "Select All",
         deselectAll: "Deselect All",
         selected: "selected",
-        confirmBulkDelete: "Are you sure you want to delete {n} selected test case(s)?",
+        confirmBulkDelete: n => `Are you sure you want to delete <strong>${n}</strong> test case${n !== 1 ? "s" : ""}?`,
         deletedTests: "Deleted selected test cases",
         back: "Back",
         footerText: "QA Studio by Milo Haireche — 20+ years of QA expertise",
@@ -111,11 +111,11 @@ const i18n = {
         searchProjects: "Hae projekteista…",
         generatorSearchPlaceholder: "Hae otsikolla, tagilla, prioriteetilla…",
         showingResults: "Näytetään {n}/{total}",
-        testCasesLabel: "testitapausta",
+        testCasesLabel: () => "testitapausta",
         selectAll: "Valitse kaikki",
         deselectAll: "Poista valinnat",
         selected: "valittu",
-        confirmBulkDelete: "Haluatko varmasti poistaa {n} valittua testitapausta?",
+        confirmBulkDelete: n => `Haluatko varmasti poistaa <strong>${n}</strong> valittua testitapausta?`,
         deletedTests: "Valitut testitapaukset poistettu",
         back: "Takaisin",
         footerText: "QA Studio, tekijä Milo Haireche — yli 20 vuoden QA-kokemus",
@@ -290,12 +290,12 @@ function toggleTheme() {
     const isDark = next === "dark";
     const headerBtn = document.getElementById("themeToggleBtn");
     if (headerBtn) headerBtn.innerHTML = `<i data-lucide="${isDark ? "moon" : "sun"}" id="themeToggleBtnIcon"></i>`;
-    try { lucide.createIcons(); } catch (_) {}
+    try { lucide.createIcons(); } catch (e) { console.warn("QA Studio:", e); }
 }
 if(savedTheme === "dark") {
     const headerBtn = document.getElementById("themeToggleBtn");
     if (headerBtn) headerBtn.innerHTML = '<i data-lucide="moon" id="themeToggleBtnIcon"></i>';
-    try { lucide.createIcons(); } catch (_) {}
+    try { lucide.createIcons(); } catch (e) { console.warn("QA Studio:", e); }
 }
 
 // ============================================================
@@ -311,6 +311,7 @@ document.querySelectorAll("#langFlags .lang-btn").forEach(btn => {
     btn.addEventListener("click", () => {
         lang = btn.dataset.lang;
         localStorage.setItem("qa_lang", lang);
+        localStorage.setItem("qa_landing_lang", lang);
         updateFlagButtons();
         applyLang();
         const v = document.querySelector(".sidebar-nav .nav-item.active")?.dataset.view;
@@ -493,6 +494,7 @@ document.getElementById("confirmSaveBtn").addEventListener("click", () => {
     toggleActionBtns();
     updateUsageCounter();
     renderDashboard();
+    renderProjects();
     closeSidebar();
 });
 
@@ -1122,7 +1124,7 @@ function deselectAllTestCases() {
 function deleteSelectedTestCases() {
     if (selectedTestCases.size === 0) return;
     const count = selectedTestCases.size;
-    document.getElementById("bulkDeleteText").innerHTML = t("confirmBulkDelete").replace("{n}", `<strong>${count}</strong>`);
+    document.getElementById("bulkDeleteText").innerHTML = typeof t("confirmBulkDelete") === "function" ? t("confirmBulkDelete")(count) : t("confirmBulkDelete").replace("{n}", `<strong>${count}</strong>`);
     document.getElementById("bulkDeleteOverlay").classList.add("visible");
 }
 
@@ -1328,6 +1330,7 @@ document.getElementById("importFileInput").addEventListener("change", (e) => {
                 if (data.settings.lang === "en" || data.settings.lang === "fi") {
                     lang = data.settings.lang;
                     localStorage.setItem("qa_lang", lang);
+                    localStorage.setItem("qa_landing_lang", lang);
                 }
                 if (data.settings.theme === "light" || data.settings.theme === "dark") {
                     document.body.classList.remove("light", "dark");
@@ -1616,7 +1619,7 @@ function renderSavedTestCards(filter) {
     const total = latestTestCases.length;
     meta.textContent = shown < total
         ? t("showingResults").replace("{n}", shown).replace("{total}", total)
-        : `${total} ${t("testCasesLabel")}`;
+        : `${total} ${typeof t("testCasesLabel") === "function" ? t("testCasesLabel")(total) : t("testCasesLabel")}`;
     document.getElementById("generatorSearchClear").classList.toggle("visible", !!query);
 }
 
@@ -1823,7 +1826,7 @@ if (navigator.storage && navigator.storage.estimate) {
         if (total > 4e6) {
             console.warn("QA Studio: localStorage usage ~" + (total / 1e6).toFixed(1) + "MB — consider cleaning up.");
         }
-    } catch (_) {}
+    } catch (e) { console.warn("QA Studio:", e); }
 }
 
 // ============================================================
@@ -1837,7 +1840,7 @@ try {
     updateUsageCounter();
     renderDashboard();
     toggleActionBtns();
-} catch (_) {}
+} catch (e) { console.warn("QA Studio init error:", e); }
 window.addEventListener("pageshow", () => {
-    try { lucide.createIcons(); } catch (_) {}
+    try { lucide.createIcons(); } catch (e) { console.warn("QA Studio:", e); }
 });

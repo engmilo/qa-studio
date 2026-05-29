@@ -31,6 +31,7 @@
     <!-- ── General SEO ── -->
     <meta name="description" content="QA Studio — AI-powered test case generator. Generate, save, and track test cases by project. Supports EN and FI." />
     <meta name="author" content="Milo Haireche" />
+    <link rel="preload" href="app.js" as="script">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@1.16.0/dist/umd/lucide.min.js" integrity="sha384-ZgnJ3Zpr70Xoify35DjOZWqHib1iYJBpYpQUIEpDASG9+fJ745WzNQuC004dwU0W" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
@@ -2041,7 +2042,7 @@
             <button id="bulkDeleteClose" class="close-btn"><i data-lucide="x"></i></button>
         </div>
         <div class="modal-content">
-            <p id="bulkDeleteText">Are you sure you want to delete <strong id="bulkDeleteCount">0</strong> selected test case(s)?</p>
+            <p id="bulkDeleteText"></p>
             <div style="display:flex;gap:8px;margin-top:16px;">
                 <button id="confirmBulkDelete" class="primary-btn" style="flex:1;justify-content:center;background:linear-gradient(135deg,var(--danger),#b91c1c);">Delete</button>
                 <button id="cancelBulkDelete" class="secondary-btn" style="flex:1;justify-content:center;">Cancel</button>
