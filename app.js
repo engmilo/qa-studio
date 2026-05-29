@@ -961,7 +961,7 @@ function renderSuites() {
                 <div style="display:flex;align-items:center;gap:14px;">
                     <span style="color:var(--text-muted);font-size:13px;">${p.created}</span>
                     <button class="danger-btn delete-suite-btn" data-pid="${p.id}">
-                        <i data-lucide="trash-2"></i> ${t("delete")}
+                        ${t("delete")}
                     </button>
                 </div>
             </div>
