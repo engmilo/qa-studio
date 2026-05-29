@@ -1557,6 +1557,135 @@
             color: var(--text-muted);
         }
 
+        /* ── Health Chart ── */
+        .health-ring-wrap {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .health-ring {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            flex-shrink: 0;
+        }
+        .health-ring svg { transform: rotate(-90deg); }
+        .health-ring-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .health-ring-pct {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1;
+        }
+        .health-ring-pct span { font-size: 14px; color: var(--text-muted); }
+        .health-ring-lbl {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+        .health-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .health-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+        .health-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .health-row-label {
+            flex: 1;
+            color: var(--text-muted);
+            min-width: 0;
+            white-space: nowrap;
+        }
+        .health-bar-track {
+            height: 4px;
+            background: var(--border);
+            border-radius: 4px;
+            flex: 1;
+            max-width: 120px;
+        }
+        .health-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+        .health-row-count {
+            font-weight: 600;
+            font-size: 12px;
+            min-width: 20px;
+            text-align: right;
+        }
+        .health-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 14px 0;
+        }
+        .health-prio-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .health-prio-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        .health-prio-item {
+            text-align: center;
+            padding: 10px 4px;
+            border-radius: 10px;
+            background: var(--hover-bg);
+            border: 1px solid var(--border);
+        }
+        .health-prio-num {
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+        .health-prio-num.critical { color: #dc2626; }
+        .health-prio-num.high { color: #f97316; }
+        .health-prio-num.medium { color: #3b82f6; }
+        .health-prio-num.low { color: #10b981; }
+        .health-prio-num.trivial { color: var(--text-muted); }
+        .health-prio-lbl {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-top: 4px;
+        }
+        .health-prio-sub {
+            font-size: 10px;
+            color: var(--text-muted);
+            opacity: .5;
+            margin-top: 2px;
+        }
+        @media (max-width: 600px) {
+            .health-ring-wrap { flex-direction: column; align-items: center; }
+            .health-prio-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
         /* ── API Config Modal ── */
         .api-config-section {
             margin-bottom: 20px;
