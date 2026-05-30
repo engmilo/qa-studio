@@ -42,7 +42,7 @@ const i18n = {
         demo: "Demo",
         statusDistribution: "Status Distribution",
         priorityDistribution: "Priority Distribution",
-        generationTrend: "Generation Trend (Last 7)",
+
         searchHistory: "Search history…",
         searchProjects: "Search projects…",
         generatorSearchPlaceholder: "Search by title, tags, priority…",
@@ -108,7 +108,7 @@ const i18n = {
         demo: "Demo",
         statusDistribution: "Tilajakauma",
         priorityDistribution: "Prioriteettijakauma",
-        generationTrend: "Generointitrendi (7 viimeistä)",
+
         searchHistory: "Hae historiasta…",
         searchProjects: "Hae projekteista…",
         generatorSearchPlaceholder: "Hae otsikolla, tagilla, prioriteetilla…",
@@ -711,8 +711,6 @@ function renderDashboard() {
     const priorityData = ["Critical","High","Medium","Low","Trivial"].map(p => priorityCounts[p] || 0);
     const pColors = ["#dc2626","#f97316","#3b82f6","#10b981","#6b7280"];
     const priorityChart = renderPieChart(priorityData, pColors);
-    const trendChart = renderTrendChart(state.history);
-
     document.getElementById("dashContent").innerHTML = `
         <div class="dash-card" style="margin-bottom:10px;display:flex;align-items:center;gap:10px;padding:8px 12px;">
             <div style="font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${state.usageTotal}</div>
@@ -727,10 +725,6 @@ function renderDashboard() {
                 <div class="chart-title">${t("priorityDistribution")}</div>
                 ${priorityChart}
             </div>
-        </div>
-        <div class="chart-container">
-            <div class="chart-title">${t("generationTrend")}</div>
-            ${trendChart}
         </div>
         <div class="chart-container">
             <div class="chart-title">${t("dashSession")} ${total>0?`(${total} ${t("dashTotal").toLowerCase()})`:""}</div>
@@ -1216,90 +1210,6 @@ function renderPieChart(data, colors) {
         <svg width="80" height="80" viewBox="0 0 100 100" style="flex-shrink:0;">${segments}<circle cx="${cx}" cy="${cy}" r="26" fill="var(--card-bg)" /></svg>
         <div class="pie-legend">${legendHtml}</div>
     </div>`;
-}
-
-function renderTrendChart(history) {
-    if (history.length === 0) return '<div class="empty-state">No history data</div>';
-
-    const today = new Date();
-    const days = [];
-    let maxVal = 0;
-    for (let i = 6; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().slice(0, 10);
-        const label = d.toLocaleDateString("en", { weekday: "short" });
-        const dayTotal = history.filter(h => h.date === dateStr).reduce((s, h) => s + h.count, 0);
-        if (dayTotal > maxVal) maxVal = dayTotal;
-        days.push({ date: dateStr, label, total: dayTotal });
-    }
-
-    const total = days.reduce((s, d) => s + d.total, 0);
-    const avg = Math.round(total / 7);
-    const best = [...days].sort((a, b) => b.total - a.total)[0];
-
-    const weekAgo = new Date(today);
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    const twoWeeksAgo = new Date(weekAgo);
-    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 7);
-    let prevTotal = 0;
-    history.forEach(h => {
-        if (h.date >= twoWeeksAgo.toISOString().slice(0, 10) && h.date < weekAgo.toISOString().slice(0, 10)) {
-            prevTotal += h.count;
-        }
-    });
-
-    let trendHtml = '';
-    if (prevTotal > 0) {
-        const pct = Math.round(((total - prevTotal) / prevTotal) * 100);
-        if (pct !== 0) {
-            const arrow = pct > 0 ? '↑' : '↓';
-            trendHtml = `<span class="trend-badge ${pct > 0 ? 'up' : 'down'}">${arrow} ${Math.abs(pct)}%</span>`;
-        }
-    }
-
-    const W = 200, H = 36, PAD = 0;
-    const cw = W - PAD * 2, ch = H - PAD * 2;
-    const coord = (i, val) => {
-        const x = PAD + (i / 6) * cw;
-        const y = PAD + ch - (maxVal > 0 ? (val / maxVal) * ch : 0);
-        return { x, y };
-    };
-    const pts = days.map((d, i) => coord(i, d.total));
-
-    let html = `<div class="spark-head">
-        <span class="spark-num">${total} <span>this week</span></span>
-        ${trendHtml || ''}
-    </div>`;
-
-    html += `<div class="spark-chart">
-    <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-            <linearGradient id="sf" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25"/>
-                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.02"/>
-            </linearGradient>
-            <linearGradient id="sl" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#3b82f6"/>
-                <stop offset="100%" stop-color="#8b5cf6"/>
-            </linearGradient>
-        </defs>
-        <polygon points="${pts.map(p => `${p.x},${p.y}`).join(' ')} ${cw},${PAD + ch} ${PAD},${PAD + ch}" fill="url(#sf)"/>
-        <polyline points="${pts.map(p => `${p.x},${p.y}`).join(' ')}" fill="none" stroke="url(#sl)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="spark-line"/>
-        ${pts.map((p, i) => `<circle cx="${p.x}" cy="${p.y}" r="2" fill="#3b82f6" class="${days[i].total > 0 ? 'spark-dot' : 'spark-dot spark-dot--empty'}" style="--i:${i}"/>`).join('')}
-    </svg>
-    </div>`;
-
-    html += '<div class="spark-labels">';
-    days.forEach(d => { html += `<span class="spark-label">${d.label}</span>`; });
-    html += '</div>';
-
-    html += '<div class="spark-stats">';
-    html += `<span class="spark-stat">Avg <strong>${avg}</strong>/day</span>`;
-    html += `<span class="spark-stat">Best: <strong>${best.label} (${best.total})</strong></span>`;
-    html += '</div>';
-
-    return html;
 }
 
 // ============================================================
