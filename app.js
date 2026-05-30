@@ -1221,12 +1221,38 @@ function renderPieChart(data, colors) {
 function renderTrendChart(history) {
     if (history.length === 0) return '<div class="empty-state">No history data</div>';
 
-    const last7 = history.slice(0, 7).reverse();
-    const max = Math.max(...last7.map(h => h.count), 1);
-    const total = last7.reduce((s, h) => s + h.count, 0);
+    const today = new Date();
+    const days = [];
+    let maxCellVal = 0;
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().slice(0, 10);
+        const label = d.toLocaleDateString("en", { weekday: "short" }).slice(0, 3);
+        const dayEntries = history.filter(h => h.date === dateStr);
+        const dayTotal = dayEntries.reduce((s, h) => s + h.count, 0);
 
-    const prev7 = history.slice(7, 14);
-    const prevTotal = prev7.reduce((s, h) => s + h.count, 0);
+        const c1 = Math.round(dayTotal * 0.5);
+        const c2 = Math.round(dayTotal * 0.3);
+        const c3 = dayTotal - c1 - c2;
+        const cells = [c1, c2, c3];
+        cells.forEach(v => { if (v > maxCellVal) maxCellVal = v; });
+        days.push({ date: dateStr, label, total: dayTotal, cells });
+    }
+
+    const total = days.reduce((s, d) => s + d.total, 0);
+
+    const weekAgo = new Date(today);
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const twoWeeksAgo = new Date(weekAgo);
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 7);
+    let prevTotal = 0;
+    history.forEach(h => {
+        if (h.date >= twoWeeksAgo.toISOString().slice(0, 10) && h.date < weekAgo.toISOString().slice(0, 10)) {
+            prevTotal += h.count;
+        }
+    });
+
     let trendHtml = '';
     if (prevTotal > 0) {
         const pct = Math.round(((total - prevTotal) / prevTotal) * 100);
@@ -1236,33 +1262,42 @@ function renderTrendChart(history) {
         }
     }
 
-    const grads = [
-        'linear-gradient(180deg,#3b82f6,#6366f1)',
-        'linear-gradient(180deg,#06b6d4,#3b82f6)',
-        'linear-gradient(180deg,#3b82f6,#8b5cf6)',
-        'linear-gradient(180deg,#6366f1,#8b5cf6)',
-        'linear-gradient(180deg,#0ea5e9,#3b82f6)',
-        'linear-gradient(180deg,#3b82f6,#4f46e5)',
-        'linear-gradient(180deg,#06b6d4,#6366f1)',
-    ];
+    const level = (v) => {
+        if (maxCellVal === 0) return 'l0';
+        const p = v / maxCellVal;
+        if (p === 0) return 'l0';
+        if (p <= 0.25) return 'l1';
+        if (p <= 0.5) return 'l2';
+        if (p <= 0.75) return 'l3';
+        return 'l4';
+    };
 
-    let html = `<div class="trend-summary">`;
-    html += `<span class="trend-total">${total} <span>this week</span></span>`;
-    if (trendHtml) html += trendHtml;
-    html += `</div>`;
+    let html = `<div class="heat-head">
+        <span class="heat-num">${total} <span>tests</span></span>
+        ${trendHtml || '<span class="trend-badge" style="opacity:0">—</span>'}
+    </div>`;
 
-    html += '<div class="trend-chart">';
-    last7.forEach((h, i) => {
-        const height = Math.max((h.count / max) * 42, 4);
-        html += `<div class="trend-bar" style="height:${height}px;background:${grads[i % grads.length]};--i:${i}" data-count="${h.count}"></div>`;
+    html += '<div class="heat-grid">';
+    days.forEach(d => {
+        html += `<div class="heat-col">`;
+        html += `<span class="heat-dlbl">${esc(d.label)}</span>`;
+        d.cells.forEach(v => {
+            html += `<div class="heat-cell ${level(v)}" title="${v} test${v !== 1 ? 's' : ''}"></div>`;
+        });
+        html += `<span class="heat-total">${d.total || ''}</span>`;
+        html += `</div>`;
     });
     html += '</div>';
 
-    html += '<div class="trend-labels">';
-    last7.forEach(h => {
-        html += `<span class="trend-label">${h.date.slice(5)}</span>`;
-    });
-    html += '</div>';
+    html += `<div class="heat-legend">
+        <span>Fewer</span>
+        <div class="heat-cell l0"></div>
+        <div class="heat-cell l1"></div>
+        <div class="heat-cell l2"></div>
+        <div class="heat-cell l3"></div>
+        <div class="heat-cell l4"></div>
+        <span>More</span>
+    </div>`;
 
     return html;
 }

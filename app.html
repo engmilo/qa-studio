@@ -1505,19 +1505,19 @@
             border-radius: 50%;
         }
 
-        /* ── Trend Chart ── */
-        .trend-summary {
+        /* ── Heatmap ── */
+        .heat-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
-        .trend-total {
+        .heat-num {
             font-size: 20px;
             font-weight: 800;
             letter-spacing: -0.02em;
         }
-        .trend-total span {
+        .heat-num span {
             font-size: 12px;
             font-weight: 400;
             color: var(--text-muted);
@@ -1545,63 +1545,66 @@
             color: #f87171;
         }
 
-        .trend-chart {
+        .heat-grid {
             display: flex;
-            align-items: flex-end;
-            gap: 4px;
-            height: 50px;
-            padding: 4px 0;
+            gap: 6px;
         }
-
-        .trend-bar {
+        .heat-col {
             flex: 1;
-            border-radius: 4px 4px 0 0;
-            min-height: 4px;
-            transition: all 0.2s ease;
-            position: relative;
-            animation: trendGrow 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-            transform-origin: bottom;
-            transform: scaleY(0);
-            animation-delay: calc(var(--i) * 0.06s);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
         }
-
-        @keyframes trendGrow {
-            from { transform: scaleY(0); }
-            to { transform: scaleY(1); }
-        }
-
-        .trend-bar:hover {
-            opacity: 0.8;
-        }
-
-        .trend-bar::after {
-            content: attr(data-count);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 11px;
+        .heat-dlbl {
+            font-size: 9px;
+            font-weight: 600;
             color: var(--text-muted);
-            opacity: 0;
-            transition: opacity 0.2s;
-            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 2px;
         }
-
-        .trend-bar:hover::after {
-            opacity: 1;
+        .heat-cell {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 4px;
+            transition: transform 0.15s ease, background 0.2s;
+            min-height: 14px;
         }
-
-        .trend-labels {
-            display: flex;
-            gap: 4px;
-            margin-top: 8px;
+        .heat-cell:hover {
+            transform: scale(1.15);
         }
+        .heat-cell.l0 { background: var(--border); }
+        body.dark .heat-cell.l0 { background: rgba(255,255,255,0.06); }
+        .heat-cell.l1 { background: rgba(59,130,246,0.2); }
+        body.dark .heat-cell.l1 { background: rgba(96,165,250,0.15); }
+        .heat-cell.l2 { background: rgba(59,130,246,0.45); }
+        body.dark .heat-cell.l2 { background: rgba(96,165,250,0.35); }
+        .heat-cell.l3 { background: rgba(59,130,246,0.7); }
+        body.dark .heat-cell.l3 { background: rgba(96,165,250,0.55); }
+        .heat-cell.l4 { background: rgba(59,130,246,1); }
+        body.dark .heat-cell.l4 { background: rgba(147,197,253,0.85); }
 
-        .trend-label {
-            flex: 1;
-            text-align: center;
+        .heat-total {
             font-size: 10px;
+            font-weight: 600;
             color: var(--text-muted);
+            margin-top: 1px;
+            min-height: 1.2em;
+        }
+        .heat-legend {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            margin-top: 8px;
+            justify-content: flex-end;
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+        .heat-legend .heat-cell {
+            width: 12px;
+            min-height: 12px;
+            aspect-ratio: 1;
         }
 
         /* ── API Config Modal ── */
