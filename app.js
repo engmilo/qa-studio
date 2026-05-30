@@ -1223,24 +1223,20 @@ function renderTrendChart(history) {
 
     const today = new Date();
     const days = [];
-    let maxCellVal = 0;
+    let maxVal = 0;
     for (let i = 6; i >= 0; i--) {
         const d = new Date(today);
         d.setDate(d.getDate() - i);
         const dateStr = d.toISOString().slice(0, 10);
-        const label = d.toLocaleDateString("en", { weekday: "short" }).slice(0, 3);
-        const dayEntries = history.filter(h => h.date === dateStr);
-        const dayTotal = dayEntries.reduce((s, h) => s + h.count, 0);
-
-        const c1 = Math.round(dayTotal * 0.5);
-        const c2 = Math.round(dayTotal * 0.3);
-        const c3 = dayTotal - c1 - c2;
-        const cells = [c1, c2, c3];
-        cells.forEach(v => { if (v > maxCellVal) maxCellVal = v; });
-        days.push({ date: dateStr, label, total: dayTotal, cells });
+        const label = d.toLocaleDateString("en", { weekday: "short" });
+        const dayTotal = history.filter(h => h.date === dateStr).reduce((s, h) => s + h.count, 0);
+        if (dayTotal > maxVal) maxVal = dayTotal;
+        days.push({ date: dateStr, label, total: dayTotal });
     }
 
     const total = days.reduce((s, d) => s + d.total, 0);
+    const avg = Math.round(total / 7);
+    const best = [...days].sort((a, b) => b.total - a.total)[0];
 
     const weekAgo = new Date(today);
     weekAgo.setDate(weekAgo.getDate() - 7);
@@ -1262,42 +1258,46 @@ function renderTrendChart(history) {
         }
     }
 
-    const level = (v) => {
-        if (maxCellVal === 0) return 'l0';
-        const p = v / maxCellVal;
-        if (p === 0) return 'l0';
-        if (p <= 0.25) return 'l1';
-        if (p <= 0.5) return 'l2';
-        if (p <= 0.75) return 'l3';
-        return 'l4';
+    const W = 200, H = 36, PAD = 0;
+    const cw = W - PAD * 2, ch = H - PAD * 2;
+    const coord = (i, val) => {
+        const x = PAD + (i / 6) * cw;
+        const y = PAD + ch - (maxVal > 0 ? (val / maxVal) * ch : 0);
+        return { x, y };
     };
+    const pts = days.map((d, i) => coord(i, d.total));
 
-    let html = `<div class="heat-head">
-        <span class="heat-num">${total} <span>tests</span></span>
-        ${trendHtml || '<span class="trend-badge" style="opacity:0">—</span>'}
+    let html = `<div class="spark-head">
+        <span class="spark-num">${total} <span>this week</span></span>
+        ${trendHtml || ''}
     </div>`;
 
-    html += '<div class="heat-grid">';
-    days.forEach(d => {
-        html += `<div class="heat-col">`;
-        html += `<span class="heat-dlbl">${esc(d.label)}</span>`;
-        d.cells.forEach(v => {
-            html += `<div class="heat-cell ${level(v)}" title="${v} test${v !== 1 ? 's' : ''}"></div>`;
-        });
-        html += `<span class="heat-total">${d.total || ''}</span>`;
-        html += `</div>`;
-    });
+    html += `<div class="spark-chart">
+    <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="sf" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.02"/>
+            </linearGradient>
+            <linearGradient id="sl" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#3b82f6"/>
+                <stop offset="100%" stop-color="#8b5cf6"/>
+            </linearGradient>
+        </defs>
+        <polygon points="${pts.map(p => `${p.x},${p.y}`).join(' ')},${cw},${PAD + ch} ${PAD},${PAD + ch}" fill="url(#sf)"/>
+        <polyline points="${pts.map(p => `${p.x},${p.y}`).join(' ')}" fill="none" stroke="url(#sl)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="spark-line"/>
+        ${pts.map((p, i) => `<circle cx="${p.x}" cy="${p.y}" r="2" fill="#3b82f6" class="${days[i].total > 0 ? 'spark-dot' : 'spark-dot spark-dot--empty'}" style="--i:${i}"/>`).join('')}
+    </svg>
+    </div>`;
+
+    html += '<div class="spark-labels">';
+    days.forEach(d => { html += `<span class="spark-label">${d.label}</span>`; });
     html += '</div>';
 
-    html += `<div class="heat-legend">
-        <span>Fewer</span>
-        <div class="heat-cell l0"></div>
-        <div class="heat-cell l1"></div>
-        <div class="heat-cell l2"></div>
-        <div class="heat-cell l3"></div>
-        <div class="heat-cell l4"></div>
-        <span>More</span>
-    </div>`;
+    html += '<div class="spark-stats">';
+    html += `<span class="spark-stat">Avg <strong>${avg}</strong>/day</span>`;
+    html += `<span class="spark-stat">Best: <strong>${best.label} (${best.total})</strong></span>`;
+    html += '</div>';
 
     return html;
 }
