@@ -215,37 +215,59 @@
 
 
 
-        /* ── Top Right Bar ── */
-        .top-bar-row {
+        /* ── Top Bar ── */
+        .page-header {
             display: flex;
             align-items: center;
-            margin-bottom: 20px;
+            justify-content: space-between;
+            margin-bottom: 24px;
         }
 
-        .top-right-bar {
+        .page-header-left { display:flex; align-items:center; gap:12px; }
+        .page-header-right {
             display: flex;
             align-items: center;
-            gap: 6px;
-            flex-wrap: nowrap;
-            flex-shrink: 0;
-            flex: 1;
+            gap: 4px;
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 4px 6px;
+            border-radius: 12px;
+            padding: 3px;
             box-shadow: var(--shadow-sm);
         }
 
-        .top-right-bar .back-link {
+        .page-header-right .back-link {
             margin-right: auto;
+        }
+
+        .topbar {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--text), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .header-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+            flex-shrink: 0;
         }
 
         .lang-btn {
             background: transparent;
-            border: 1px solid transparent;
-            border-radius: 6px;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
-            padding: 4px 8px;
+            padding: 5px 10px;
             transition: all 0.2s ease;
             opacity: 0.5;
             display: inline-flex;
@@ -265,7 +287,6 @@
 
         .lang-btn.active-lang {
             opacity: 1;
-            border-color: var(--primary);
             background: var(--primary-light);
             color: var(--primary);
         }
@@ -275,9 +296,7 @@
             font-weight: 500;
             font-variant-numeric: tabular-nums;
             color: var(--text-muted);
-            background: var(--hover-bg);
-            border-radius: 6px;
-            padding: 4px 8px;
+            padding: 5px 10px;
             font-family: "Inter", sans-serif;
             white-space: nowrap;
         }
@@ -287,8 +306,8 @@
             font-weight: 500;
             color: var(--text-muted);
             text-decoration: none;
-            padding: 4px 8px;
-            border-radius: 6px;
+            padding: 5px 10px;
+            border-radius: 8px;
             white-space: nowrap;
             transition: background .2s, color .2s;
         }
@@ -300,8 +319,8 @@
         .theme-btn {
             background: transparent;
             border: none;
-            border-radius: 6px;
-            padding: 4px 8px;
+            border-radius: 8px;
+            padding: 5px 10px;
             cursor: pointer;
             color: var(--text-muted);
             display: inline-flex;
@@ -364,14 +383,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-        }
-
-        .page-subtitle {
-            font-size: 15px;
-            color: var(--text-muted);
-            margin-bottom: 28px;
-            font-weight: 400;
-            line-height: 1.5;
         }
 
         /* ── Live Preview Banner - Refined ── */
@@ -1767,28 +1778,25 @@
                 padding: 70px 16px 24px;
             }
 
-            .top-right-bar {
-                gap: 4px;
-                padding: 3px 4px;
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                margin-bottom: 20px;
             }
 
-            .live-clock {
-                font-size: 12px;
-                padding: 6px 10px;
-            }
-
-            .lang-btn {
-                padding: 4px 8px;
-                font-size: 11px;
+            .page-header-right {
+                width: 100%;
+                gap: 2px;
+                padding: 2px;
             }
 
             .topbar {
                 font-size: 22px;
-                margin-bottom: 4px;
             }
 
             .page-subtitle {
-                font-size: 13px;
+                font-size: 12px;
             }
 
             .generator-panel {
@@ -2137,26 +2145,30 @@
     </aside>
 
     <main class="main-content">
-      <div class="top-bar-row">
-        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
-          <i data-lucide="menu"></i>
-        </button>
-        <div class="top-right-bar">
-          <a href="index.html" class="back-link">← <span data-i18n="back">Back</span></a>
-          <span class="live-clock" id="liveClock"></span>
-          <div class="lang-flags" id="langFlags">
-              <button class="lang-btn" data-lang="fi" title="Suomi">FI</button>
-              <button class="lang-btn" data-lang="en" title="English">EN</button>
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+      <div class="page-header">
+        <div class="page-header-left">
+          <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
+            <i data-lucide="menu"></i>
+          </button>
+          <div>
+            <h1 class="topbar" id="pageTitle">Generator</h1>
+            <p class="page-subtitle" id="pageSubtitle">Generate, save, and track test cases by project.</p>
           </div>
+        </div>
+        <div class="page-header-right">
+          <a href="index.html" class="back-link">← <span data-i18n="back">Back</span></a>
+          <span class="header-divider"></span>
+          <span class="live-clock" id="liveClock"></span>
+          <span class="header-divider"></span>
+          <button class="lang-btn" data-lang="fi" title="Suomi">FI</button>
+          <button class="lang-btn" data-lang="en" title="English">EN</button>
+          <span class="header-divider"></span>
           <button id="themeToggleBtn" class="theme-btn" aria-label="Toggle theme">
             <i data-lucide="moon" id="themeToggleBtnIcon"></i>
           </button>
         </div>
       </div>
-      <div class="sidebar-overlay" id="sidebarOverlay"></div>
-      <div class="main-content-inner">
-        <h1 class="topbar" id="pageTitle">Generator</h1>
-        <p class="page-subtitle" id="pageSubtitle">Generate, save, and track test cases by project.</p>
 
         <section id="view-generator">
             <!-- Live Preview Banner -->
