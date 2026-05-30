@@ -1284,7 +1284,7 @@ function renderTrendChart(history) {
                 <stop offset="100%" stop-color="#8b5cf6"/>
             </linearGradient>
         </defs>
-        <polygon points="${pts.map(p => `${p.x},${p.y}`).join(' ')},${cw},${PAD + ch} ${PAD},${PAD + ch}" fill="url(#sf)"/>
+        <polygon points="${pts.map(p => `${p.x},${p.y}`).join(' ')} ${cw},${PAD + ch} ${PAD},${PAD + ch}" fill="url(#sf)"/>
         <polyline points="${pts.map(p => `${p.x},${p.y}`).join(' ')}" fill="none" stroke="url(#sl)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="spark-line"/>
         ${pts.map((p, i) => `<circle cx="${p.x}" cy="${p.y}" r="2" fill="#3b82f6" class="${days[i].total > 0 ? 'spark-dot' : 'spark-dot spark-dot--empty'}" style="--i:${i}"/>`).join('')}
     </svg>
