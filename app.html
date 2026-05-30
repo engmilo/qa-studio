@@ -1506,6 +1506,45 @@
         }
 
         /* ── Trend Chart ── */
+        .trend-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .trend-total {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+        .trend-total span {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+        .trend-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+        .trend-badge.up {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .trend-badge.down {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        body.dark .trend-badge.up {
+            background: rgba(16,185,129,0.15);
+            color: #34d399;
+        }
+        body.dark .trend-badge.down {
+            background: rgba(220,38,38,0.15);
+            color: #f87171;
+        }
+
         .trend-chart {
             display: flex;
             align-items: flex-end;
@@ -1516,11 +1555,19 @@
 
         .trend-bar {
             flex: 1;
-            background: var(--primary);
             border-radius: 4px 4px 0 0;
             min-height: 4px;
             transition: all 0.2s ease;
             position: relative;
+            animation: trendGrow 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            transform-origin: bottom;
+            transform: scaleY(0);
+            animation-delay: calc(var(--i) * 0.06s);
+        }
+
+        @keyframes trendGrow {
+            from { transform: scaleY(0); }
+            to { transform: scaleY(1); }
         }
 
         .trend-bar:hover {

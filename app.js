@@ -1223,11 +1223,38 @@ function renderTrendChart(history) {
 
     const last7 = history.slice(0, 7).reverse();
     const max = Math.max(...last7.map(h => h.count), 1);
+    const total = last7.reduce((s, h) => s + h.count, 0);
 
-    let html = '<div class="trend-chart">';
-    last7.forEach(h => {
+    const prev7 = history.slice(7, 14);
+    const prevTotal = prev7.reduce((s, h) => s + h.count, 0);
+    let trendHtml = '';
+    if (prevTotal > 0) {
+        const pct = Math.round(((total - prevTotal) / prevTotal) * 100);
+        if (pct !== 0) {
+            const arrow = pct > 0 ? '↑' : '↓';
+            trendHtml = `<span class="trend-badge ${pct > 0 ? 'up' : 'down'}">${arrow} ${Math.abs(pct)}%</span>`;
+        }
+    }
+
+    const grads = [
+        'linear-gradient(180deg,#3b82f6,#6366f1)',
+        'linear-gradient(180deg,#06b6d4,#3b82f6)',
+        'linear-gradient(180deg,#3b82f6,#8b5cf6)',
+        'linear-gradient(180deg,#6366f1,#8b5cf6)',
+        'linear-gradient(180deg,#0ea5e9,#3b82f6)',
+        'linear-gradient(180deg,#3b82f6,#4f46e5)',
+        'linear-gradient(180deg,#06b6d4,#6366f1)',
+    ];
+
+    let html = `<div class="trend-summary">`;
+    html += `<span class="trend-total">${total} <span>this week</span></span>`;
+    if (trendHtml) html += trendHtml;
+    html += `</div>`;
+
+    html += '<div class="trend-chart">';
+    last7.forEach((h, i) => {
         const height = Math.max((h.count / max) * 42, 4);
-        html += `<div class="trend-bar" style="height:${height}px" data-count="${h.count}"></div>`;
+        html += `<div class="trend-bar" style="height:${height}px;background:${grads[i % grads.length]};--i:${i}" data-count="${h.count}"></div>`;
     });
     html += '</div>';
 
