@@ -1221,6 +1221,14 @@ function loadApiConfig() {
     document.getElementById("apiModelInput").value = config.model || "claude-sonnet-4-20250514";
     document.getElementById("apiTokensInput").value = config.tokens || 4096;
     document.getElementById("apiKeyInput").value = "";
+    const btn = document.getElementById("saveApiConfig");
+    btn.disabled = true;
+    btn._initial = JSON.stringify({
+        url: config.url || "",
+        model: config.model || "claude-sonnet-4-20250514",
+        tokens: config.tokens || 4096,
+        apiKey: ""
+    });
 }
 
 function getApiConfig() {
@@ -1249,6 +1257,18 @@ document.getElementById("openApiConfigBtn").addEventListener("click", () => {
 
 document.getElementById("apiConfigClose").addEventListener("click", () => {
     document.getElementById("apiConfigOverlay").classList.remove("visible");
+});
+
+document.getElementById("apiConfigOverlay").addEventListener("input", (e) => {
+    if (!e.target.closest("#apiUrlInput, #apiModelInput, #apiTokensInput, #apiKeyInput")) return;
+    const btn = document.getElementById("saveApiConfig");
+    const cur = JSON.stringify({
+        url: document.getElementById("apiUrlInput").value,
+        model: document.getElementById("apiModelInput").value,
+        tokens: document.getElementById("apiTokensInput").value,
+        apiKey: document.getElementById("apiKeyInput").value
+    });
+    btn.disabled = cur === btn._initial;
 });
 
 document.getElementById("saveApiConfig").addEventListener("click", () => {
