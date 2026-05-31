@@ -1974,7 +1974,31 @@ try {
     updateUsageCounter();
     renderDashboard();
     toggleActionBtns();
+    showVersionTag();
 } catch (e) { console.warn("QA Studio init error:", e); }
 window.addEventListener("pageshow", () => {
     try { lucide.createIcons(); } catch (e) { console.warn("QA Studio:", e); }
 });
+
+// ── SW update detection ──
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").then(reg => {
+        reg.addEventListener("updatefound", () => {
+            const sw = reg.installing;
+            sw.addEventListener("statechange", () => {
+                if (sw.state === "installed" && navigator.serviceWorker.controller) {
+                    showToast("New version available — please hard refresh (Ctrl+F5)", "info", 8000);
+                }
+            });
+        });
+    }).catch(() => {});
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+        showToast("Update applied! Reloading…", "info", 3000);
+        setTimeout(() => location.reload(), 2000);
+    });
+}
+
+function showVersionTag() {
+    const el = document.getElementById("versionTag");
+    if (el) el.textContent = "v74";
+}
