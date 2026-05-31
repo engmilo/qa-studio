@@ -937,7 +937,6 @@ function renderDashboard() {
             <div style="grid-column:1;display:flex;flex-direction:column;gap:6px;">
                 ${statusColHtml}
                 ${lineHtml}
-                ${flakinessHtml}
             </div>
             <div class="ent-col" style="grid-column:2;">
                 <div class="ent-chart-h">${t("priorityDistribution")}</div>
@@ -945,6 +944,7 @@ function renderDashboard() {
                 <div class="ent-pie-legend" style="text-align:center;font-size:9px;color:var(--text-muted);margin-top:4px;"><span style="display:inline-block;width:8px;height:8px;background:#dc2626;vertical-align:middle;border-radius:2px;"></span>&nbsp;&nbsp;Critical&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:8px;height:8px;background:#f97316;vertical-align:middle;border-radius:2px;"></span>&nbsp;&nbsp;High&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:8px;height:8px;background:#3b82f6;vertical-align:middle;border-radius:2px;"></span>&nbsp;&nbsp;Medium&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:8px;height:8px;background:#10b981;vertical-align:middle;border-radius:2px;"></span>&nbsp;&nbsp;Low</div>
             </div>
             <div style="grid-column:2;">${projStackHtml}</div>
+            <div style="grid-column:2;">${flakinessHtml}</div>
         </div>`;
 
     lucide.createIcons();
