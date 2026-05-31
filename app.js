@@ -41,10 +41,10 @@ const i18n = {
         confirmDelete: "Delete this project? This cannot be undone.",
         demo: "Demo",
         statusDistribution: "Status Distribution",
-        priorityDistribution: "Priority Distribution",
+        priorityDistribution: "Test Case Priority",
         projectBars: "Daily Generation",
-        statusColChart: "Status vs Test Cases",
-        dailyTrend: "Daily Trend",
+        statusColChart: "Test Case Status",
+        dailyTrend: "Test Cases Created - Last 7 Days",
         entTitle: "QA Test Case Tracker",
         entTotal: "Total Test Cases",
         entRecent: "Recent Test Cases",
@@ -117,10 +117,10 @@ const i18n = {
         confirmDelete: "Poistetaanko tämä projekti? Toimintoa ei voi peruuttaa.",
         demo: "Demo",
         statusDistribution: "Tilajakauma",
-        priorityDistribution: "Prioriteettijakauma",
+        priorityDistribution: "Testitapausten prioriteetti",
         projectBars: "Päivittäinen generointi",
-        statusColChart: "Tila vs Testitapaukset",
-        dailyTrend: "Päivittäinen trendi",
+        statusColChart: "Testitapausten tila",
+        dailyTrend: "Luodut testit - viimeiset 7 päivää",
         entTitle: "QA Testitapausten seuranta",
         entTotal: "Testitapauksia yhteensä",
         entRecent: "Viimeisimmät testitapaukset",
@@ -725,11 +725,15 @@ function renderDashboard() {
         return;
     }
 
-    // ── Priority pie ──
+    // ── Priority pie (4 levels: Critical, High, Medium, Low) ──
     const priorityCounts = {};
-    allTests.forEach(tc => { if(tc.priority) priorityCounts[tc.priority] = (priorityCounts[tc.priority]||0)+1; });
-    const priorityData = ["Critical","High","Medium","Low","Trivial"].map(p => priorityCounts[p] || 0);
-    const pColors = ["#dc2626","#f97316","#3b82f6","#10b981","#6b7280"];
+    allTests.forEach(tc => {
+        if (!tc.priority) return;
+        const p = tc.priority === "Trivial" ? "Low" : tc.priority;
+        priorityCounts[p] = (priorityCounts[p]||0) + 1;
+    });
+    const priorityData = ["Critical","High","Medium","Low"].map(p => priorityCounts[p] || 0);
+    const pColors = ["#dc2626","#f97316","#3b82f6","#10b981"];
     const priorityChart = renderPieChart(priorityData, pColors);
 
     // ── 7-day data ──
@@ -806,23 +810,6 @@ function renderDashboard() {
     });
     cardHtml += '</div>';
 
-    // ── Recent tests table ──
-    const recent = latestTestCases.slice(-12).reverse();
-    let tableHtml = '<div class="ent-col"><div class="ent-chart-h">' + t('entRecent') + '</div>';
-    if (recent.length > 0) {
-        tableHtml += '<div class="ent-table-wrap"><table class="ent-table"><thead><tr><th>' + t('colId') + '</th><th>' + t('colTitle') + '</th><th>' + t('colStatus') + '</th><th>' + t('colPriority') + '</th></tr></thead><tbody>';
-        recent.forEach(tc => {
-            const sc = tc.status || 'untested';
-            const scMap = { pass: '#10b981', fail: '#dc2626', blocked: '#f97316', untested: '#6b7280' };
-            const pcMap = { Critical: '#dc2626', High: '#f97316', Medium: '#3b82f6', Low: '#10b981', Trivial: '#6b7280' };
-            tableHtml += '<tr><td class="ent-id">' + tc.id + '</td><td>' + tc.title + '</td><td><span class="ent-sc" style="background:' + (scMap[sc] || '#6b7280') + '">' + (tc.status || t('dashUntested')) + '</span></td><td><span class="ent-pc" style="color:' + (pcMap[tc.priority] || '#6b7280') + '">' + (tc.priority || '—') + '</span></td></tr>';
-        });
-        tableHtml += '</tbody></table></div>';
-    } else {
-        tableHtml += '<div class="empty-state" style="padding:20px;">' + t('dashEmpty') + '</div>';
-    }
-    tableHtml += '</div>';
-
     // ── Assemble ──
     document.getElementById("dashContent").innerHTML = `
         <div class="ent-header">
@@ -844,8 +831,7 @@ function renderDashboard() {
         </div>
         <div class="ent-row">
             ${lineHtml}
-        </div>
-        ${tableHtml}`;
+        </div>`;
 
     lucide.createIcons();
     renderSidebarWidgets(total, pass, fail, blocked, untested);
@@ -861,7 +847,25 @@ function renderSidebarWidgets(total, pass, fail, blocked, untested) {
     const density = executed > 0 ? Math.round((fail / executed) * 100) : 0;
     const el = document.getElementById("sideWidgets");
     if (!el) return;
-    el.innerHTML = '<div class="side-widget"><div class="side-widget-h">' + t('sideDefectDensity') + '</div><div class="side-widget-v">' + density + '%</div><div class="side-widget-s">' + fail + '/' + executed + ' ' + t('sideOfTotal') + '</div></div><div class="side-widget"><div class="side-widget-h">' + t('sideAutoCoverage') + '</div><div class="side-widget-v">N/A</div><div class="side-widget-s">' + t('sideOfTotal') + ': ' + total + '</div></div>';
+
+    // Donut ring SVG (automation vs manual — default 30% auto as placeholder)
+    const autoPct = 0;
+    const manPct = 100 - autoPct;
+    const r = 14, cx = 20, cy = 20, circ = 2 * Math.PI * r;
+    const autoOff = circ * (1 - autoPct / 100);
+    const manOff = circ * (1 - manPct / 100) - autoOff - 0.01;
+
+    el.innerHTML =
+        '<div class="side-widget"><div class="side-widget-h">' + t('sideDefectDensity') + '</div>' +
+        '<div class="side-prog-wrap"><div class="side-prog-track"><div class="side-prog-fill" style="width:' + density + '%"></div></div></div>' +
+        '<div class="side-widget-s">' + density + '% failed (' + fail + '/' + executed + ')</div></div>' +
+        '<div class="side-widget"><div class="side-widget-h">' + t('sideAutoCoverage') + '</div>' +
+        '<div class="side-donut-wrap"><svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">' +
+        '<circle cx="20" cy="20" r="14" fill="none" stroke="var(--border)" stroke-width="3"/>' +
+        '<circle cx="20" cy="20" r="14" fill="none" stroke="#3b82f6" stroke-width="3" stroke-dasharray="' + circ + '" stroke-dashoffset="' + autoOff + '" stroke-linecap="round" transform="rotate(-90 20 20)"/>' +
+        '<circle cx="20" cy="20" r="14" fill="none" stroke="#10b981" stroke-width="3" stroke-dasharray="' + circ + '" stroke-dashoffset="' + manOff + '" stroke-linecap="round" transform="rotate(-90 20 20)"/>' +
+        '</svg><div class="side-donut-c"><span class="side-donut-p">' + autoPct + '%</span></div></div>' +
+        '<div class="side-widget-s" style="margin-top:2px;"><span class="side-widget-dot" style="background:#3b82f6"></span>Auto <span class="side-widget-dot" style="background:#10b981"></span>Manual</div></div>';
 }
 
 // ============================================================
@@ -2000,5 +2004,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v74";
+    if (el) el.textContent = "v75";
 }
