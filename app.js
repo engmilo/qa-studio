@@ -1443,7 +1443,7 @@ function renderPieChart(data, colors) {
 
     return `<div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
         <svg width="50" height="50" viewBox="0 0 80 80" style="flex-shrink:0;">${segments}<circle cx="${cx}" cy="${cy}" r="20" fill="var(--card-bg)" /></svg>
-        <div style="display:flex;flex-wrap:wrap;gap-x:28px;gap-y:4px;justify-content:center;">${legendHtml}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px 40px;justify-content:center;">${legendHtml}</div>
     </div>`;
 }
 
