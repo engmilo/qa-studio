@@ -845,17 +845,6 @@ function renderDashboard() {
     });
     cardHtml += '</div>';
 
-    // ── Sidebar widgets content ──
-    const executed = pass + fail + blocked;
-    const density = executed > 0 ? Math.round((fail / executed) * 100) : 0;
-    const autoPct = 0;
-    const manPct = 100 - autoPct;
-    const r = 14, cx = 20, cy = 20, circ = 2 * Math.PI * r;
-    const autoOff = circ * (1 - autoPct / 100);
-    const manOff = circ - autoOff;
-
-    let widgetHtml = '<div class="ent-widgets"><div class="ent-widget"><div class="ent-chart-h" style="margin-bottom:6px;">' + t('sideDefectDensity') + '</div><div class="side-prog-track" style="height:8px;"><div class="side-prog-fill" style="width:' + density + '%"></div></div><div class="ent-widget-s">' + density + '% failed (' + fail + '/' + executed + ')</div></div><div class="ent-widget"><div class="ent-chart-h" style="margin-bottom:6px;">' + t('sideAutoCoverage') + '</div><div style="display:flex;align-items:center;gap:8px;"><svg width="36" height="36" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="14" fill="none" stroke="var(--border)" stroke-width="4"/><circle cx="20" cy="20" r="14" fill="none" stroke="#3b82f6" stroke-width="4" stroke-dasharray="' + circ + '" stroke-dashoffset="' + autoOff + '" stroke-linecap="round" transform="rotate(-90 20 20)"/><circle cx="20" cy="20" r="14" fill="none" stroke="#10b981" stroke-width="4" stroke-dasharray="' + circ + '" stroke-dashoffset="' + manOff + '" stroke-linecap="round" transform="rotate(-90 20 20)"/></svg><div><div style="font-size:18px;font-weight:700;">' + autoPct + '%</div><div style="font-size:10px;color:var(--text-muted);"><span class="side-widget-dot" style="background:#3b82f6"></span>Auto <span class="side-widget-dot" style="background:#10b981"></span>Manual</div></div></div></div></div>';
-
     // ── Assemble ──
     document.getElementById("dashContent").innerHTML = `
         <div class="ent-header">
@@ -868,7 +857,7 @@ function renderDashboard() {
             </div>
         </div>
         ${cardHtml}
-        <div class="ent-row">
+        <div class="ent-row" style="grid-template-columns:2fr 1fr">
             ${statusColHtml}
             <div class="ent-col">
                 <div class="ent-chart-h">${t("priorityDistribution")}</div>
@@ -878,7 +867,6 @@ function renderDashboard() {
         </div>
         <div class="ent-row">
             ${lineHtml}
-            ${widgetHtml}
         </div>`;
 
     lucide.createIcons();
@@ -2031,5 +2019,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v100";
+    if (el) el.textContent = "v101";
 }
