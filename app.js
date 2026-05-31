@@ -776,7 +776,7 @@ function renderDashboard() {
     const yTicks = 5;
     const SW = 280, SH = 150, ML = 35, MR = 10, MT = 14, MB = 28;
     const CW = SW - ML - MR, CH = SH - MT - MB;
-    const barW = 24, gap = CW / statusCols.length;
+    const barW = 18, gap = CW / statusCols.length;
 
     let statusSvg = '<svg viewBox="0 0 ' + SW + ' ' + SH + '" xmlns="http://www.w3.org/2000/svg">';
     statusSvg += '<line x1="' + ML + '" y1="' + MT + '" x2="' + ML + '" y2="' + (MT + CH) + '" stroke="var(--border)" stroke-width="1"/>';
@@ -2021,5 +2021,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v86";
+    if (el) el.textContent = "v87";
 }
