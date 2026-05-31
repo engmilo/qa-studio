@@ -857,6 +857,34 @@ function renderDashboard() {
     dayData.forEach(d => { lineHtml += '<span>' + d.label + '</span>'; });
     lineHtml += '</div></div>';
 
+    // ── Project breakdown (horizontal stacked bars) ──
+    const barColors = ["#10b981","#dc2626","#f97316","#6b7280"];
+    const barKeys = ["pass","fail","blocked","untested"];
+    let projStackHtml = '<div class="ent-col"><div class="ent-chart-h">' + t("projectBars") + '</div>';
+    state.projects.forEach(p => {
+        const tc = p.testCases || [];
+        if (!tc.length) return;
+        const counts = [
+            tc.filter(t => t.status === "pass").length,
+            tc.filter(t => t.status === "fail").length,
+            tc.filter(t => t.status === "blocked").length,
+            tc.filter(t => !t.status).length,
+        ];
+        const totalP = counts.reduce((s, c) => s + c, 0);
+        if (!totalP) return;
+        projStackHtml += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">';
+        projStackHtml += '<span style="font-size:10px;color:var(--text-muted);min-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(p.name) + '</span>';
+        projStackHtml += '<div style="flex:1;display:flex;height:14px;border-radius:4px;overflow:hidden;">';
+        counts.forEach((c, i) => {
+            if (!c) return;
+            const pct = Math.round((c / totalP) * 100);
+            projStackHtml += '<div style="width:' + pct + '%;min-width:4px;height:100%;background:' + barColors[i] + ';" title="' + barKeys[i] + ': ' + c + '"></div>';
+        });
+        projStackHtml += '</div>';
+        projStackHtml += '</div>';
+    });
+    projStackHtml += '</div>';
+
     // ── Summary cards ──
     const cards = [
         { label: t('entTotal'), count: total, color: 'var(--primary)', trend: dailyTrendHtml, icon: 'file-text' },
@@ -888,16 +916,17 @@ function renderDashboard() {
             </div>
         </div>
         ${cardHtml}
-        <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:10px;margin-bottom:10px;">
-            <div style="grid-row:1/3;grid-column:1;display:flex;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:10px;margin-bottom:10px;">
+            <div style="grid-row:1/4;grid-column:1;display:flex;">
                 ${statusColHtml}
             </div>
-            <div class="ent-col" style="grid-row:1;grid-column:2;">
+            <div class="ent-col" style="grid-column:2;grid-row:1;">
                 <div class="ent-chart-h">${t("priorityDistribution")}</div>
                 <div class="ent-pie-wrap">${priorityChart}</div>
                 <div class="ent-pie-legend" style="text-align:center;font-size:9px;color:var(--text-muted);margin-top:4px;"><span style="display:inline-block;width:6px;height:6px;background:#dc2626;vertical-align:middle;"></span>=Critical&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:6px;height:6px;background:#f97316;vertical-align:middle;"></span>=High&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:6px;height:6px;background:#3b82f6;vertical-align:middle;"></span>=Medium&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:6px;height:6px;background:#10b981;vertical-align:middle;"></span>=Low</div>
             </div>
-            <div style="grid-row:2;grid-column:2;">${lineHtml}</div>
+            <div style="grid-column:2;grid-row:2;">${projStackHtml}</div>
+            <div style="grid-column:2;grid-row:3;">${lineHtml}</div>
         </div>`;
 
     lucide.createIcons();
