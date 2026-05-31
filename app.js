@@ -774,7 +774,7 @@ function renderDashboard() {
     const maxStatVal = Math.max(...statusCols.map(c => c.count), 1);
     const yMax = Math.max(Math.ceil(maxStatVal / 10) * 10, 10);
     const yTicks = 5;
-    const barMaxH = 70;
+    const barMaxH = 160;
 
     let statusColHtml = '<div class="ent-col"><div class="ent-chart-h">' + t('statusColChart') + '</div>';
     statusColHtml += '<div style="display:flex;gap:4px;">';
@@ -858,7 +858,7 @@ function renderDashboard() {
         </div>
         ${cardHtml}
         <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:10px;margin-bottom:10px;">
-            <div style="grid-row:1/3;grid-column:1;">
+            <div style="grid-row:1/3;grid-column:1;display:flex;">
                 ${statusColHtml}
             </div>
             <div class="ent-col" style="grid-row:1;grid-column:2;">
@@ -2019,5 +2019,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v102";
+    if (el) el.textContent = "v103";
 }
