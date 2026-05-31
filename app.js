@@ -795,7 +795,7 @@ function renderDashboard() {
         const x = ML + i * gap + (gap - barW) / 2;
         const y = MT + CH - Math.max(barH, 2);
         statusSvg += '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="' + Math.max(barH, 2) + '" fill="' + c.color + '" rx="2"/>';
-        statusSvg += '<text x="' + (x + barW / 2) + '" y="' + (y - 3) + '" text-anchor="middle" fill="var(--text)" font-size="8" font-weight="600">' + c.count + '</text>';
+        statusSvg += '<text x="' + (x + barW / 2) + '" y="' + (y - 2) + '" text-anchor="middle" fill="var(--text)" font-size="7" font-weight="600">' + c.count + '</text>';
         const cx = x + barW / 2;
         statusSvg += '<rect x="' + (cx - 14) + '" y="' + (MT + CH + 7) + '" width="6" height="6" fill="' + c.color + '" rx="1"/>';
         statusSvg += '<text x="' + (cx - 5) + '" y="' + (MT + CH + 12) + '" text-anchor="start" fill="var(--text-muted)" font-size="8" font-weight="600" letter-spacing="0.5">' + c.label.toUpperCase() + '</text>';
@@ -2021,5 +2021,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v89";
+    if (el) el.textContent = "v90";
 }
