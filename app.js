@@ -902,26 +902,6 @@ function renderDashboard() {
     flakinessHtml += '<div style="font-size:9px;color:var(--text-muted);margin-top:4px;">' + flakyCount + ' of ' + executed + ' executed tests failing or blocked</div>';
     flakinessHtml += '</div>';
 
-    // ── Suite Completion Rings ──
-    let suiteRingsHtml = '<div class="ent-col"><div class="ent-chart-h">Suite Completion Rings</div>';
-    suiteRingsHtml += '<div style="display:flex;flex-direction:column;gap:5px;">';
-    state.projects.forEach(p => {
-        const tc = p.testCases || [];
-        if (!tc.length) return;
-        const totalP = tc.length;
-        const passedP = tc.filter(t => t.status === "pass").length;
-        const pct = Math.round((passedP / totalP) * 100);
-        const color = pct >= 80 ? '#10b981' : pct >= 50 ? '#f97316' : '#dc2626';
-        const circ = 2 * Math.PI * 10;
-        const dash = (pct / 100) * circ;
-        suiteRingsHtml += '<div style="display:flex;align-items:center;gap:8px;">';
-        suiteRingsHtml += '<div style="flex-shrink:0;"><svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="10" fill="none" stroke="var(--border)" stroke-width="4"/><circle cx="14" cy="14" r="10" fill="none" stroke="' + color + '" stroke-width="4" stroke-dasharray="' + dash + ' ' + circ + '" stroke-dashoffset="0" transform="rotate(-90 14 14)"/></svg></div>';
-        suiteRingsHtml += '<div style="flex:1;"><div style="font-size:10px;font-weight:500;">' + esc(p.name) + '</div><div style="font-size:9px;color:var(--text-muted);">' + passedP + '/' + totalP + ' passed</div></div>';
-        suiteRingsHtml += '<span style="font-size:11px;font-weight:700;color:' + color + ';">' + pct + '%</span>';
-        suiteRingsHtml += '</div>';
-    });
-    suiteRingsHtml += '</div></div>';
-
     // ── Summary cards ──
     const cards = [
         { label: t('entTotal'), count: total, color: 'var(--primary)', trend: dailyTrendHtml, icon: 'file-text' },
@@ -953,19 +933,18 @@ function renderDashboard() {
             </div>
         </div>
         ${cardHtml}
-        <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:6px;margin-bottom:10px;">
-            <div style="grid-row:1/4;grid-column:1;display:flex;flex-direction:column;gap:6px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
+            <div style="grid-column:1;display:flex;flex-direction:column;gap:6px;">
                 ${statusColHtml}
                 ${lineHtml}
                 ${flakinessHtml}
             </div>
-            <div class="ent-col" style="grid-column:2;grid-row:1;">
+            <div class="ent-col" style="grid-column:2;">
                 <div class="ent-chart-h">${t("priorityDistribution")}</div>
                 <div class="ent-pie-wrap">${priorityChart}</div>
                 <div class="ent-pie-legend" style="text-align:center;font-size:9px;color:var(--text-muted);margin-top:4px;"><span style="display:inline-block;width:8px;height:8px;background:#dc2626;vertical-align:middle;border-radius:2px;"></span>&nbsp;&nbsp;Critical&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:8px;height:8px;background:#f97316;vertical-align:middle;border-radius:2px;"></span>&nbsp;&nbsp;High&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:8px;height:8px;background:#3b82f6;vertical-align:middle;border-radius:2px;"></span>&nbsp;&nbsp;Medium&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:8px;height:8px;background:#10b981;vertical-align:middle;border-radius:2px;"></span>&nbsp;&nbsp;Low</div>
             </div>
-            <div style="grid-column:2;grid-row:2;">${projStackHtml}</div>
-            <div style="grid-column:2;grid-row:3;">${suiteRingsHtml}</div>
+            <div style="grid-column:2;">${projStackHtml}</div>
         </div>`;
 
     lucide.createIcons();
