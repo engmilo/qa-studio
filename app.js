@@ -745,35 +745,6 @@ function renderDashboard() {
     genHtml += '</div>';
 
     // ── Status bars ──
-    let statHtml = '';
-    if (total > 0) {
-        const maxStat = Math.max(pass, fail, blocked, untested, 1);
-        const rows = [
-            { label: t('dashPass'), count: pass, color: '#10b981' },
-            { label: t('dashFail'), count: fail, color: '#dc2626' },
-            { label: t('dashBlocked'), count: blocked, color: '#f97316' },
-            { label: t('dashUntested'), count: untested, color: '#6b7280' },
-        ];
-        const title = total > 0 ? t('dashSession') + ' (' + total + ' ' + t('dashTotal').toLowerCase() + ')' : t('dashSession');
-        statHtml = '<div class="chart-container"><div class="chart-title">' + title + '</div>';
-        rows.forEach(r => {
-            const pct = Math.round((r.count / maxStat) * 100);
-            statHtml += '<div class="h-bar-row"><span class="h-bar-label" style="width:60px">' + r.label + '</span><div class="h-bar-track"><div class="h-bar-fill" style="width:' + pct + '%;background:' + r.color + '"></div></div><span class="h-bar-count" style="color:' + r.color + '">' + r.count + '</span></div>';
-        });
-        statHtml += '</div>';
-    }
-
-    let bottomHtml;
-    if (genHtml && statHtml) {
-        bottomHtml = '<div class="chart-grid">' + genHtml + statHtml + '</div>';
-    } else if (genHtml) {
-        bottomHtml = genHtml;
-    } else if (statHtml) {
-        bottomHtml = statHtml;
-    } else {
-        bottomHtml = '<div class="chart-container"><div class="empty-state" style="padding:24px;">' + t('dashEmpty') + '</div></div>';
-    }
-
     // ── Status column chart ──
     let statusColHtml = '';
     if (total > 0) {
@@ -809,7 +780,7 @@ function renderDashboard() {
                 ${priorityChart}
             </div>
         </div>
-        ${bottomHtml}
+        ${genHtml}
         ${statusColHtml}`;
     }
 
