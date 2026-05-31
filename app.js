@@ -1997,5 +1997,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v80";
+    if (el) el.textContent = "v81";
 }
