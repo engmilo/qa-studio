@@ -627,6 +627,7 @@ const testInput   = document.getElementById("testInput");
 const charCounter = document.getElementById("charCounter");
 let latestTestCases = [];
 let comparisonPeriod = "thisWeek";
+let projectFilter = "";
 
 function updateGenerateBtn() {
     generateBtn.disabled = !testInput.value.trim();
@@ -718,7 +719,9 @@ document.getElementById("exportWord").addEventListener("click", () => {
 // ============================================================
 function renderDashboard() {
     const allProjectTests = state.projects.reduce((arr, p) => arr.concat(p.testCases), []);
-    const allTests = allProjectTests.concat(latestTestCases);
+    const filteredProjects = state.projects.filter(p => !projectFilter || p.name === projectFilter);
+    const filteredTests = filteredProjects.reduce((arr, p) => arr.concat(p.testCases), []);
+    const allTests = projectFilter ? filteredTests : filteredTests.concat(latestTestCases);
     const total = allTests.length;
     const pass = allTests.filter(tc => tc.status === "pass").length;
     const fail = allTests.filter(tc => tc.status === "fail").length;
@@ -913,7 +916,8 @@ function renderDashboard() {
 
     // ── Project filter ──
     document.getElementById("entProjFilter").addEventListener("change", function() {
-        // no-op for now — reserved for future filtering
+        projectFilter = this.value;
+        renderDashboard();
     });
 }
 
