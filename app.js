@@ -809,7 +809,7 @@ function renderDashboard() {
     statusCols.forEach(c => {
         statusColHtml += '<div style="width:52px;display:flex;align-items:center;justify-content:flex-start;gap:3px;">';
         statusColHtml += '<span style="display:inline-block;width:6px;height:6px;background:' + c.color + ';border-radius:1px;flex-shrink:0;"></span>';
-        statusColHtml += '<span style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);white-space:nowrap;">' + c.label + '</span>';
+        statusColHtml += '<span style="font-size:9px;color:var(--text-muted);white-space:nowrap;">' + c.label + '</span>';
         statusColHtml += '</div>';
     });
     statusColHtml += '</div></div></div></div>';
@@ -2019,5 +2019,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v107";
+    if (el) el.textContent = "v108";
 }
