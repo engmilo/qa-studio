@@ -44,6 +44,14 @@ const i18n = {
         priorityDistribution: "Priority Distribution",
         projectBars: "Daily Generation",
         statusColChart: "Status vs Test Cases",
+        dailyTrend: "Daily Trend",
+        entTitle: "QA Test Case Tracker",
+        entTotal: "Total Test Cases",
+        entRecent: "Recent Test Cases",
+        entAllProjects: "All Projects",
+        sideDefectDensity: "Defect Density",
+        sideAutoCoverage: "Automation Coverage",
+        sideOfTotal: "of total executed",
 
         searchHistory: "Search history…",
         searchProjects: "Search projects…",
@@ -112,6 +120,14 @@ const i18n = {
         priorityDistribution: "Prioriteettijakauma",
         projectBars: "Päivittäinen generointi",
         statusColChart: "Tila vs Testitapaukset",
+        dailyTrend: "Päivittäinen trendi",
+        entTitle: "QA Testitapausten seuranta",
+        entTotal: "Testitapauksia yhteensä",
+        entRecent: "Viimeisimmät testitapaukset",
+        entAllProjects: "Kaikki projektit",
+        sideDefectDensity: "Vikatiheys",
+        sideAutoCoverage: "Automaatiokattavuus",
+        sideOfTotal: "suoritetuista",
 
         searchHistory: "Hae historiasta…",
         searchProjects: "Hae projekteista…",
@@ -709,14 +725,14 @@ function renderDashboard() {
         return;
     }
 
-    const statusChart = renderPieChart([pass, fail, blocked, untested], ['#10b981', '#dc2626', '#f97316', '#6b7280']);
+    // ── Priority pie ──
     const priorityCounts = {};
     allTests.forEach(tc => { if(tc.priority) priorityCounts[tc.priority] = (priorityCounts[tc.priority]||0)+1; });
     const priorityData = ["Critical","High","Medium","Low","Trivial"].map(p => priorityCounts[p] || 0);
     const pColors = ["#dc2626","#f97316","#3b82f6","#10b981","#6b7280"];
     const priorityChart = renderPieChart(priorityData, pColors);
 
-    // ── Daily Generation bars ──
+    // ── 7-day data ──
     const today = new Date();
     const dayData = [];
     let maxDay = 0;
@@ -730,59 +746,123 @@ function renderDashboard() {
         dayData.push({ label, count });
     }
 
-    let genHtml = '<div class="chart-container"><div class="chart-title">' + t('projectBars') + '</div>';
-    if (maxDay > 0) {
-        const maxH = 56;
-        genHtml += '<div class="day-chart">';
-        dayData.forEach(d => {
-            const h = Math.round((d.count / maxDay) * maxH);
-            genHtml += '<div class="day-col"><div class="day-bar" style="height:' + Math.max(h, 2) + 'px"></div><span class="day-lbl">' + d.label + '</span><span class="day-val">' + d.count + '</span></div>';
-        });
-        genHtml += '</div>';
-    } else {
-        genHtml += '<div class="empty-state" style="padding:12px;">' + t('dashEmpty') + '</div>';
+    // ── Trend vs yesterday ──
+    const yesterdayStr = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+    const todayStr = today.toISOString().slice(0, 10);
+    const yesterdayCount = state.history.filter(h => h.date === yesterdayStr).reduce((s, h) => s + h.count, 0);
+    const todayCount = state.history.filter(h => h.date === todayStr).reduce((s, h) => s + h.count, 0);
+    let dailyTrendHtml = '';
+    if (yesterdayCount > 0) {
+        const pct = Math.round(((todayCount - yesterdayCount) / yesterdayCount) * 100);
+        if (pct !== 0) {
+            const arrow = pct > 0 ? '↑' : '↓';
+            dailyTrendHtml = `<span class="ent-badge ${pct > 0 ? 'up' : 'down'}">${arrow}${Math.abs(pct)}%</span>`;
+        }
     }
-    genHtml += '</div>';
 
-    // ── Status bars ──
     // ── Status column chart ──
-    let statusColHtml = '';
-    if (total > 0) {
-        const maxStat = Math.max(pass, fail, blocked, untested, 1);
-        const cols = [
-            { label: t('dashPass'), count: pass, color: '#10b981' },
-            { label: t('dashFail'), count: fail, color: '#dc2626' },
-            { label: t('dashBlocked'), count: blocked, color: '#f97316' },
-            { label: t('dashUntested'), count: untested, color: '#6b7280' },
-        ];
-        const maxH = 56;
-        statusColHtml = '<div class="chart-container"><div class="chart-title">' + t('statusColChart') + ' (' + total + ' ' + t('dashTotal').toLowerCase() + ')</div>';
-        statusColHtml += '<div class="day-chart">';
-        cols.forEach(c => {
-            const h = Math.round((c.count / maxStat) * maxH);
-            statusColHtml += '<div class="day-col"><div class="day-bar" style="height:' + Math.max(h, 2) + 'px;background:' + c.color + '"></div><span class="day-lbl">' + c.label + '</span><span class="day-val" style="color:' + c.color + '">' + c.count + '</span></div>';
-        });
-        statusColHtml += '</div></div>';
-    }
+    const maxStat = Math.max(pass, fail, blocked, untested, 1);
+    const statusCols = [
+        { label: t('dashPass'), count: pass, color: '#10b981' },
+        { label: t('dashFail'), count: fail, color: '#dc2626' },
+        { label: t('dashBlocked'), count: blocked, color: '#f97316' },
+        { label: t('dashUntested'), count: untested, color: '#6b7280' },
+    ];
+    const barH = 56;
+    let statusColHtml = '<div class="ent-col"><div class="ent-chart-h">' + t('statusColChart') + '</div><div class="ent-bar-group">';
+    statusCols.forEach(c => {
+        const h = Math.round((c.count / maxStat) * barH);
+        statusColHtml += '<div class="ent-bar-c"><div class="ent-bar" style="height:' + Math.max(h, 2) + 'px;background:' + c.color + '"></div><span class="ent-bar-l">' + c.label + '</span><span class="ent-bar-v">' + c.count + '</span></div>';
+    });
+    statusColHtml += '</div></div>';
 
-    document.getElementById("dashContent").innerHTML = `
-        <div class="dash-card" style="margin-bottom:10px;display:flex;align-items:center;gap:10px;padding:8px 12px;">
-            <div style="font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${state.usageTotal}</div>
-            <div style="color:var(--text-muted);font-size:13px;font-weight:500;">${t("dashTotalAll")}</div>
-        </div>
-        <div class="chart-grid">
-            <div class="chart-container">
-                <div class="chart-title">${t("statusDistribution")}</div>
-                ${statusChart}
-            </div>
-            <div class="chart-container">
-                <div class="chart-title">${t("priorityDistribution")}</div>
-                ${priorityChart}
-            </div>
-        </div>
-        ${genHtml}
-        ${statusColHtml}`;
+    // ── SVG line chart ──
+    const W = 200, H = 40;
+    const pts = dayData.map((d, i) => ({
+        x: (i / 6) * W,
+        y: H - (maxDay > 0 ? (d.count / maxDay) * (H - 4) : 0) - 2
+    }));
+    const linePts = pts.map(p => `${p.x},${p.y}`).join(' ');
+    const fillPts = linePts + ` ${W},${H} 0,${H}`;
+    const dayTotal = dayData.reduce((s, d) => s + d.count, 0);
+
+    let lineHtml = '<div class="ent-col"><div class="ent-chart-h">' + t('dailyTrend') + ' <span class="ent-total">' + dayTotal + '</span></div>';
+    lineHtml += '<div class="ent-line"><svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity="0.2"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0.02"/></linearGradient></defs><polygon points="' + fillPts + '" fill="url(#lg)"/><polyline points="' + linePts + '" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+    lineHtml += '<div class="ent-line-l">';
+    dayData.forEach(d => { lineHtml += '<span>' + d.label + '</span>'; });
+    lineHtml += '</div></div>';
+
+    // ── Summary cards ──
+    const cards = [
+        { label: t('entTotal'), count: total, color: 'var(--primary)', trend: dailyTrendHtml, icon: 'file-text' },
+        { label: t('dashPass'), count: pass, color: '#10b981', icon: 'check-circle' },
+        { label: t('dashFail'), count: fail, color: '#dc2626', icon: 'x-circle' },
+        { label: t('dashBlocked'), count: blocked, color: '#f97316', icon: 'alert-triangle' },
+        { label: t('dashUntested'), count: untested, color: '#6b7280', icon: 'clock' },
+    ];
+    let cardHtml = '<div class="ent-cards">';
+    cards.forEach(c => {
+        cardHtml += '<div class="ent-card"><div class="ent-card-i"><i data-lucide="' + c.icon + '" style="width:16px;height:16px;color:' + c.color + '"></i></div><div class="ent-card-b"><div class="ent-card-v" style="color:' + c.color + '">' + c.count + '</div><div class="ent-card-l">' + c.label + '</div>' + (c.trend || '') + '</div></div>';
+    });
+    cardHtml += '</div>';
+
+    // ── Recent tests table ──
+    const recent = latestTestCases.slice(-12).reverse();
+    let tableHtml = '<div class="ent-col"><div class="ent-chart-h">' + t('entRecent') + '</div>';
+    if (recent.length > 0) {
+        tableHtml += '<div class="ent-table-wrap"><table class="ent-table"><thead><tr><th>' + t('colId') + '</th><th>' + t('colTitle') + '</th><th>' + t('colStatus') + '</th><th>' + t('colPriority') + '</th></tr></thead><tbody>';
+        recent.forEach(tc => {
+            const sc = tc.status || 'untested';
+            const scMap = { pass: '#10b981', fail: '#dc2626', blocked: '#f97316', untested: '#6b7280' };
+            const pcMap = { Critical: '#dc2626', High: '#f97316', Medium: '#3b82f6', Low: '#10b981', Trivial: '#6b7280' };
+            tableHtml += '<tr><td class="ent-id">' + tc.id + '</td><td>' + tc.title + '</td><td><span class="ent-sc" style="background:' + (scMap[sc] || '#6b7280') + '">' + (tc.status || t('dashUntested')) + '</span></td><td><span class="ent-pc" style="color:' + (pcMap[tc.priority] || '#6b7280') + '">' + (tc.priority || '—') + '</span></td></tr>';
+        });
+        tableHtml += '</tbody></table></div>';
+    } else {
+        tableHtml += '<div class="empty-state" style="padding:20px;">' + t('dashEmpty') + '</div>';
     }
+    tableHtml += '</div>';
+
+    // ── Assemble ──
+    document.getElementById("dashContent").innerHTML = `
+        <div class="ent-header">
+            <div class="ent-title">${t('entTitle')}</div>
+            <div class="ent-filters">
+                <select id="entProjFilter" class="ent-select">
+                    <option value="">${t('entAllProjects')}</option>
+                    ${state.projects.map(p => '<option value="' + p.name + '">' + p.name + '</option>').join('')}
+                </select>
+            </div>
+        </div>
+        ${cardHtml}
+        <div class="ent-row">
+            ${statusColHtml}
+            <div class="ent-col">
+                <div class="ent-chart-h">${t("priorityDistribution")}</div>
+                <div class="ent-pie-wrap">${priorityChart}</div>
+            </div>
+        </div>
+        <div class="ent-row">
+            ${lineHtml}
+        </div>
+        ${tableHtml}`;
+
+    lucide.createIcons();
+    renderSidebarWidgets(total, pass, fail, blocked, untested);
+
+    // ── Project filter ──
+    document.getElementById("entProjFilter").addEventListener("change", function() {
+        // no-op for now — reserved for future filtering
+    });
+}
+
+function renderSidebarWidgets(total, pass, fail, blocked, untested) {
+    const executed = pass + fail + blocked;
+    const density = executed > 0 ? Math.round((fail / executed) * 100) : 0;
+    const el = document.getElementById("sideWidgets");
+    if (!el) return;
+    el.innerHTML = '<div class="side-widget"><div class="side-widget-h">' + t('sideDefectDensity') + '</div><div class="side-widget-v">' + density + '%</div><div class="side-widget-s">' + fail + '/' + executed + ' ' + t('sideOfTotal') + '</div></div><div class="side-widget"><div class="side-widget-h">' + t('sideAutoCoverage') + '</div><div class="side-widget-v">N/A</div><div class="side-widget-s">' + t('sideOfTotal') + ': ' + total + '</div></div>';
+}
 
 // ============================================================
 // HISTORY
