@@ -1224,10 +1224,10 @@ function loadApiConfig() {
     const btn = document.getElementById("saveApiConfig");
     btn.disabled = true;
     btn._initial = JSON.stringify({
-        url: config.url || "",
-        model: config.model || "claude-sonnet-4-20250514",
-        tokens: config.tokens || 4096,
-        apiKey: ""
+        url: document.getElementById("apiUrlInput").value,
+        model: document.getElementById("apiModelInput").value,
+        tokens: document.getElementById("apiTokensInput").value,
+        apiKey: document.getElementById("apiKeyInput").value
     });
 }
 
