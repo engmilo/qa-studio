@@ -854,10 +854,32 @@ function renderDashboard() {
     dayData.forEach(d => { lineHtml += '<span>' + d.label + '</span>'; });
     lineHtml += '</div></div>';
 
-    // ── Summary card (total only) ──
+    // ── Summary cards ──
+    const cards = [
+        { label: t('entTotal'), count: total, color: 'var(--primary)', trend: dailyTrendHtml, icon: 'file-text' },
+        { label: t('dashPass'), count: pass, color: '#10b981', icon: 'check-circle' },
+        { label: t('dashFail'), count: fail, color: '#dc2626', icon: 'x-circle' },
+        { label: t('dashBlocked'), count: blocked, color: '#f97316', icon: 'alert-triangle' },
+        { label: t('dashUntested'), count: untested, color: '#6b7280', icon: 'clock' },
+    ];
     let cardHtml = '<div class="ent-cards">';
-    cardHtml += '<div class="ent-card"><div class="ent-card-i"><i data-lucide="file-text" style="width:16px;height:16px;color:var(--primary)"></i></div><div class="ent-card-b"><div class="ent-card-v" style="color:var(--primary)">' + total + '</div><div class="ent-card-l">' + t('entTotal') + '</div>' + dailyTrendHtml + '</div></div>';
+    cards.forEach(c => {
+        cardHtml += '<div class="ent-card"><div class="ent-card-i"><i data-lucide="' + c.icon + '" style="width:16px;height:16px;color:' + c.color + '"></i></div><div class="ent-card-b"><div class="ent-card-v" style="color:' + c.color + '">' + c.count + '</div><div class="ent-card-l">' + c.label + '</div>' + (c.trend || '') + '</div></div>';
+    });
     cardHtml += '</div>';
+
+    // ── Comparison cards ──
+    const compCards = [
+        { label: t('dashPass'), count: pass, color: '#10b981' },
+        { label: t('dashFail'), count: fail, color: '#dc2626' },
+        { label: t('dashBlocked'), count: blocked, color: '#f97316' },
+        { label: t('dashUntested'), count: untested, color: '#6b7280' },
+    ];
+    let compHtml = '<div class="comp-row">';
+    compCards.forEach(c => {
+        compHtml += '<div class="comp-card"><div class="comp-val" style="color:' + c.color + '">' + c.count + '</div><div class="comp-lbl">' + c.label + '</div>' + genBadge + '</div>';
+    });
+    compHtml += '</div>';
 
     // ── Assemble ──
     const activeToggle = comparisonPeriod === "thisWeek" ? "thisWeek" : "lastWeek";
@@ -876,6 +898,7 @@ function renderDashboard() {
             </div>
         </div>
         ${cardHtml}
+        ${compHtml}
         <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:10px;margin-bottom:10px;">
             <div style="grid-row:1/3;grid-column:1;display:flex;">
                 ${statusColHtml}
