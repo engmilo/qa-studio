@@ -864,7 +864,7 @@ function renderDashboard() {
             <div class="ent-col" style="grid-row:1;grid-column:2;">
                 <div class="ent-chart-h">${t("priorityDistribution")}</div>
                 <div class="ent-pie-wrap">${priorityChart}</div>
-                <div class="ent-pie-legend" style="text-align:center;font-size:9px;color:var(--text-muted);margin-top:4px;"><span style="display:inline-block;width:6px;height:6px;background:#dc2626;border-radius:50%;vertical-align:middle;"></span>=Critical&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:6px;height:6px;background:#f97316;border-radius:50%;vertical-align:middle;"></span>=High&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:6px;height:6px;background:#3b82f6;border-radius:50%;vertical-align:middle;"></span>=Medium&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:6px;height:6px;background:#10b981;border-radius:50%;vertical-align:middle;"></span>=Low</div>
+                <div class="ent-pie-legend" style="text-align:center;font-size:9px;color:var(--text-muted);margin-top:4px;"><span style="display:inline-block;width:6px;height:6px;background:#dc2626;vertical-align:middle;"></span>=Critical&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:6px;height:6px;background:#f97316;vertical-align:middle;"></span>=High&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:6px;height:6px;background:#3b82f6;vertical-align:middle;"></span>=Medium&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:6px;height:6px;background:#10b981;vertical-align:middle;"></span>=Low</div>
             </div>
             <div style="grid-row:2;grid-column:2;">${lineHtml}</div>
         </div>`;
