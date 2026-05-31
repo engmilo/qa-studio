@@ -1437,7 +1437,7 @@ function renderPieChart(data, colors) {
         const offset = circ * (1 - cumPct);
         const dash = circ * pct;
         segments += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${colors[i]}" stroke-width="16" stroke-dasharray="${dash} ${circ - dash}" stroke-dashoffset="${offset}" transform="rotate(-90 ${cx} ${cy})" />`;
-        legendHtml += `<span style="display:inline-flex;align-items:center;gap:3px;font-size:9px;color:var(--text-muted);white-space:nowrap;"><span style="display:inline-block;width:7px;height:7px;background:${colors[i]};border-radius:2px;flex-shrink:0;"></span>${value} (${Math.round(pct * 100)}%)</span>`;
+        legendHtml += `<span style="display:inline-flex;align-items:center;gap:5px;font-size:9px;color:var(--text-muted);white-space:nowrap;"><span style="display:inline-block;width:7px;height:7px;background:${colors[i]};border-radius:2px;flex-shrink:0;"></span>${value} (${Math.round(pct * 100)}%)</span>`;
         cumPct += pct;
     });
 
