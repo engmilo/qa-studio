@@ -795,7 +795,7 @@ function renderDashboard() {
         statusColHtml += '<div style="position:absolute;left:2px;right:0;bottom:' + px + 'px;border-top:1px dashed var(--border);opacity:0.4;pointer-events:none;"></div>';
     }
     // Bars
-    statusColHtml += '<div style="position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:flex-start;align-items:flex-end;gap:6px;height:' + barMaxH + 'px;padding-left:10px;">';
+    statusColHtml += '<div style="position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:flex-start;align-items:flex-end;gap:6px;height:' + barMaxH + 'px;padding-left:40px;">';
     statusCols.forEach(c => {
         const h = yMax > 0 ? Math.round((c.count / yMax) * barMaxH) : 0;
         statusColHtml += '<div style="width:52px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">';
@@ -805,7 +805,7 @@ function renderDashboard() {
     });
     statusColHtml += '</div></div>'; // end bars area
     // Labels row
-    statusColHtml += '<div style="display:flex;justify-content:flex-start;gap:6px;padding-left:10px;">';
+    statusColHtml += '<div style="display:flex;justify-content:flex-start;gap:6px;padding-left:40px;">';
     statusCols.forEach(c => {
         statusColHtml += '<div style="width:52px;display:flex;align-items:center;justify-content:flex-start;gap:3px;">';
         statusColHtml += '<span style="display:inline-block;width:6px;height:6px;background:' + c.color + ';border-radius:1px;flex-shrink:0;"></span>';
@@ -857,7 +857,7 @@ function renderDashboard() {
             </div>
         </div>
         ${cardHtml}
-        <div style="display:grid;grid-template-columns:2fr 1fr;grid-template-rows:auto auto;gap:10px;margin-bottom:10px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:10px;margin-bottom:10px;">
             <div style="grid-row:1/3;grid-column:1;display:flex;">
                 ${statusColHtml}
             </div>
@@ -2019,5 +2019,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v104";
+    if (el) el.textContent = "v105";
 }
