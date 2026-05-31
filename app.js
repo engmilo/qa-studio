@@ -938,12 +938,14 @@ function renderDashboard() {
                 ${statusColHtml}
                 ${lineHtml}
             </div>
-            <div class="ent-col" style="grid-column:2;">
-                <div class="ent-chart-h">${t("priorityDistribution")}</div>
-                <div class="ent-pie-wrap">${priorityChart}</div>
+            <div style="grid-column:2;display:flex;flex-direction:column;gap:6px;">
+                <div class="ent-col">
+                    <div class="ent-chart-h">${t("priorityDistribution")}</div>
+                    <div class="ent-pie-wrap">${priorityChart}</div>
+                </div>
+                ${projStackHtml}
+                ${flakinessHtml}
             </div>
-            <div style="grid-column:2;">${projStackHtml}</div>
-            <div style="grid-column:2;">${flakinessHtml}</div>
         </div>`;
 
     lucide.createIcons();
