@@ -42,6 +42,7 @@ const i18n = {
         demo: "Demo",
         statusDistribution: "Status Distribution",
         priorityDistribution: "Priority Distribution",
+        projectBars: "Tests per Project",
 
         searchHistory: "Search history…",
         searchProjects: "Search projects…",
@@ -108,6 +109,7 @@ const i18n = {
         demo: "Demo",
         statusDistribution: "Tilajakauma",
         priorityDistribution: "Prioriteettijakauma",
+        projectBars: "Testit projektittain",
 
         searchHistory: "Hae historiasta…",
         searchProjects: "Hae projekteista…",
@@ -711,7 +713,47 @@ function renderDashboard() {
     const priorityData = ["Critical","High","Medium","Low","Trivial"].map(p => priorityCounts[p] || 0);
     const pColors = ["#dc2626","#f97316","#3b82f6","#10b981","#6b7280"];
     const priorityChart = renderPieChart(priorityData, pColors);
-    document.getElementById("dashContent").innerHTML = `
+        const projBars = state.projects
+            .map(p => ({ name: p.name, count: (p.testCases||[]).length }))
+            .filter(b => b.count > 0)
+            .sort((a, b) => b.count - a.count);
+        const maxProj = projBars.length > 0 ? projBars[0].count : 1;
+
+        let projHtml = '';
+        if (projBars.length > 0) {
+            projHtml += '<div class="chart-container"><div class="chart-title">' + t('projectBars') + '</div>';
+            projBars.forEach(b => {
+                const pct = Math.round((b.count / maxProj) * 100);
+                projHtml += '<div class="h-bar-row"><span class="h-bar-label">' + b.name + '</span><div class="h-bar-track"><div class="h-bar-fill" style="width:' + pct + '%"></div></div><span class="h-bar-count">' + b.count + '</span></div>';
+            });
+            projHtml += '</div>';
+        }
+
+        let statHtml = '';
+        if (total > 0) {
+            const maxStat = Math.max(pass, fail, blocked, untested, 1);
+            const rows = [
+                { label: t('dashPass'), count: pass, color: '#10b981' },
+                { label: t('dashFail'), count: fail, color: '#dc2626' },
+                { label: t('dashBlocked'), count: blocked, color: '#f97316' },
+                { label: t('dashUntested'), count: untested, color: '#6b7280' },
+            ];
+            const title = total > 0 ? t('dashSession') + ' (' + total + ' ' + t('dashTotal').toLowerCase() + ')' : t('dashSession');
+            statHtml = '<div class="chart-container"><div class="chart-title">' + title + '</div>';
+            rows.forEach(r => {
+                const pct = Math.round((r.count / maxStat) * 100);
+                statHtml += '<div class="h-bar-row"><span class="h-bar-label" style="width:60px">' + r.label + '</span><div class="h-bar-track"><div class="h-bar-fill" style="width:' + pct + '%;background:' + r.color + '"></div></div><span class="h-bar-count" style="color:' + r.color + '">' + r.count + '</span></div>';
+            });
+            statHtml += '</div>';
+        }
+
+        let bottomHtml = '<div style="display:flex;gap:10px;">';
+        if (projHtml) bottomHtml += '<div style="flex:1;min-width:0">' + projHtml + '</div>';
+        if (statHtml) bottomHtml += '<div style="flex:1;min-width:0">' + statHtml + '</div>';
+        if (!projHtml && !statHtml) bottomHtml += '<div class="chart-container" style="flex:1"><div class="empty-state" style="padding:24px;">' + t('dashEmpty') + '</div></div>';
+        bottomHtml += '</div>';
+
+        document.getElementById("dashContent").innerHTML = `
         <div class="dash-card" style="margin-bottom:10px;display:flex;align-items:center;gap:10px;padding:8px 12px;">
             <div style="font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${state.usageTotal}</div>
             <div style="color:var(--text-muted);font-size:13px;font-weight:500;">${t("dashTotalAll")}</div>
@@ -726,18 +768,8 @@ function renderDashboard() {
                 ${priorityChart}
             </div>
         </div>
-        <div class="chart-container">
-            <div class="chart-title">${t("dashSession")} ${total>0?`(${total} ${t("dashTotal").toLowerCase()})`:""}</div>
-            ${total > 0 ? `
-            <div class="dash-grid">
-                <div class="dash-card"><div class="dash-value">${total}</div><div class="dash-label">${t("dashTotal")}</div></div>
-                <div class="dash-card"><div class="dash-value" style="color:#10b981">${pass}</div><div class="dash-label"><span class="dash-dot" style="background:#10b981"></span>${t("dashPass")}</div></div>
-                <div class="dash-card"><div class="dash-value" style="color:#dc2626">${fail}</div><div class="dash-label"><span class="dash-dot" style="background:#dc2626"></span>${t("dashFail")}</div></div>
-                <div class="dash-card"><div class="dash-value" style="color:#f97316">${blocked}</div><div class="dash-label"><span class="dash-dot" style="background:#f97316"></span>${t("dashBlocked")}</div></div>
-                <div class="dash-card"><div class="dash-value" style="color:var(--text-muted)">${untested}</div><div class="dash-label"><span class="dash-dot" style="background:var(--border)"></span>${t("dashUntested")}</div></div>
-            </div>` : `<div class="empty-state" style="padding:24px;">${t("dashEmpty")}</div>`}
-        </div>`;
-}
+        ${bottomHtml}`;
+    }
 
 // ============================================================
 // HISTORY
