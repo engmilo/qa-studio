@@ -2102,7 +2102,6 @@ try {
     updateUsageCounter();
     renderDashboard();
     toggleActionBtns();
-    showVersionTag();
 } catch (e) { console.warn("QA Studio init error:", e); }
 window.addEventListener("pageshow", () => {
     try { lucide.createIcons(); } catch (e) { console.warn("QA Studio:", e); }
@@ -2124,9 +2123,4 @@ if ("serviceWorker" in navigator) {
         showToast("Update applied! Reloading…", "info", 3000);
         setTimeout(() => location.reload(), 2000);
     });
-}
-
-function showVersionTag() {
-    const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v117";
 }
