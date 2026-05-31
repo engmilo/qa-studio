@@ -785,7 +785,7 @@ function renderDashboard() {
         const val = Math.round((yMax / yTicks) * i);
         const y = MT + CH - (val / yMax) * CH;
         statusSvg += '<line x1="' + (ML - 3) + '" y1="' + y + '" x2="' + ML + '" y2="' + y + '" stroke="var(--border)" stroke-width="1"/>';
-        statusSvg += '<text x="' + (ML - 5) + '" y="' + (y + 3) + '" text-anchor="end" fill="var(--text-muted)" font-size="7">' + val + '</text>';
+        statusSvg += '<text x="' + (ML - 5) + '" y="' + (y + 3) + '" text-anchor="end" fill="var(--text-muted)" font-size="6">' + val + '</text>';
         if (i > 0 && i < yTicks) {
             statusSvg += '<line x1="' + ML + '" y1="' + y + '" x2="' + (SW - MR) + '" y2="' + y + '" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="2,2"/>';
         }
@@ -795,8 +795,10 @@ function renderDashboard() {
         const x = ML + i * gap + (gap - barW) / 2;
         const y = MT + CH - Math.max(barH, 2);
         statusSvg += '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="' + Math.max(barH, 2) + '" fill="' + c.color + '" rx="2"/>';
-        statusSvg += '<text x="' + (x + barW / 2) + '" y="' + (y - 3) + '" text-anchor="middle" fill="var(--text)" font-size="8" font-weight="700">' + c.count + '</text>';
-        statusSvg += '<text x="' + (x + barW / 2) + '" y="' + (MT + CH + 14) + '" text-anchor="middle" fill="var(--text-muted)" font-size="7">' + c.label + '</text>';
+        statusSvg += '<text x="' + (x + barW / 2) + '" y="' + (y - 3) + '" text-anchor="middle" fill="var(--text)" font-size="7" font-weight="700">' + c.count + '</text>';
+        const cx = x + barW / 2;
+        statusSvg += '<rect x="' + (cx - 12) + '" y="' + (MT + CH + 9) + '" width="5" height="5" fill="' + c.color + '" rx="1"/>';
+        statusSvg += '<text x="' + (cx - 5) + '" y="' + (MT + CH + 14) + '" text-anchor="start" fill="var(--text-muted)" font-size="6">' + c.label + '</text>';
     });
     statusSvg += '</svg>';
 
@@ -2019,5 +2021,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v84";
+    if (el) el.textContent = "v85";
 }
