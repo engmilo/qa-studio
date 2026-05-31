@@ -933,7 +933,7 @@ function renderDashboard() {
             </div>
         </div>
         ${cardHtml}
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;align-items:start;">
             <div style="grid-column:1;display:flex;flex-direction:column;gap:6px;">
                 ${statusColHtml}
                 ${lineHtml}
