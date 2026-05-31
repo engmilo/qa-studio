@@ -800,7 +800,7 @@ function renderDashboard() {
         const h = yMax > 0 ? Math.round((c.count / yMax) * barMaxH) : 0;
         statusColHtml += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">';
         statusColHtml += '<span style="font-size:9px;font-weight:600;color:var(--text);line-height:1.2;">' + c.count + '</span>';
-        statusColHtml += '<div style="width:40%;min-width:8px;height:' + Math.max(h, 2) + 'px;background:' + c.color + ';border-radius:3px 3px 0 0;min-height:2px;"></div>';
+        statusColHtml += '<div style="width:25%;min-width:6px;height:' + Math.max(h, 2) + 'px;background:' + c.color + ';border-radius:3px 3px 0 0;min-height:2px;"></div>';
         statusColHtml += '</div>';
     });
     statusColHtml += '</div></div>'; // end bars area
@@ -2031,5 +2031,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v95";
+    if (el) el.textContent = "v96";
 }
