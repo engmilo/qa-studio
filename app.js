@@ -43,6 +43,7 @@ const i18n = {
         statusDistribution: "Status Distribution",
         priorityDistribution: "Priority Distribution",
         projectBars: "Daily Generation",
+        statusColChart: "Status vs Test Cases",
 
         searchHistory: "Search history…",
         searchProjects: "Search projects…",
@@ -110,6 +111,7 @@ const i18n = {
         statusDistribution: "Tilajakauma",
         priorityDistribution: "Prioriteettijakauma",
         projectBars: "Päivittäinen generointi",
+        statusColChart: "Tila vs Testitapaukset",
 
         searchHistory: "Hae historiasta…",
         searchProjects: "Hae projekteista…",
@@ -767,7 +769,27 @@ function renderDashboard() {
     if (!genHtml && !statHtml) bottomHtml += '<div class="chart-container" style="flex:1"><div class="empty-state" style="padding:24px;">' + t('dashEmpty') + '</div></div>';
     bottomHtml += '</div>';
 
-        document.getElementById("dashContent").innerHTML = `
+    // ── Status column chart ──
+    let statusColHtml = '';
+    if (total > 0) {
+        const maxStat = Math.max(pass, fail, blocked, untested, 1);
+        const cols = [
+            { label: t('dashPass'), count: pass, color: '#10b981' },
+            { label: t('dashFail'), count: fail, color: '#dc2626' },
+            { label: t('dashBlocked'), count: blocked, color: '#f97316' },
+            { label: t('dashUntested'), count: untested, color: '#6b7280' },
+        ];
+        const maxH = 56;
+        statusColHtml = '<div class="chart-container"><div class="chart-title">' + t('statusColChart') + ' (' + total + ' ' + t('dashTotal').toLowerCase() + ')</div>';
+        statusColHtml += '<div class="day-chart">';
+        cols.forEach(c => {
+            const h = Math.round((c.count / maxStat) * maxH);
+            statusColHtml += '<div class="day-col"><div class="day-bar" style="height:' + Math.max(h, 2) + 'px;background:' + c.color + '"></div><span class="day-lbl">' + c.label + '</span><span class="day-val" style="color:' + c.color + '">' + c.count + '</span></div>';
+        });
+        statusColHtml += '</div></div>';
+    }
+
+    document.getElementById("dashContent").innerHTML = `
         <div class="dash-card" style="margin-bottom:10px;display:flex;align-items:center;gap:10px;padding:8px 12px;">
             <div style="font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${state.usageTotal}</div>
             <div style="color:var(--text-muted);font-size:13px;font-weight:500;">${t("dashTotalAll")}</div>
@@ -782,7 +804,8 @@ function renderDashboard() {
                 ${priorityChart}
             </div>
         </div>
-        ${bottomHtml}`;
+        ${bottomHtml}
+        ${statusColHtml}`;
     }
 
 // ============================================================
