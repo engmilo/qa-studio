@@ -1,4 +1,4 @@
-const CACHE = "qa-studio-v108";
+const CACHE = "qa-studio-v110";
 const PRECACHE_URLS = [
   "/qa-studio/",
   "/qa-studio/index.html",
@@ -25,20 +25,7 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  const { request } = event;
-  if (request.mode === "navigate") {
-    event.respondWith(
-      fetch(request).catch(() => caches.match("/qa-studio/app.html"))
-    );
-    return;
-  }
   event.respondWith(
-    caches.match(request).then((cached) => cached || fetch(request).then((response) => {
-      if (response.ok && request.url.startsWith("http")) {
-        const clone = response.clone();
-        caches.open(CACHE).then((cache) => cache.put(request, clone));
-      }
-      return response;
-    }))
+    fetch(event.request).catch(() => caches.match(event.request))
   );
 });
