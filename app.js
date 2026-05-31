@@ -764,21 +764,43 @@ function renderDashboard() {
         }
     }
 
-    // ── Status column chart ──
-    const maxStat = Math.max(pass, fail, blocked, untested, 1);
+    // ── Status column chart (SVG with X/Y axes) ──
     const statusCols = [
         { label: t('dashPass'), count: pass, color: '#10b981' },
         { label: t('dashFail'), count: fail, color: '#dc2626' },
         { label: t('dashBlocked'), count: blocked, color: '#f97316' },
         { label: t('dashUntested'), count: untested, color: '#6b7280' },
     ];
-    const barH = 60;
-    let statusColHtml = '<div class="ent-col"><div class="ent-chart-h">' + t('statusColChart') + '</div><div class="ent-bar-group">';
-    statusCols.forEach(c => {
-        const h = Math.round((c.count / maxStat) * barH);
-        statusColHtml += '<div class="ent-bar-c"><div class="ent-bar" style="height:' + Math.max(h, 2) + 'px;background:' + c.color + '"></div><span class="ent-bar-l">' + c.label + '</span><span class="ent-bar-v">' + c.count + '</span></div>';
+    const maxStatVal = Math.max(...statusCols.map(c => c.count), 1);
+    const yMax = Math.max(Math.ceil(maxStatVal / 10) * 10, 10);
+    const yTicks = 5;
+    const SW = 240, SH = 150, ML = 30, MR = 8, MT = 14, MB = 24;
+    const CW = SW - ML - MR, CH = SH - MT - MB;
+    const barW = 24, gap = CW / statusCols.length;
+
+    let statusSvg = '<svg viewBox="0 0 ' + SW + ' ' + SH + '" xmlns="http://www.w3.org/2000/svg">';
+    statusSvg += '<line x1="' + ML + '" y1="' + MT + '" x2="' + ML + '" y2="' + (MT + CH) + '" stroke="var(--border)" stroke-width="1"/>';
+    statusSvg += '<line x1="' + ML + '" y1="' + (MT + CH) + '" x2="' + (SW - MR) + '" y2="' + (MT + CH) + '" stroke="var(--border)" stroke-width="1"/>';
+    for (let i = 0; i <= yTicks; i++) {
+        const val = Math.round((yMax / yTicks) * i);
+        const y = MT + CH - (val / yMax) * CH;
+        statusSvg += '<line x1="' + (ML - 3) + '" y1="' + y + '" x2="' + ML + '" y2="' + y + '" stroke="var(--border)" stroke-width="1"/>';
+        statusSvg += '<text x="' + (ML - 5) + '" y="' + (y + 3) + '" text-anchor="end" fill="var(--text-muted)" font-size="8">' + val + '</text>';
+        if (i > 0 && i < yTicks) {
+            statusSvg += '<line x1="' + ML + '" y1="' + y + '" x2="' + (SW - MR) + '" y2="' + y + '" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="2,2"/>';
+        }
+    }
+    statusCols.forEach((c, i) => {
+        const barH = maxStatVal > 0 ? Math.round((c.count / yMax) * CH) : 0;
+        const x = ML + i * gap + (gap - barW) / 2;
+        const y = MT + CH - Math.max(barH, 2);
+        statusSvg += '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="' + Math.max(barH, 2) + '" fill="' + c.color + '" rx="2"/>';
+        statusSvg += '<text x="' + (x + barW / 2) + '" y="' + (y - 3) + '" text-anchor="middle" fill="var(--text)" font-size="9" font-weight="700">' + c.count + '</text>';
+        statusSvg += '<text x="' + (x + barW / 2) + '" y="' + (MT + CH + 14) + '" text-anchor="middle" fill="var(--text-muted)" font-size="8">' + c.label + '</text>';
     });
-    statusColHtml += '</div></div>';
+    statusSvg += '</svg>';
+
+    let statusColHtml = '<div class="ent-col"><div class="ent-chart-h">' + t('statusColChart') + '</div><div style="display:flex;justify-content:center;">' + statusSvg + '</div></div>';
 
     // ── SVG line chart ──
     const W = 200, H = 40;
@@ -1997,5 +2019,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v82";
+    if (el) el.textContent = "v83";
 }
