@@ -763,11 +763,16 @@ function renderDashboard() {
         statHtml += '</div>';
     }
 
-    let bottomHtml = '<div style="display:flex;gap:10px;">';
-    if (genHtml) bottomHtml += '<div style="flex:1;min-width:0">' + genHtml + '</div>';
-    if (statHtml) bottomHtml += '<div style="flex:1;min-width:0">' + statHtml + '</div>';
-    if (!genHtml && !statHtml) bottomHtml += '<div class="chart-container" style="flex:1"><div class="empty-state" style="padding:24px;">' + t('dashEmpty') + '</div></div>';
-    bottomHtml += '</div>';
+    let bottomHtml;
+    if (genHtml && statHtml) {
+        bottomHtml = '<div class="chart-grid">' + genHtml + statHtml + '</div>';
+    } else if (genHtml) {
+        bottomHtml = genHtml;
+    } else if (statHtml) {
+        bottomHtml = statHtml;
+    } else {
+        bottomHtml = '<div class="chart-container"><div class="empty-state" style="padding:24px;">' + t('dashEmpty') + '</div></div>';
+    }
 
     // ── Status column chart ──
     let statusColHtml = '';
