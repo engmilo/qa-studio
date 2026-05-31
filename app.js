@@ -861,6 +861,7 @@ function renderDashboard() {
     const barColors = ["#10b981","#dc2626","#f97316","#6b7280"];
     const barKeys = ["pass","fail","blocked","untested"];
     let projStackHtml = '<div class="ent-col"><div class="ent-chart-h">' + t("projectBars") + '</div>';
+    projStackHtml += '<div style="display:flex;flex-direction:column;gap:5px;">';
     state.projects.forEach(p => {
         const tc = p.testCases || [];
         if (!tc.length) return;
@@ -872,7 +873,7 @@ function renderDashboard() {
         ];
         const totalP = counts.reduce((s, c) => s + c, 0);
         if (!totalP) return;
-        projStackHtml += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">';
+        projStackHtml += '<div style="display:flex;align-items:center;gap:6px;">';
         projStackHtml += '<span style="font-size:10px;color:var(--text-muted);min-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(p.name) + '</span>';
         projStackHtml += '<div style="flex:1;display:flex;height:14px;border-radius:4px;overflow:hidden;">';
         counts.forEach((c, i) => {
@@ -883,7 +884,7 @@ function renderDashboard() {
         projStackHtml += '</div>';
         projStackHtml += '</div>';
     });
-    projStackHtml += '</div>';
+    projStackHtml += '</div></div>';
 
     // ── Flakiness Score ──
     const executed = pass + fail + blocked;
@@ -903,6 +904,7 @@ function renderDashboard() {
 
     // ── Suite Completion Rings ──
     let suiteRingsHtml = '<div class="ent-col"><div class="ent-chart-h">Suite Completion Rings</div>';
+    suiteRingsHtml += '<div style="display:flex;flex-direction:column;gap:5px;">';
     state.projects.forEach(p => {
         const tc = p.testCases || [];
         if (!tc.length) return;
@@ -912,13 +914,13 @@ function renderDashboard() {
         const color = pct >= 80 ? '#10b981' : pct >= 50 ? '#f97316' : '#dc2626';
         const circ = 2 * Math.PI * 10;
         const dash = (pct / 100) * circ;
-        suiteRingsHtml += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">';
+        suiteRingsHtml += '<div style="display:flex;align-items:center;gap:8px;">';
         suiteRingsHtml += '<div style="flex-shrink:0;"><svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="10" fill="none" stroke="var(--border)" stroke-width="4"/><circle cx="14" cy="14" r="10" fill="none" stroke="' + color + '" stroke-width="4" stroke-dasharray="' + dash + ' ' + circ + '" stroke-dashoffset="0" transform="rotate(-90 14 14)"/></svg></div>';
         suiteRingsHtml += '<div style="flex:1;"><div style="font-size:10px;font-weight:500;">' + esc(p.name) + '</div><div style="font-size:9px;color:var(--text-muted);">' + passedP + '/' + totalP + ' passed</div></div>';
         suiteRingsHtml += '<span style="font-size:11px;font-weight:700;color:' + color + ';">' + pct + '%</span>';
         suiteRingsHtml += '</div>';
     });
-    suiteRingsHtml += '</div>';
+    suiteRingsHtml += '</div></div>';
 
     // ── Summary cards ──
     const cards = [
