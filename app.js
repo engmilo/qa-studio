@@ -774,35 +774,43 @@ function renderDashboard() {
     const maxStatVal = Math.max(...statusCols.map(c => c.count), 1);
     const yMax = Math.max(Math.ceil(maxStatVal / 10) * 10, 10);
     const yTicks = 5;
-    const barMaxH = 80;
+    const barMaxH = 70;
 
     let statusColHtml = '<div class="ent-col"><div class="ent-chart-h">' + t('statusColChart') + '</div>';
-    statusColHtml += '<div style="display:flex;gap:4px;height:' + (barMaxH + 30) + 'px;">';
+    statusColHtml += '<div style="display:flex;gap:4px;">';
     // Y-axis
-    statusColHtml += '<div style="display:flex;flex-direction:column;justify-content:space-between;padding:0 4px 24px 0;width:28px;flex-shrink:0;text-align:right;">';
+    statusColHtml += '<div style="display:flex;flex-direction:column;justify-content:space-between;width:28px;height:' + barMaxH + 'px;flex-shrink:0;text-align:right;padding-bottom:1px;">';
     for (let i = yTicks; i >= 0; i--) {
         const val = Math.round((yMax / yTicks) * i);
         statusColHtml += '<span style="font-size:9px;font-weight:600;color:var(--text-muted);line-height:1;">' + val + '</span>';
     }
     statusColHtml += '</div>';
-    // Chart area
-    statusColHtml += '<div style="flex:1;position:relative;border-left:1px solid var(--border);border-bottom:1px solid var(--border);">';
+    // Chart area + labels
+    statusColHtml += '<div style="flex:1;">';
+    // Bars area with axes
+    statusColHtml += '<div style="position:relative;height:' + barMaxH + 'px;border-left:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:6px;">';
     // Grid lines
     for (let i = 1; i < yTicks; i++) {
-        const pct = (i / yTicks) * barMaxH;
-        statusColHtml += '<div style="position:absolute;left:4px;right:0;bottom:' + pct + 'px;border-top:1px dashed var(--border);opacity:0.4;pointer-events:none;"></div>';
+        const px = (i / yTicks) * barMaxH;
+        statusColHtml += '<div style="position:absolute;left:2px;right:0;bottom:' + px + 'px;border-top:1px dashed var(--border);opacity:0.4;pointer-events:none;"></div>';
     }
-    // Bars container
-    statusColHtml += '<div style="position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-end;gap:4px;height:' + barMaxH + 'px;">';
+    // Bars
+    statusColHtml += '<div style="position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-end;gap:3px;height:' + barMaxH + 'px;">';
     statusCols.forEach(c => {
         const h = yMax > 0 ? Math.round((c.count / yMax) * barMaxH) : 0;
         statusColHtml += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">';
         statusColHtml += '<span style="font-size:9px;font-weight:600;color:var(--text);line-height:1.2;">' + c.count + '</span>';
-        statusColHtml += '<div style="width:70%;min-width:16px;height:' + Math.max(h, 2) + 'px;background:' + c.color + ';border-radius:3px 3px 0 0;min-height:2px;"></div>';
-        statusColHtml += '<div style="display:flex;align-items:center;gap:4px;margin-top:5px;white-space:nowrap;position:absolute;bottom:-22px;">';
+        statusColHtml += '<div style="width:70%;min-width:14px;height:' + Math.max(h, 2) + 'px;background:' + c.color + ';border-radius:3px 3px 0 0;min-height:2px;"></div>';
+        statusColHtml += '</div>';
+    });
+    statusColHtml += '</div></div>'; // end bars area
+    // Labels row
+    statusColHtml += '<div style="display:flex;gap:3px;">';
+    statusCols.forEach(c => {
+        statusColHtml += '<div style="flex:1;display:flex;align-items:center;justify-content:center;gap:3px;">';
         statusColHtml += '<span style="display:inline-block;width:6px;height:6px;background:' + c.color + ';border-radius:1px;flex-shrink:0;"></span>';
-        statusColHtml += '<span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);">' + c.label + '</span>';
-        statusColHtml += '</div></div>';
+        statusColHtml += '<span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);white-space:nowrap;">' + c.label + '</span>';
+        statusColHtml += '</div>';
     });
     statusColHtml += '</div></div></div></div>';
 
@@ -2023,5 +2031,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v93";
+    if (el) el.textContent = "v94";
 }
