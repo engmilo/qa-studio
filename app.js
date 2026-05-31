@@ -42,7 +42,7 @@ const i18n = {
         demo: "Demo",
         statusDistribution: "Status Distribution",
         priorityDistribution: "Priority Distribution",
-        projectBars: "Tests per Project",
+        projectBars: "Daily Generation",
 
         searchHistory: "Search history…",
         searchProjects: "Search projects…",
@@ -109,7 +109,7 @@ const i18n = {
         demo: "Demo",
         statusDistribution: "Tilajakauma",
         priorityDistribution: "Prioriteettijakauma",
-        projectBars: "Testit projektittain",
+        projectBars: "Päivittäinen generointi",
 
         searchHistory: "Hae historiasta…",
         searchProjects: "Hae projekteista…",
@@ -713,45 +713,59 @@ function renderDashboard() {
     const priorityData = ["Critical","High","Medium","Low","Trivial"].map(p => priorityCounts[p] || 0);
     const pColors = ["#dc2626","#f97316","#3b82f6","#10b981","#6b7280"];
     const priorityChart = renderPieChart(priorityData, pColors);
-        const projBars = state.projects
-            .map(p => ({ name: p.name, count: (p.testCases||[]).length }))
-            .filter(b => b.count > 0)
-            .sort((a, b) => b.count - a.count);
-        const maxProj = projBars.length > 0 ? projBars[0].count : 1;
 
-        let projHtml = '';
-        if (projBars.length > 0) {
-            projHtml += '<div class="chart-container"><div class="chart-title">' + t('projectBars') + '</div>';
-            projBars.forEach(b => {
-                const pct = Math.round((b.count / maxProj) * 100);
-                projHtml += '<div class="h-bar-row"><span class="h-bar-label">' + b.name + '</span><div class="h-bar-track"><div class="h-bar-fill" style="width:' + pct + '%"></div></div><span class="h-bar-count">' + b.count + '</span></div>';
-            });
-            projHtml += '</div>';
-        }
+    // ── Daily Generation bars ──
+    const today = new Date();
+    const dayData = [];
+    let maxDay = 0;
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().slice(0, 10);
+        const label = d.toLocaleDateString("en", { weekday: "short" });
+        const count = state.history.filter(h => h.date === dateStr).reduce((s, h) => s + h.count, 0);
+        if (count > maxDay) maxDay = count;
+        dayData.push({ label, count });
+    }
 
-        let statHtml = '';
-        if (total > 0) {
-            const maxStat = Math.max(pass, fail, blocked, untested, 1);
-            const rows = [
-                { label: t('dashPass'), count: pass, color: '#10b981' },
-                { label: t('dashFail'), count: fail, color: '#dc2626' },
-                { label: t('dashBlocked'), count: blocked, color: '#f97316' },
-                { label: t('dashUntested'), count: untested, color: '#6b7280' },
-            ];
-            const title = total > 0 ? t('dashSession') + ' (' + total + ' ' + t('dashTotal').toLowerCase() + ')' : t('dashSession');
-            statHtml = '<div class="chart-container"><div class="chart-title">' + title + '</div>';
-            rows.forEach(r => {
-                const pct = Math.round((r.count / maxStat) * 100);
-                statHtml += '<div class="h-bar-row"><span class="h-bar-label" style="width:60px">' + r.label + '</span><div class="h-bar-track"><div class="h-bar-fill" style="width:' + pct + '%;background:' + r.color + '"></div></div><span class="h-bar-count" style="color:' + r.color + '">' + r.count + '</span></div>';
-            });
-            statHtml += '</div>';
-        }
+    let genHtml = '<div class="chart-container"><div class="chart-title">' + t('projectBars') + '</div>';
+    if (maxDay > 0) {
+        const maxH = 56;
+        genHtml += '<div class="day-chart">';
+        dayData.forEach(d => {
+            const h = Math.round((d.count / maxDay) * maxH);
+            genHtml += '<div class="day-col"><div class="day-bar" style="height:' + Math.max(h, 2) + 'px"></div><span class="day-lbl">' + d.label + '</span><span class="day-val">' + d.count + '</span></div>';
+        });
+        genHtml += '</div>';
+    } else {
+        genHtml += '<div class="empty-state" style="padding:12px;">' + t('dashEmpty') + '</div>';
+    }
+    genHtml += '</div>';
 
-        let bottomHtml = '<div style="display:flex;gap:10px;">';
-        if (projHtml) bottomHtml += '<div style="flex:1;min-width:0">' + projHtml + '</div>';
-        if (statHtml) bottomHtml += '<div style="flex:1;min-width:0">' + statHtml + '</div>';
-        if (!projHtml && !statHtml) bottomHtml += '<div class="chart-container" style="flex:1"><div class="empty-state" style="padding:24px;">' + t('dashEmpty') + '</div></div>';
-        bottomHtml += '</div>';
+    // ── Status bars ──
+    let statHtml = '';
+    if (total > 0) {
+        const maxStat = Math.max(pass, fail, blocked, untested, 1);
+        const rows = [
+            { label: t('dashPass'), count: pass, color: '#10b981' },
+            { label: t('dashFail'), count: fail, color: '#dc2626' },
+            { label: t('dashBlocked'), count: blocked, color: '#f97316' },
+            { label: t('dashUntested'), count: untested, color: '#6b7280' },
+        ];
+        const title = total > 0 ? t('dashSession') + ' (' + total + ' ' + t('dashTotal').toLowerCase() + ')' : t('dashSession');
+        statHtml = '<div class="chart-container"><div class="chart-title">' + title + '</div>';
+        rows.forEach(r => {
+            const pct = Math.round((r.count / maxStat) * 100);
+            statHtml += '<div class="h-bar-row"><span class="h-bar-label" style="width:60px">' + r.label + '</span><div class="h-bar-track"><div class="h-bar-fill" style="width:' + pct + '%;background:' + r.color + '"></div></div><span class="h-bar-count" style="color:' + r.color + '">' + r.count + '</span></div>';
+        });
+        statHtml += '</div>';
+    }
+
+    let bottomHtml = '<div style="display:flex;gap:10px;">';
+    if (genHtml) bottomHtml += '<div style="flex:1;min-width:0">' + genHtml + '</div>';
+    if (statHtml) bottomHtml += '<div style="flex:1;min-width:0">' + statHtml + '</div>';
+    if (!genHtml && !statHtml) bottomHtml += '<div class="chart-container" style="flex:1"><div class="empty-state" style="padding:24px;">' + t('dashEmpty') + '</div></div>';
+    bottomHtml += '</div>';
 
         document.getElementById("dashContent").innerHTML = `
         <div class="dash-card" style="margin-bottom:10px;display:flex;align-items:center;gap:10px;padding:8px 12px;">

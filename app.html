@@ -1510,38 +1510,39 @@
             flex-shrink: 0;
         }
 
-        @media (max-width: 768px) {
-            .chart-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .pie-chart {
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            position: relative;
-            margin: 0 auto 16px;
-        }
-
-        .pie-legend {
+        .day-chart {
             display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            justify-content: center;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
+            align-items: flex-end;
             gap: 4px;
-            font-size: 11px;
+            height: 66px;
+            padding: 0 2px;
         }
-
-        .legend-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
+        .day-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+        .day-bar {
+            width: 100%;
+            max-width: 28px;
+            border-radius: 4px 4px 0 0;
+            min-height: 2px;
+            background: linear-gradient(180deg, var(--primary), #8b5cf6);
+            transition: height .3s ease;
+        }
+        .day-lbl {
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .day-val {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--text);
         }
 
         /* ── API Config Modal ── */
