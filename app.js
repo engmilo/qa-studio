@@ -52,6 +52,8 @@ const i18n = {
         sideDefectDensity: "Defect Density",
         sideAutoCoverage: "Automation Coverage",
         sideOfTotal: "of total executed",
+        thisWeek: "This Week",
+        lastWeek: "Last Week",
 
         searchHistory: "Search history…",
         searchProjects: "Search projects…",
@@ -128,6 +130,8 @@ const i18n = {
         sideDefectDensity: "Vikatiheys",
         sideAutoCoverage: "Automaatiokattavuus",
         sideOfTotal: "suoritetuista",
+        thisWeek: "Tämä viikko",
+        lastWeek: "Viime viikko",
 
         searchHistory: "Hae historiasta…",
         searchProjects: "Hae projekteista…",
@@ -622,6 +626,7 @@ const generateBtn = document.getElementById("generateBtn");
 const testInput   = document.getElementById("testInput");
 const charCounter = document.getElementById("charCounter");
 let latestTestCases = [];
+let comparisonPeriod = "thisWeek";
 
 function updateGenerateBtn() {
     generateBtn.disabled = !testInput.value.trim();
@@ -720,6 +725,31 @@ function renderDashboard() {
     const blocked = allTests.filter(tc => tc.status === "blocked").length;
     const untested = allTests.filter(tc => !tc.status).length;
 
+    // ── Weekly comparison data ──
+    function getWeekHistory(offset) {
+        const today = new Date();
+        const data = [];
+        let maxVal = 0;
+        for (let i = 6 + offset; i >= offset; i--) {
+            const d = new Date(today);
+            d.setDate(d.getDate() - i);
+            const dateStr = d.toISOString().slice(0, 10);
+            const label = d.toLocaleDateString("en", { weekday: "short" });
+            const count = state.history.filter(h => h.date === dateStr).reduce((s, h) => s + h.count, 0);
+            if (count > maxVal) maxVal = count;
+            data.push({ label, count });
+        }
+        return { data, maxVal };
+    }
+    const thisWeekHist = getWeekHistory(0);
+    const lastWeekHist = getWeekHistory(7);
+    const thisWeekGen = thisWeekHist.data.reduce((s, d) => s + d.count, 0);
+    const lastWeekGen = lastWeekHist.data.reduce((s, d) => s + d.count, 0);
+    const genDelta = thisWeekGen - lastWeekGen;
+    const genPct = lastWeekGen > 0 ? Math.round((genDelta / lastWeekGen) * 100) : 0;
+    const genArrow = genPct >= 0 ? '↑' : '↓';
+    const genBadge = lastWeekGen > 0 ? `<span class="cmp-delta ${genPct >= 0 ? 'up' : 'down'}">${genArrow}${Math.abs(genPct)}%</span>` : '';
+
     if (total === 0 && state.usageTotal === 0) {
         document.getElementById("dashContent").innerHTML = `<div class="empty-state">${t("dashEmpty")}</div>`;
         return;
@@ -736,27 +766,19 @@ function renderDashboard() {
     const pColors = ["#dc2626","#f97316","#3b82f6","#10b981"];
     const priorityChart = renderPieChart(priorityData, pColors);
 
-    // ── 7-day data ──
-    const today = new Date();
-    const dayData = [];
-    let maxDay = 0;
-    for (let i = 6; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().slice(0, 10);
-        const label = d.toLocaleDateString("en", { weekday: "short" });
-        const count = state.history.filter(h => h.date === dateStr).reduce((s, h) => s + h.count, 0);
-        if (count > maxDay) maxDay = count;
-        dayData.push({ label, count });
-    }
+    // ── 7-day data (active period) ──
+    const activeHist = comparisonPeriod === "thisWeek" ? thisWeekHist : lastWeekHist;
+    const dayData = activeHist.data;
+    const maxDay = activeHist.maxVal;
 
     // ── Trend vs yesterday ──
+    const today = new Date();
     const yesterdayStr = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
     const todayStr = today.toISOString().slice(0, 10);
     const yesterdayCount = state.history.filter(h => h.date === yesterdayStr).reduce((s, h) => s + h.count, 0);
     const todayCount = state.history.filter(h => h.date === todayStr).reduce((s, h) => s + h.count, 0);
     let dailyTrendHtml = '';
-    if (yesterdayCount > 0) {
+    if (yesterdayCount > 0 && comparisonPeriod === "thisWeek") {
         const pct = Math.round(((todayCount - yesterdayCount) / yesterdayCount) * 100);
         if (pct !== 0) {
             const arrow = pct > 0 ? '↑' : '↓';
@@ -825,7 +847,8 @@ function renderDashboard() {
     const fillPts = linePts + ` ${W},${H} 0,${H}`;
     const dayTotal = dayData.reduce((s, d) => s + d.count, 0);
 
-    let lineHtml = '<div class="ent-col" style="flex:1"><div class="ent-chart-h">' + t('dailyTrend') + ' <span class="ent-total">' + dayTotal + '</span></div>';
+    const periodLabel = comparisonPeriod === "lastWeek" ? "Test Cases Created - Last Week" : t('dailyTrend');
+    let lineHtml = '<div class="ent-col" style="flex:1"><div class="ent-chart-h">' + periodLabel + ' <span class="ent-total">' + dayTotal + '</span></div>';
     lineHtml += '<div class="ent-line"><svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity="0.2"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0.02"/></linearGradient></defs><polygon points="' + fillPts + '" fill="url(#lg)"/><polyline points="' + linePts + '" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' + pts.map(p => '<circle cx="' + p.x + '" cy="' + p.y + '" r="6" fill="transparent" class="ent-tt"><title>' + p.label + ': ' + p.count + ' tests</title></circle>').join('') + '</svg></div>';
     lineHtml += '<div class="ent-line-l">';
     dayData.forEach(d => { lineHtml += '<span>' + d.label + '</span>'; });
@@ -845,11 +868,29 @@ function renderDashboard() {
     });
     cardHtml += '</div>';
 
+    // ── Comparison cards ──
+    const compCards = [
+        { label: t('dashPass'), count: pass, color: '#10b981' },
+        { label: t('dashFail'), count: fail, color: '#dc2626' },
+        { label: t('dashBlocked'), count: blocked, color: '#f97316' },
+        { label: t('dashUntested'), count: untested, color: '#6b7280' },
+    ];
+    let compHtml = '<div class="comp-row">';
+    compCards.forEach(c => {
+        compHtml += '<div class="comp-card"><div class="comp-val" style="color:' + c.color + '">' + c.count + '</div><div class="comp-lbl">' + c.label + '</div>' + genBadge + '</div>';
+    });
+    compHtml += '</div>';
+
     // ── Assemble ──
+    const activeToggle = comparisonPeriod === "thisWeek" ? "thisWeek" : "lastWeek";
     document.getElementById("dashContent").innerHTML = `
         <div class="ent-header">
             <div class="ent-title">${t('entTitle')}</div>
             <div class="ent-filters">
+                <div class="toggle-row">
+                    <button class="toggle-btn${activeToggle === 'thisWeek' ? ' active' : ''}" data-period="thisWeek">${t('thisWeek')}</button>
+                    <button class="toggle-btn${activeToggle === 'lastWeek' ? ' active' : ''}" data-period="lastWeek">${t('lastWeek')}</button>
+                </div>
                 <select id="entProjFilter" class="ent-select">
                     <option value="">${t('entAllProjects')}</option>
                     ${state.projects.map(p => '<option value="' + p.name + '">' + p.name + '</option>').join('')}
@@ -857,6 +898,7 @@ function renderDashboard() {
             </div>
         </div>
         ${cardHtml}
+        ${compHtml}
         <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:10px;margin-bottom:10px;">
             <div style="grid-row:1/3;grid-column:1;display:flex;">
                 ${statusColHtml}
@@ -871,6 +913,17 @@ function renderDashboard() {
 
     lucide.createIcons();
     renderSidebarWidgets();
+
+    // ── Toggle click ──
+    document.querySelectorAll(".toggle-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const period = this.dataset.period;
+            if (period !== comparisonPeriod) {
+                comparisonPeriod = period;
+                renderDashboard();
+            }
+        });
+    });
 
     // ── Project filter ──
     document.getElementById("entProjFilter").addEventListener("change", function() {
@@ -1898,7 +1951,7 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
         const raw = data.content.map(b => b.text || "").join("").trim();
         latestTestCases = repairJSON(raw);
         latestTestCases.sort((a,b) => (priorityOrder[a.priority]||9) - (priorityOrder[b.priority]||9));
-        latestTestCases.forEach(tc => { if(!tc.status) tc.status = null; });
+        latestTestCases.forEach(tc => { if(!tc.status) tc.status = null; if(!tc.createdAt) tc.createdAt = new Date().toISOString(); });
 
         saveLatestTestCases();
         renderSavedTestCards();
@@ -2019,5 +2072,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v116";
+    if (el) el.textContent = "v117";
 }

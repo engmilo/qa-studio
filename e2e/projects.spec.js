@@ -28,7 +28,7 @@ test("demo populates dashboard with correct data", async ({ page }) => {
 
   // Dashboard should show data
   await expect(page.locator("#dashContent")).toContainText("16");
-  await expect(page.locator("#dashContent")).toContainText("Current Session");
+  await expect(page.locator("#dashContent")).toContainText("This Week");
 });
 
 test("projects view shows saved project with test details", async ({ page }) => {
