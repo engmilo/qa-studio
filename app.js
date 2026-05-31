@@ -857,16 +857,16 @@ function renderDashboard() {
             </div>
         </div>
         ${cardHtml}
-        <div class="ent-row" style="grid-template-columns:2fr 1fr">
-            ${statusColHtml}
-            <div class="ent-col">
+        <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:10px;margin-bottom:10px;">
+            <div style="grid-row:1/3;grid-column:1;">
+                ${statusColHtml}
+            </div>
+            <div class="ent-col" style="grid-row:1;grid-column:2;">
                 <div class="ent-chart-h">${t("priorityDistribution")}</div>
                 <div class="ent-pie-wrap">${priorityChart}</div>
                 <div class="ent-pie-legend" style="text-align:center;font-size:9px;color:var(--text-muted);margin-top:4px;"><span style="color:#dc2626;font-weight:600;">Red</span>=Critical <span style="color:#f97316;font-weight:600;">Orange</span>=High <span style="color:#3b82f6;font-weight:600;">Blue</span>=Medium <span style="color:#10b981;font-weight:600;">Green</span>=Low</div>
             </div>
-        </div>
-        <div class="ent-row">
-            ${lineHtml}
+            <div style="grid-row:2;grid-column:2;">${lineHtml}</div>
         </div>`;
 
     lucide.createIcons();
@@ -2019,5 +2019,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v101";
+    if (el) el.textContent = "v102";
 }
