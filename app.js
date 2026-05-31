@@ -864,7 +864,7 @@ function renderDashboard() {
             <div class="ent-col" style="grid-row:1;grid-column:2;">
                 <div class="ent-chart-h">${t("priorityDistribution")}</div>
                 <div class="ent-pie-wrap">${priorityChart}</div>
-                <div class="ent-pie-legend" style="text-align:center;font-size:9px;color:var(--text-muted);margin-top:4px;"><span style="color:#dc2626;font-weight:600;">Red</span>=Critical <span style="color:#f97316;font-weight:600;">Orange</span>=High <span style="color:#3b82f6;font-weight:600;">Blue</span>=Medium <span style="color:#10b981;font-weight:600;">Green</span>=Low</div>
+                <div class="ent-pie-legend" style="text-align:center;font-size:9px;color:var(--text-muted);margin-top:4px;"><span style="display:inline-block;width:6px;height:6px;background:#dc2626;border-radius:50%;vertical-align:middle;"></span>=Critical <span style="display:inline-block;width:6px;height:6px;background:#f97316;border-radius:50%;vertical-align:middle;"></span>=High <span style="display:inline-block;width:6px;height:6px;background:#3b82f6;border-radius:50%;vertical-align:middle;"></span>=Medium <span style="display:inline-block;width:6px;height:6px;background:#10b981;border-radius:50%;vertical-align:middle;"></span>=Low</div>
             </div>
             <div style="grid-row:2;grid-column:2;">${lineHtml}</div>
         </div>`;
@@ -2019,5 +2019,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v105";
+    if (el) el.textContent = "v106";
 }
