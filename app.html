@@ -1636,6 +1636,25 @@
             border-radius: 10px;
             padding: 12px 14px;
         }
+        .ent-widgets {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 160px;
+        }
+        .ent-widget {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            flex: 1;
+        }
+        .ent-widget-s {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .ent-tt { cursor: pointer; }
         .ent-chart-h {
             font-size: 11px;
             font-weight: 600;
@@ -2377,7 +2396,7 @@
                 <i data-lucide="settings"></i><span data-i18n="apiConfig">API Configuration</span>
             </button>
         </nav>
-        <div id="sideWidgets" class="side-widgets"></div>
+        <div id="sideWidgets" class="side-widgets" style="display:none"></div>
         <div class="sidebar-footer">
             <button id="clearAllBtn" class="nav-item" style="color:#dc2626;">
                 <i data-lucide="trash-2"></i><span data-i18n="clearAllData">Clear All Data</span>

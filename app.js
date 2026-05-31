@@ -784,14 +784,15 @@ function renderDashboard() {
     const W = 200, H = 40;
     const pts = dayData.map((d, i) => ({
         x: (i / 6) * W,
-        y: H - (maxDay > 0 ? (d.count / maxDay) * (H - 4) : 0) - 2
+        y: H - (maxDay > 0 ? (d.count / maxDay) * (H - 4) : 0) - 2,
+        count: d.count, label: d.label
     }));
     const linePts = pts.map(p => `${p.x},${p.y}`).join(' ');
     const fillPts = linePts + ` ${W},${H} 0,${H}`;
     const dayTotal = dayData.reduce((s, d) => s + d.count, 0);
 
-    let lineHtml = '<div class="ent-col"><div class="ent-chart-h">' + t('dailyTrend') + ' <span class="ent-total">' + dayTotal + '</span></div>';
-    lineHtml += '<div class="ent-line"><svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity="0.2"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0.02"/></linearGradient></defs><polygon points="' + fillPts + '" fill="url(#lg)"/><polyline points="' + linePts + '" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+    let lineHtml = '<div class="ent-col" style="flex:1"><div class="ent-chart-h">' + t('dailyTrend') + ' <span class="ent-total">' + dayTotal + '</span></div>';
+    lineHtml += '<div class="ent-line"><svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity="0.2"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0.02"/></linearGradient></defs><polygon points="' + fillPts + '" fill="url(#lg)"/><polyline points="' + linePts + '" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' + pts.map(p => '<circle cx="' + p.x + '" cy="' + p.y + '" r="6" fill="transparent" class="ent-tt"><title>' + p.label + ': ' + p.count + ' tests</title></circle>').join('') + '</svg></div>';
     lineHtml += '<div class="ent-line-l">';
     dayData.forEach(d => { lineHtml += '<span>' + d.label + '</span>'; });
     lineHtml += '</div></div>';
@@ -810,6 +811,17 @@ function renderDashboard() {
     });
     cardHtml += '</div>';
 
+    // ── Sidebar widgets content ──
+    const executed = pass + fail + blocked;
+    const density = executed > 0 ? Math.round((fail / executed) * 100) : 0;
+    const autoPct = 0;
+    const manPct = 100 - autoPct;
+    const r = 14, cx = 20, cy = 20, circ = 2 * Math.PI * r;
+    const autoOff = circ * (1 - autoPct / 100);
+    const manOff = circ - autoOff;
+
+    let widgetHtml = '<div class="ent-widgets"><div class="ent-widget"><div class="ent-chart-h" style="margin-bottom:6px;">' + t('sideDefectDensity') + '</div><div class="side-prog-track" style="height:8px;"><div class="side-prog-fill" style="width:' + density + '%"></div></div><div class="ent-widget-s">' + density + '% failed (' + fail + '/' + executed + ')</div></div><div class="ent-widget"><div class="ent-chart-h" style="margin-bottom:6px;">' + t('sideAutoCoverage') + '</div><div style="display:flex;align-items:center;gap:8px;"><svg width="36" height="36" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="14" fill="none" stroke="var(--border)" stroke-width="4"/><circle cx="20" cy="20" r="14" fill="none" stroke="#3b82f6" stroke-width="4" stroke-dasharray="' + circ + '" stroke-dashoffset="' + autoOff + '" stroke-linecap="round" transform="rotate(-90 20 20)"/><circle cx="20" cy="20" r="14" fill="none" stroke="#10b981" stroke-width="4" stroke-dasharray="' + circ + '" stroke-dashoffset="' + manOff + '" stroke-linecap="round" transform="rotate(-90 20 20)"/></svg><div><div style="font-size:18px;font-weight:700;">' + autoPct + '%</div><div style="font-size:10px;color:var(--text-muted);"><span class="side-widget-dot" style="background:#3b82f6"></span>Auto <span class="side-widget-dot" style="background:#10b981"></span>Manual</div></div></div></div></div>';
+
     // ── Assemble ──
     document.getElementById("dashContent").innerHTML = `
         <div class="ent-header">
@@ -827,14 +839,16 @@ function renderDashboard() {
             <div class="ent-col">
                 <div class="ent-chart-h">${t("priorityDistribution")}</div>
                 <div class="ent-pie-wrap">${priorityChart}</div>
+                <div class="ent-pie-legend" style="text-align:center;font-size:9px;color:var(--text-muted);margin-top:4px;"><span style="color:#dc2626;font-weight:600;">Red</span>=Critical <span style="color:#f97316;font-weight:600;">Orange</span>=High <span style="color:#3b82f6;font-weight:600;">Blue</span>=Medium <span style="color:#10b981;font-weight:600;">Green</span>=Low</div>
             </div>
         </div>
         <div class="ent-row">
             ${lineHtml}
+            ${widgetHtml}
         </div>`;
 
     lucide.createIcons();
-    renderSidebarWidgets(total, pass, fail, blocked, untested);
+    renderSidebarWidgets();
 
     // ── Project filter ──
     document.getElementById("entProjFilter").addEventListener("change", function() {
@@ -842,30 +856,9 @@ function renderDashboard() {
     });
 }
 
-function renderSidebarWidgets(total, pass, fail, blocked, untested) {
-    const executed = pass + fail + blocked;
-    const density = executed > 0 ? Math.round((fail / executed) * 100) : 0;
+function renderSidebarWidgets() {
     const el = document.getElementById("sideWidgets");
-    if (!el) return;
-
-    // Donut ring SVG (automation vs manual — default 30% auto as placeholder)
-    const autoPct = 0;
-    const manPct = 100 - autoPct;
-    const r = 14, cx = 20, cy = 20, circ = 2 * Math.PI * r;
-    const autoOff = circ * (1 - autoPct / 100);
-    const manOff = circ * (1 - manPct / 100) - autoOff - 0.01;
-
-    el.innerHTML =
-        '<div class="side-widget"><div class="side-widget-h">' + t('sideDefectDensity') + '</div>' +
-        '<div class="side-prog-wrap"><div class="side-prog-track"><div class="side-prog-fill" style="width:' + density + '%"></div></div></div>' +
-        '<div class="side-widget-s">' + density + '% failed (' + fail + '/' + executed + ')</div></div>' +
-        '<div class="side-widget"><div class="side-widget-h">' + t('sideAutoCoverage') + '</div>' +
-        '<div class="side-donut-wrap"><svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">' +
-        '<circle cx="20" cy="20" r="14" fill="none" stroke="var(--border)" stroke-width="3"/>' +
-        '<circle cx="20" cy="20" r="14" fill="none" stroke="#3b82f6" stroke-width="3" stroke-dasharray="' + circ + '" stroke-dashoffset="' + autoOff + '" stroke-linecap="round" transform="rotate(-90 20 20)"/>' +
-        '<circle cx="20" cy="20" r="14" fill="none" stroke="#10b981" stroke-width="3" stroke-dasharray="' + circ + '" stroke-dashoffset="' + manOff + '" stroke-linecap="round" transform="rotate(-90 20 20)"/>' +
-        '</svg><div class="side-donut-c"><span class="side-donut-p">' + autoPct + '%</span></div></div>' +
-        '<div class="side-widget-s" style="margin-top:2px;"><span class="side-widget-dot" style="background:#3b82f6"></span>Auto <span class="side-widget-dot" style="background:#10b981"></span>Manual</div></div>';
+    if (el) el.innerHTML = '';
 }
 
 // ============================================================
@@ -2004,5 +1997,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v75";
+    if (el) el.textContent = "v76";
 }
