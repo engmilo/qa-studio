@@ -772,7 +772,7 @@ function renderDashboard() {
         { label: t('dashBlocked'), count: blocked, color: '#f97316' },
         { label: t('dashUntested'), count: untested, color: '#6b7280' },
     ];
-    const barH = 40;
+    const barH = 60;
     let statusColHtml = '<div class="ent-col"><div class="ent-chart-h">' + t('statusColChart') + '</div><div class="ent-bar-group">';
     statusCols.forEach(c => {
         const h = Math.round((c.count / maxStat) * barH);
@@ -1997,5 +1997,5 @@ if ("serviceWorker" in navigator) {
 
 function showVersionTag() {
     const el = document.getElementById("versionTag");
-    if (el) el.textContent = "v81";
+    if (el) el.textContent = "v82";
 }
