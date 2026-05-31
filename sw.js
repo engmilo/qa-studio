@@ -1,4 +1,4 @@
-const CACHE = "qa-studio-v77";
+const CACHE = "qa-studio-v78";
 const PRECACHE_URLS = [
   "/qa-studio/",
   "/qa-studio/index.html",
