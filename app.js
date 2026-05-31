@@ -868,19 +868,6 @@ function renderDashboard() {
     });
     cardHtml += '</div>';
 
-    // ── Comparison cards ──
-    const compCards = [
-        { label: t('dashPass'), count: pass, color: '#10b981' },
-        { label: t('dashFail'), count: fail, color: '#dc2626' },
-        { label: t('dashBlocked'), count: blocked, color: '#f97316' },
-        { label: t('dashUntested'), count: untested, color: '#6b7280' },
-    ];
-    let compHtml = '<div class="comp-row">';
-    compCards.forEach(c => {
-        compHtml += '<div class="comp-card"><div class="comp-val" style="color:' + c.color + '">' + c.count + '</div><div class="comp-lbl">' + c.label + '</div>' + genBadge + '</div>';
-    });
-    compHtml += '</div>';
-
     // ── Assemble ──
     const activeToggle = comparisonPeriod === "thisWeek" ? "thisWeek" : "lastWeek";
     document.getElementById("dashContent").innerHTML = `
@@ -898,7 +885,6 @@ function renderDashboard() {
             </div>
         </div>
         ${cardHtml}
-        ${compHtml}
         <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:10px;margin-bottom:10px;">
             <div style="grid-row:1/3;grid-column:1;display:flex;">
                 ${statusColHtml}
