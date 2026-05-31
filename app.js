@@ -951,8 +951,8 @@ function renderDashboard() {
             </div>
         </div>
         ${cardHtml}
-        <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:10px;margin-bottom:10px;">
-            <div style="grid-row:1/4;grid-column:1;display:flex;flex-direction:column;gap:10px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:6px;margin-bottom:10px;">
+            <div style="grid-row:1/4;grid-column:1;display:flex;flex-direction:column;gap:6px;">
                 ${statusColHtml}
                 ${lineHtml}
                 ${flakinessHtml}
@@ -960,7 +960,7 @@ function renderDashboard() {
             <div class="ent-col" style="grid-column:2;grid-row:1;">
                 <div class="ent-chart-h">${t("priorityDistribution")}</div>
                 <div class="ent-pie-wrap">${priorityChart}</div>
-                <div class="ent-pie-legend" style="text-align:center;font-size:9px;color:var(--text-muted);margin-top:4px;"><span style="display:inline-block;width:6px;height:6px;background:#dc2626;vertical-align:middle;"></span>Critical&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:6px;height:6px;background:#f97316;vertical-align:middle;"></span>High&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:6px;height:6px;background:#3b82f6;vertical-align:middle;"></span>Medium&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:6px;height:6px;background:#10b981;vertical-align:middle;"></span>Low</div>
+                <div class="ent-pie-legend" style="text-align:center;font-size:9px;color:var(--text-muted);margin-top:4px;"><span style="display:inline-block;width:6px;height:6px;background:#dc2626;vertical-align:middle;margin-right:3px;"></span>Critical&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:6px;height:6px;background:#f97316;vertical-align:middle;margin-right:3px;"></span>High&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:6px;height:6px;background:#3b82f6;vertical-align:middle;margin-right:3px;"></span>Medium&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:6px;height:6px;background:#10b981;vertical-align:middle;margin-right:3px;"></span>Low</div>
             </div>
             <div style="grid-column:2;grid-row:2;">${projStackHtml}</div>
             <div style="grid-column:2;grid-row:3;">${suiteRingsHtml}</div>
