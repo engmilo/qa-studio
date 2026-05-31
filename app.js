@@ -951,9 +951,10 @@ function renderDashboard() {
             </div>
         </div>
         ${cardHtml}
-        <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto auto;gap:10px;margin-bottom:10px;">
-            <div style="grid-row:1/5;grid-column:1;display:flex;flex-direction:column;gap:10px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:10px;margin-bottom:10px;">
+            <div style="grid-row:1/4;grid-column:1;display:flex;flex-direction:column;gap:10px;">
                 ${statusColHtml}
+                ${lineHtml}
                 ${flakinessHtml}
             </div>
             <div class="ent-col" style="grid-column:2;grid-row:1;">
@@ -963,7 +964,6 @@ function renderDashboard() {
             </div>
             <div style="grid-column:2;grid-row:2;">${projStackHtml}</div>
             <div style="grid-column:2;grid-row:3;">${suiteRingsHtml}</div>
-            <div style="grid-column:2;grid-row:4;">${lineHtml}</div>
         </div>`;
 
     lucide.createIcons();
