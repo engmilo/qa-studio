@@ -941,7 +941,6 @@ function renderDashboard() {
             <div class="ent-col" style="grid-column:2;">
                 <div class="ent-chart-h">${t("priorityDistribution")}</div>
                 <div class="ent-pie-wrap">${priorityChart}</div>
-                <div class="ent-pie-legend" style="text-align:center;font-size:9px;color:var(--text-muted);margin-top:4px;"><span style="display:inline-block;width:8px;height:8px;background:#dc2626;vertical-align:middle;border-radius:2px;"></span>&nbsp;&nbsp;Critical&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:8px;height:8px;background:#f97316;vertical-align:middle;border-radius:2px;"></span>&nbsp;&nbsp;High&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:8px;height:8px;background:#3b82f6;vertical-align:middle;border-radius:2px;"></span>&nbsp;&nbsp;Medium&nbsp;&nbsp;&nbsp;&nbsp;<span style="display:inline-block;width:8px;height:8px;background:#10b981;vertical-align:middle;border-radius:2px;"></span>&nbsp;&nbsp;Low</div>
             </div>
             <div style="grid-column:2;">${projStackHtml}</div>
             <div style="grid-column:2;">${flakinessHtml}</div>
@@ -1427,7 +1426,7 @@ function renderPieChart(data, colors) {
     const total = data.reduce((a, b) => a + b, 0);
     if (total === 0) return '<div class="empty-state">No data</div>';
 
-    const r = 40, cx = 50, cy = 50, circ = 2 * Math.PI * r;
+    const r = 30, cx = 40, cy = 40, circ = 2 * Math.PI * r;
     let segments = '', cumPct = 0, legendHtml = '';
 
     data.forEach((value, i) => {
@@ -1435,14 +1434,14 @@ function renderPieChart(data, colors) {
         const pct = value / total;
         const offset = circ * (1 - cumPct);
         const dash = circ * pct;
-        segments += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${colors[i]}" stroke-width="20" stroke-dasharray="${dash} ${circ - dash}" stroke-dashoffset="${offset}" transform="rotate(-90 ${cx} ${cy})" />`;
-        legendHtml += `<div class="legend-item"><span class="legend-dot" style="background:${colors[i]}"></span>${value} (${Math.round(pct * 100)}%)</div>`;
+        segments += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${colors[i]}" stroke-width="16" stroke-dasharray="${dash} ${circ - dash}" stroke-dashoffset="${offset}" transform="rotate(-90 ${cx} ${cy})" />`;
+        legendHtml += `<span style="display:inline-flex;align-items:center;gap:3px;font-size:9px;color:var(--text-muted);white-space:nowrap;"><span style="display:inline-block;width:7px;height:7px;background:${colors[i]};border-radius:2px;flex-shrink:0;"></span>${value} (${Math.round(pct * 100)}%)</span>`;
         cumPct += pct;
     });
 
-    return `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <svg width="80" height="80" viewBox="0 0 100 100" style="flex-shrink:0;">${segments}<circle cx="${cx}" cy="${cy}" r="26" fill="var(--card-bg)" /></svg>
-        <div class="pie-legend">${legendHtml}</div>
+    return `<div style="display:flex;align-items:center;gap:8px;">
+        <svg width="50" height="50" viewBox="0 0 80 80" style="flex-shrink:0;">${segments}<circle cx="${cx}" cy="${cy}" r="20" fill="var(--card-bg)" /></svg>
+        <div style="display:flex;flex-wrap:wrap;gap-x:8px;gap-y:2px;">${legendHtml}</div>
     </div>`;
 }
 
