@@ -1,4 +1,4 @@
-const CACHE = "qa-studio-v121";
+const CACHE = "qa-studio-v122";
 const PRECACHE_URLS = [
   "/qa-studio/",
   "/qa-studio/index.html",
@@ -9,6 +9,7 @@ const PRECACHE_URLS = [
   "/qa-studio/preview.png",
   "https://unpkg.com/lucide@1.16.0/dist/umd/lucide.min.js",
   "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js",
+  "https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js",
   "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
 ];
 

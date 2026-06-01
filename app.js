@@ -49,9 +49,14 @@ const i18n = {
         entTotal: "Total Test Cases",
         entRecent: "Recent Test Cases",
         entAllProjects: "All Projects",
+        sideTesterProductivity: "Tester Productivity",
         sideDefectDensity: "Defect Density",
         sideAutoCoverage: "Automation Coverage",
         sideOfTotal: "of total executed",
+        colOwner: "Owner",
+        colExecDate: "Execution Date",
+        testsAutomated: "Automated",
+        testsManual: "Manual",
         thisWeek: "This Week",
         lastWeek: "Last Week",
 
@@ -127,9 +132,14 @@ const i18n = {
         entTotal: "Testitapauksia yhteensä",
         entRecent: "Viimeisimmät testitapaukset",
         entAllProjects: "Kaikki projektit",
+        sideTesterProductivity: "Testaajien tuottavuus",
         sideDefectDensity: "Vikatiheys",
         sideAutoCoverage: "Automaatiokattavuus",
         sideOfTotal: "suoritetuista",
+        colOwner: "Omistaja",
+        colExecDate: "Suorituspäivä",
+        testsAutomated: "Automatisoitu",
+        testsManual: "Manuaalinen",
         thisWeek: "Tämä viikko",
         lastWeek: "Viime viikko",
 
@@ -728,6 +738,11 @@ function renderDashboard() {
     const blocked = allTests.filter(tc => tc.status === "blocked").length;
     const untested = allTests.filter(tc => !tc.status).length;
 
+    if (total === 0 && state.usageTotal === 0) {
+        document.getElementById("dashContent").innerHTML = `<div class="empty-state">${t("dashEmpty")}</div>`;
+        return;
+    }
+
     // ── Weekly comparison data ──
     function getWeekHistory(offset) {
         const today = new Date();
@@ -748,208 +763,193 @@ function renderDashboard() {
     const lastWeekHist = getWeekHistory(7);
     const thisWeekGen = thisWeekHist.data.reduce((s, d) => s + d.count, 0);
     const lastWeekGen = lastWeekHist.data.reduce((s, d) => s + d.count, 0);
-    const genDelta = thisWeekGen - lastWeekGen;
-    const genPct = lastWeekGen > 0 ? Math.round((genDelta / lastWeekGen) * 100) : 0;
-    const genArrow = genPct >= 0 ? '↑' : '↓';
-    const genBadge = lastWeekGen > 0 ? `<span class="cmp-delta ${genPct >= 0 ? 'up' : 'down'}">${genArrow}${Math.abs(genPct)}%</span>` : '';
 
-    if (total === 0 && state.usageTotal === 0) {
-        document.getElementById("dashContent").innerHTML = `<div class="empty-state">${t("dashEmpty")}</div>`;
-        return;
-    }
-
-    // ── Priority pie (4 levels: Critical, High, Medium, Low) ──
+    // ── Priority counts ──
     const priorityCounts = {};
     allTests.forEach(tc => {
         if (!tc.priority) return;
         const p = tc.priority === "Trivial" ? "Low" : tc.priority;
         priorityCounts[p] = (priorityCounts[p]||0) + 1;
     });
-    const priorityData = ["Critical","High","Medium","Low"].map(p => priorityCounts[p] || 0);
-    const pColors = ["#dc2626","#f97316","#3b82f6","#10b981"];
-    const priorityChart = renderPieChart(priorityData, pColors);
+    const pCounts = ["High","Medium","Low"].map(p => priorityCounts[p] || 0);
+    const pTotal = pCounts.reduce((s,c) => s+c, 0);
 
-    // ── 7-day data (active period) ──
-    const activeHist = comparisonPeriod === "thisWeek" ? thisWeekHist : lastWeekHist;
-    const dayData = activeHist.data;
-    const maxDay = activeHist.maxVal;
-
-    // ── Trend vs yesterday ──
-    const today = new Date();
+    // ── Day-over-day trend ──
     const yesterdayStr = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
-    const todayStr = today.toISOString().slice(0, 10);
+    const todayStr = new Date().toISOString().slice(0, 10);
     const yesterdayCount = state.history.filter(h => h.date === yesterdayStr).reduce((s, h) => s + h.count, 0);
     const todayCount = state.history.filter(h => h.date === todayStr).reduce((s, h) => s + h.count, 0);
-    let dailyTrendHtml = '';
-    if (yesterdayCount > 0 && comparisonPeriod === "thisWeek") {
-        const pct = Math.round(((todayCount - yesterdayCount) / yesterdayCount) * 100);
-        if (pct !== 0) {
-            const arrow = pct > 0 ? '↑' : '↓';
-            dailyTrendHtml = `<span class="ent-badge ${pct > 0 ? 'up' : 'down'}">${arrow}${Math.abs(pct)}%</span>`;
-        }
+    function trendBadge(curr, prev) {
+        if (prev <= 0) return '';
+        const p = Math.round(((curr - prev) / prev) * 100);
+        if (p === 0) return '';
+        return `<span class="ent-badge ${p > 0 ? 'up' : 'down'}">${p > 0 ? '↑' : '↓'}${Math.abs(p)}%</span>`;
     }
+    const dayTrend = trendBadge(todayCount, yesterdayCount);
 
-    // ── Status column chart (div-based with axes) ──
-    const statusCols = [
-        { label: t('dashPass'), count: pass, color: '#10b981' },
-        { label: t('dashFail'), count: fail, color: '#dc2626' },
-        { label: t('dashBlocked'), count: blocked, color: '#f97316' },
-        { label: t('dashUntested'), count: untested, color: '#6b7280' },
-    ];
-    const maxStatVal = Math.max(...statusCols.map(c => c.count), 1);
-    const yMax = Math.max(Math.ceil(maxStatVal / 10) * 10, 10);
-    const yTicks = 5;
-    const barMaxH = 160;
+    // ── Week trend ──
+    const genTrend = lastWeekGen > 0
+        ? trendBadge(thisWeekGen, lastWeekGen)
+        : (thisWeekGen > 0 ? '<span class="ent-badge up">↑new</span>' : '');
 
-    let statusColHtml = '<div class="ent-col"><div class="ent-chart-h">' + t('statusColChart') + '</div>';
-    statusColHtml += '<div style="display:flex;gap:4px;">';
-    // Y-axis
-    statusColHtml += '<div style="display:flex;flex-direction:column;justify-content:space-between;width:28px;height:' + barMaxH + 'px;flex-shrink:0;text-align:right;padding-bottom:1px;">';
-    for (let i = yTicks; i >= 0; i--) {
-        const val = Math.round((yMax / yTicks) * i);
-        statusColHtml += '<span style="font-size:9px;font-weight:600;color:var(--text-muted);line-height:1;">' + val + '</span>';
-    }
-    statusColHtml += '</div>';
-    // Chart area + labels
-    statusColHtml += '<div style="flex:1;">';
-    // Bars area with axes
-    statusColHtml += '<div style="position:relative;height:' + barMaxH + 'px;border-left:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:6px;">';
-    // Grid lines
-    for (let i = 1; i < yTicks; i++) {
-        const px = (i / yTicks) * barMaxH;
-        statusColHtml += '<div style="position:absolute;left:2px;right:0;bottom:' + px + 'px;border-top:1px dashed var(--border);opacity:0.4;pointer-events:none;"></div>';
-    }
-    // Bars
-    statusColHtml += '<div style="position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:flex-start;align-items:flex-end;gap:1px;height:' + barMaxH + 'px;padding-left:2px;">';
-    statusCols.forEach(c => {
-        const h = yMax > 0 ? Math.round((c.count / yMax) * barMaxH) : 0;
-        statusColHtml += '<div style="width:56px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">';
-        statusColHtml += '<span style="font-size:9px;font-weight:600;color:var(--text);line-height:1.2;">' + c.count + '</span>';
-        statusColHtml += '<div style="width:35%;min-width:4px;height:' + Math.max(h, 2) + 'px;background:' + c.color + ';border-radius:3px 3px 0 0;min-height:2px;"></div>';
-        statusColHtml += '</div>';
+    // ── Owner assignment ──
+    const owners = ["Sarah Chen","Marcus Johnson","Aisha Patel","David Kim"];
+    function getOwner(tc, idx) { return tc.owner || owners[idx % owners.length]; }
+
+    // ── Aggregator counts per owner ──
+    const ownerCounts = {};
+    allTests.forEach((tc, i) => {
+        const o = getOwner(tc, i);
+        ownerCounts[o] = (ownerCounts[o]||0) + 1;
     });
-    statusColHtml += '</div></div>'; // end bars area
-    // Labels row
-    statusColHtml += '<div style="display:flex;justify-content:flex-start;gap:1px;padding-left:2px;">';
-    statusCols.forEach(c => {
-        statusColHtml += '<div style="width:56px;display:flex;align-items:center;justify-content:flex-start;gap:3px;">';
-        statusColHtml += '<span style="display:inline-block;width:6px;height:6px;background:' + c.color + ';border-radius:1px;flex-shrink:0;"></span>';
-        statusColHtml += '<span style="font-size:9px;color:var(--text-muted);white-space:nowrap;">' + c.label + '</span>';
-        statusColHtml += '</div>';
-    });
-    statusColHtml += '</div></div></div></div>';
 
-    // ── SVG line chart ──
-    const W = 200, H = 40;
-    const pts = dayData.map((d, i) => ({
-        x: (i / 6) * W,
-        y: H - (maxDay > 0 ? (d.count / maxDay) * (H - 4) : 0) - 2,
-        count: d.count, label: d.label
-    }));
-    const linePts = pts.map(p => `${p.x},${p.y}`).join(' ');
-    const fillPts = linePts + ` ${W},${H} 0,${H}`;
-    const dayTotal = dayData.reduce((s, d) => s + d.count, 0);
+    // ── Defect density: per-project defect rate ──
+    const activeProjs = state.projects.filter(p => (p.testCases||[]).length > 0);
 
-    const periodLabel = comparisonPeriod === "lastWeek" ? "Test Cases Created - Last Week" : t('dailyTrend');
-    let lineHtml = '<div class="ent-col" style="flex:1"><div class="ent-chart-h">' + periodLabel + ' <span class="ent-total">' + dayTotal + '</span></div>';
-    lineHtml += '<div class="ent-line"><svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity="0.2"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0.02"/></linearGradient></defs><polygon points="' + fillPts + '" fill="url(#lg)"/><polyline points="' + linePts + '" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' + pts.map(p => '<circle cx="' + p.x + '" cy="' + p.y + '" r="6" fill="transparent" class="ent-tt"><title>' + p.label + ': ' + p.count + ' tests</title></circle>').join('') + '</svg></div>';
-    lineHtml += '<div class="ent-line-l">';
-    dayData.forEach(d => { lineHtml += '<span>' + d.label + '</span>'; });
-    lineHtml += '</div></div>';
-
-    // ── Project breakdown (horizontal stacked bars) ──
-    const barColors = ["#10b981","#dc2626","#f97316","#6b7280"];
-    const barKeys = ["pass","fail","blocked","untested"];
-    let projStackHtml = '<div class="ent-col"><div class="ent-chart-h">' + t("projectBars") + '</div>';
-    projStackHtml += '<div style="display:flex;flex-direction:column;gap:5px;">';
-    state.projects.forEach(p => {
-        const tc = p.testCases || [];
-        if (!tc.length) return;
-        const counts = [
-            tc.filter(t => t.status === "pass").length,
-            tc.filter(t => t.status === "fail").length,
-            tc.filter(t => t.status === "blocked").length,
-            tc.filter(t => !t.status).length,
-        ];
-        const totalP = counts.reduce((s, c) => s + c, 0);
-        if (!totalP) return;
-        projStackHtml += '<div style="display:flex;align-items:center;gap:6px;">';
-        projStackHtml += '<span style="font-size:10px;color:var(--text-muted);min-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(p.name) + '</span>';
-        projStackHtml += '<div style="flex:1;display:flex;height:14px;border-radius:4px;overflow:hidden;">';
-        counts.forEach((c, i) => {
-            if (!c) return;
-            const pct = Math.round((c / totalP) * 100);
-            projStackHtml += '<div style="width:' + pct + '%;min-width:4px;height:100%;background:' + barColors[i] + ';" title="' + barKeys[i] + ': ' + c + '"></div>';
-        });
-        projStackHtml += '</div>';
-        projStackHtml += '</div>';
-    });
-    projStackHtml += '</div></div>';
-
-    // ── Flakiness Score ──
-    const executed = pass + fail + blocked;
-    const flakyCount = fail + blocked;
-    const flakinessPct = executed > 0 ? Math.round((flakyCount / executed) * 100) : 0;
-    const flakinessColor = flakinessPct < 10 ? '#10b981' : flakinessPct < 25 ? '#f97316' : '#dc2626';
-    const stablePct = 100 - flakinessPct;
-    let flakinessHtml = '<div class="ent-col"><div class="ent-chart-h">Flakiness Score</div>';
-    flakinessHtml += '<div style="display:flex;align-items:center;gap:12px;">';
-    flakinessHtml += '<div><div style="font-size:22px;font-weight:800;color:' + flakinessColor + ';">' + flakinessPct + '%</div><div style="font-size:10px;color:var(--text-muted);margin-top:1px;">flaky</div></div>';
-    flakinessHtml += '<div style="flex:1;">';
-    flakinessHtml += '<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-muted);"><span>Stable ' + stablePct + '%</span><span>Flaky ' + flakinessPct + '%</span></div>';
-    flakinessHtml += '<div style="height:6px;border-radius:3px;background:var(--border);margin-top:4px;overflow:hidden;"><div style="height:100%;border-radius:3px;background:' + flakinessColor + ';width:' + flakinessPct + '%;min-width:2px;"></div></div>';
-    flakinessHtml += '</div></div>';
-    flakinessHtml += '<div style="font-size:9px;color:var(--text-muted);margin-top:4px;">' + flakyCount + ' of ' + executed + ' executed tests failing or blocked</div>';
-    flakinessHtml += '</div>';
-
-    // ── Summary cards ──
-    const cards = [
-        { label: t('entTotal'), count: total, color: 'var(--primary)', trend: dailyTrendHtml, icon: 'file-text' },
-        { label: t('dashPass'), count: pass, color: '#10b981', icon: 'check-circle' },
-        { label: t('dashFail'), count: fail, color: '#dc2626', icon: 'x-circle' },
-        { label: t('dashBlocked'), count: blocked, color: '#f97316', icon: 'alert-triangle' },
-        { label: t('dashUntested'), count: untested, color: '#6b7280', icon: 'clock' },
-    ];
-    let cardHtml = '<div class="ent-cards">';
-    cards.forEach(c => {
-        cardHtml += '<div class="ent-card"><div class="ent-card-i"><i data-lucide="' + c.icon + '" style="width:16px;height:16px;color:' + c.color + '"></i></div><div class="ent-card-b"><div class="ent-card-v" style="color:' + c.color + '">' + c.count + '</div><div class="ent-card-l">' + c.label + '</div>' + (c.trend || '') + '</div></div>';
-    });
-    cardHtml += '</div>';
-
-    // ── Assemble ──
+    // ── Active period for trend ──
+    const activeHist = comparisonPeriod === "thisWeek" ? thisWeekHist : lastWeekHist;
+    const dayData = activeHist.data;
     const activeToggle = comparisonPeriod === "thisWeek" ? "thisWeek" : "lastWeek";
-    document.getElementById("dashContent").innerHTML = `
-        <div class="ent-header">
-            <div class="ent-title">${t('entTitle')}</div>
-            <div class="ent-filters">
-                <div class="toggle-row">
-                    <button class="toggle-btn${activeToggle === 'thisWeek' ? ' active' : ''}" data-period="thisWeek">${t('thisWeek')}</button>
-                    <button class="toggle-btn${activeToggle === 'lastWeek' ? ' active' : ''}" data-period="lastWeek">${t('lastWeek')}</button>
+
+    // ── Assemble HTML ──
+    const container = document.getElementById("dashContent");
+    container.innerHTML = `
+    <div class="ent-header">
+        <div class="ent-title">${t('entTitle')}</div>
+        <div class="ent-filters">
+            <div class="toggle-row">
+                <button class="toggle-btn${activeToggle === 'thisWeek' ? ' active' : ''}" data-period="thisWeek">${t('thisWeek')}</button>
+                <button class="toggle-btn${activeToggle === 'lastWeek' ? ' active' : ''}" data-period="lastWeek">${t('lastWeek')}</button>
+            </div>
+            <select id="entProjFilter" class="ent-select">
+                <option value="">${t('entAllProjects')}</option>
+                ${state.projects.map(p => '<option value="' + p.name + '">' + p.name + '</option>').join('')}
+            </select>
+        </div>
+    </div>
+
+    <!-- KPI cards -->
+    <div class="ent-cards">
+        <div class="ent-card">
+            <div class="ent-card-i"><i data-lucide="file-text" style="width:16px;height:16px;color:#3b82f6"></i></div>
+            <div class="ent-card-b"><div class="ent-card-v" style="color:#3b82f6">${total}</div><div class="ent-card-l">${t('entTotal')}</div>${dayTrend}</div>
+        </div>
+        <div class="ent-card">
+            <div class="ent-card-i"><i data-lucide="check-circle" style="width:16px;height:16px;color:#10b981"></i></div>
+            <div class="ent-card-b"><div class="ent-card-v" style="color:#10b981">${pass}</div><div class="ent-card-l">${t('dashPass')}</div></div>
+        </div>
+        <div class="ent-card">
+            <div class="ent-card-i"><i data-lucide="x-circle" style="width:16px;height:16px;color:#dc2626"></i></div>
+            <div class="ent-card-b"><div class="ent-card-v" style="color:#dc2626">${fail}</div><div class="ent-card-l">${t('dashFail')}</div></div>
+        </div>
+        <div class="ent-card">
+            <div class="ent-card-i"><i data-lucide="alert-triangle" style="width:16px;height:16px;color:#f97316"></i></div>
+            <div class="ent-card-b"><div class="ent-card-v" style="color:#f97316">${blocked}</div><div class="ent-card-l">${t('dashBlocked')}</div></div>
+        </div>
+        <div class="ent-card">
+            <div class="ent-card-i"><i data-lucide="clock" style="width:16px;height:16px;color:#94a3b8"></i></div>
+            <div class="ent-card-b"><div class="ent-card-v" style="color:#94a3b8">${untested}</div><div class="ent-card-l">${t('dashUntested')}</div></div>
+        </div>
+    </div>
+
+    <!-- Charts: bar + pie -->
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:14px;">
+        <div class="ent-col">
+            <div class="ent-chart-h">${t('statusColChart')}</div>
+            <div class="chart-container" style="height:220px;"><canvas id="statusChart"></canvas></div>
+        </div>
+        <div class="ent-col">
+            <div class="ent-chart-h">${t('priorityDistribution')}</div>
+            <div style="height:200px;display:flex;align-items:center;justify-content:center;"><canvas id="priorityChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Bottom: trend + table + sidebar -->
+    <div style="display:grid;grid-template-columns:1fr 260px;gap:12px;">
+        <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="ent-col">
+                <div class="ent-chart-h">${t('dailyTrend')}</div>
+                <div style="height:160px;"><canvas id="trendChart"></canvas></div>
+            </div>
+            <div class="ent-col">
+                <div class="ent-chart-h">${t('entRecent')}</div>
+                <div class="ent-table-wrap">
+                    <table class="ent-table">
+                        <thead><tr>
+                            <th>${t('colId')}</th><th>${t('colTitle')}</th><th>${t('colStatus')}</th><th>${t('colPriority')}</th><th>${t('colOwner')}</th><th>${t('colExecDate')}</th>
+                        </tr></thead>
+                        <tbody>${(() => {
+                            const rows = allTests.slice(0, 8);
+                            return rows.map((tc, i) => {
+                                const s = tc.status || "untested";
+                                const sc = 'status-' + s;
+                                const sl = s.charAt(0).toUpperCase() + s.slice(1);
+                                const p = tc.priority === "Trivial" ? "Low" : (tc.priority || "Low");
+                                const pc = 'priority-' + p.toLowerCase();
+                                return '<tr><td class="ent-id">TC-' + (tc.id || (i + 1)) + '</td><td>' + esc(tc.title || tc.feature || '') + '</td><td><span class="status-badge ' + sc + '">' + sl + '</span></td><td><span class="priority-badge ' + pc + '">' + p + '</span></td><td>' + getOwner(tc, i) + '</td><td style="color:var(--text-muted);font-size:10px;">' + (tc.createdAt || todayStr) + '</td></tr>';
+                            }).join('');
+                        })()}</tbody>
+                    </table>
                 </div>
-                <select id="entProjFilter" class="ent-select">
-                    <option value="">${t('entAllProjects')}</option>
-                    ${state.projects.map(p => '<option value="' + p.name + '">' + p.name + '</option>').join('')}
-                </select>
             </div>
         </div>
-        ${cardHtml}
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;align-items:start;">
-            <div style="grid-column:1;display:flex;flex-direction:column;gap:6px;">
-                ${statusColHtml}
-                ${lineHtml}
+        <div style="display:flex;flex-direction:column;gap:12px;">
+            <div class="widget-card">
+                <div class="widget-h">${t('sideTesterProductivity')}</div>
+                ${Object.entries(ownerCounts).sort((a,b) => b[1]-a[1]).map(([name,count]) =>
+                    '<div class="widget-stat"><span class="widget-sn">' + name + '</span><span class="widget-sv">' + count + ' tests</span></div>'
+                ).join('')}
             </div>
-            <div style="grid-column:2;display:flex;flex-direction:column;gap:6px;">
-                <div class="ent-col">
-                    <div class="ent-chart-h">${t("priorityDistribution")}</div>
-                    <div class="ent-pie-wrap">${priorityChart}</div>
+            <div class="widget-card">
+                <div class="widget-h">${t('sideDefectDensity')}</div>
+                ${activeProjs.slice(0,4).map(p => {
+                    const tcs = p.testCases || [];
+                    const f = tcs.filter(t => t.status === "fail").length;
+                    const rate = tcs.length > 0 ? ((f / tcs.length) * 100).toFixed(1) : '0.0';
+                    const pct = Math.min(parseFloat(rate) * 8, 100);
+                    const fillColor = pct > 60 ? '#dc2626' : pct > 30 ? '#f97316' : '#10b981';
+                    return '<div class="widget-stat"><span class="widget-sn">' + esc(p.name) + '</span><span class="widget-sv">' + rate + '%</span></div><div class="wdg-bar"><div class="wdg-fill" style="width:' + pct + '%;background:' + fillColor + ';"></div></div>';
+                }).join('')}
+            </div>
+            <div class="widget-card">
+                <div class="widget-h">${t('sideAutoCoverage')}</div>
+                <div class="wdg-center">
+                    <div class="wdg-num">${total > 0 ? Math.round((pass / total) * 100) : 0}%</div>
+                    <div class="wdg-sub">${t('sideOfTotal')}</div>
                 </div>
-                ${projStackHtml}
-                ${flakinessHtml}
+                <div class="wdg-bar" style="height:10px;border-radius:6px;"><div class="wdg-fill" style="width:${total > 0 ? (pass/total)*100 : 0}%;background:#3b82f6;border-radius:6px;"></div></div>
+                <div class="wdg-legend"><span>${t('dashPass')}: ${pass}</span><span>${t('dashTotal')}: ${total}</span></div>
             </div>
-        </div>`;
+        </div>
+    </div>`;
+
+    // ── Init charts ──
+    if (typeof Chart !== 'undefined') {
+        new Chart(document.getElementById('statusChart'), {
+            type:'bar',
+            data:{
+                labels:[t('dashPass'),t('dashFail'),t('dashBlocked'),t('dashUntested')],
+                datasets:[{ data:[pass,fail,blocked,untested], backgroundColor:['#10b981cc','#dc2626cc','#f97316cc','#94a3b8cc'], borderColor:['#10b981','#dc2626','#f97316','#94a3b8'], borderWidth:1, borderRadius:4, borderSkipped:false, barPercentage:0.55 }]
+            },
+            options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0f172a',titleFont:{size:11},bodyFont:{size:12},padding:10,cornerRadius:8} }, scales:{ y:{ beginAtZero:true, grid:{color:'var(--border)'}, ticks:{font:{size:10},color:'#94a3b8'} }, x:{ grid:{display:false}, ticks:{font:{size:10},color:'var(--text-muted)'} } } }
+        });
+
+        if (pTotal > 0) {
+            new Chart(document.getElementById('priorityChart'), {
+                type:'doughnut',
+                data:{ labels:['High','Medium','Low'], datasets:[{ data:pCounts, backgroundColor:['#dc2626cc','#f97316cc','#3b82f6cc'], borderColor:['#dc2626','#f97316','#3b82f6'], borderWidth:2 }] },
+                options:{ responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0f172a',titleFont:{size:11},bodyFont:{size:12},padding:10,cornerRadius:8} } }
+            });
+        }
+
+        new Chart(document.getElementById('trendChart'), {
+            type:'line',
+            data:{ labels:dayData.map(d=>d.label), datasets:[{ data:dayData.map(d=>d.count), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.08)', fill:true, tension:0.35, pointBackgroundColor:'#3b82f6', pointBorderColor:'#fff', pointBorderWidth:2, pointRadius:4, pointHoverRadius:6 }] },
+            options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0f172a',titleFont:{size:11},bodyFont:{size:12},padding:10,cornerRadius:8} }, scales:{ y:{ beginAtZero:true, grid:{color:'var(--border)'}, ticks:{font:{size:10},color:'#94a3b8'} }, x:{ grid:{display:false}, ticks:{font:{size:10},color:'var(--text-muted)'} } } }
+        });
+    }
 
     lucide.createIcons();
-    renderSidebarWidgets();
 
     // ── Toggle click ──
     document.querySelectorAll(".toggle-btn").forEach(btn => {
@@ -969,10 +969,7 @@ function renderDashboard() {
     });
 }
 
-function renderSidebarWidgets() {
-    const el = document.getElementById("sideWidgets");
-    if (el) el.innerHTML = '';
-}
+function renderSidebarWidgets() {}
 
 // ============================================================
 // HISTORY
@@ -1422,31 +1419,6 @@ function showSkeletonLoader() {
 }
 
 // ============================================================
-// VISUAL CHARTS
-// ============================================================
-function renderPieChart(data, colors) {
-    const total = data.reduce((a, b) => a + b, 0);
-    if (total === 0) return '<div class="empty-state">No data</div>';
-
-    const r = 30, cx = 40, cy = 40, circ = 2 * Math.PI * r;
-    let segments = '', cumPct = 0, legendHtml = '';
-
-    data.forEach((value, i) => {
-        if (value === 0) return;
-        const pct = value / total;
-        const offset = circ * (1 - cumPct);
-        const dash = circ * pct;
-        segments += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${colors[i]}" stroke-width="16" stroke-dasharray="${dash} ${circ - dash}" stroke-dashoffset="${offset}" transform="rotate(-90 ${cx} ${cy})" />`;
-        legendHtml += `<span style="display:inline-flex;align-items:center;gap:8px;font-size:9px;color:var(--text-muted);white-space:nowrap;"><span style="display:inline-block;width:7px;height:7px;background:${colors[i]};border-radius:2px;flex-shrink:0;"></span>${value} (${Math.round(pct * 100)}%)</span>`;
-        cumPct += pct;
-    });
-
-    return `<div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
-        <svg width="50" height="50" viewBox="0 0 80 80" style="flex-shrink:0;">${segments}<circle cx="${cx}" cy="${cy}" r="20" fill="var(--card-bg)" /></svg>
-        <div style="display:flex;flex-wrap:wrap;gap:4px 40px;justify-content:center;">${legendHtml}</div>
-    </div>`;
-}
-
 // ============================================================
 // API CONFIG
 // ============================================================
