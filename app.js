@@ -849,9 +849,8 @@ function renderDashboard() {
                     <thead><tr>
                         <th>${t('colId')}</th><th>${t('colTitle')}</th><th>${t('colStatus')}</th><th>${t('colPriority')}</th><th>${t('colExecDate')}</th>
                     </tr></thead>
-                    <tbody>${(() => {
-                        const rows = allTests.slice(0, 8);
-                        return rows.map((tc, i) => {
+                        <tbody>${(() => {
+                            return allTests.map((tc, i) => {
                             const s = tc.status || "untested";
                             const sc = 'status-' + s;
                             const sl = s.charAt(0).toUpperCase() + s.slice(1);
