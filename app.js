@@ -895,12 +895,6 @@ function renderDashboard() {
         </div>
         <div style="display:flex;flex-direction:column;gap:12px;">
             <div class="widget-card">
-                <div class="widget-h">${t('sideTesterProductivity')}</div>
-                ${Object.entries(ownerCounts).sort((a,b) => b[1]-a[1]).map(([name,count]) =>
-                    '<div class="widget-stat"><span class="widget-sn">' + name + '</span><span class="widget-sv">' + count + ' tests</span></div>'
-                ).join('')}
-            </div>
-            <div class="widget-card">
                 <div class="widget-h">${t('sideDefectDensity')}</div>
                 ${activeProjs.slice(0,4).map(p => {
                     const tcs = p.testCases || [];
