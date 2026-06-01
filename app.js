@@ -876,7 +876,7 @@ function renderDashboard() {
                 <div class="ent-table-wrap">
                     <table class="ent-table">
                         <thead><tr>
-                            <th>${t('colId')}</th><th>${t('colTitle')}</th><th>${t('colStatus')}</th><th>${t('colPriority')}</th><th>${t('colOwner')}</th><th>${t('colExecDate')}</th>
+                            <th>${t('colId')}</th><th>${t('colTitle')}</th><th>${t('colStatus')}</th><th>${t('colPriority')}</th><th>${t('colExecDate')}</th>
                         </tr></thead>
                         <tbody>${(() => {
                             const rows = allTests.slice(0, 8);
@@ -886,7 +886,7 @@ function renderDashboard() {
                                 const sl = s.charAt(0).toUpperCase() + s.slice(1);
                                 const p = tc.priority === "Trivial" ? "Low" : (tc.priority || "Low");
                                 const pc = 'priority-' + p.toLowerCase();
-                                return '<tr><td class="ent-id">TC-' + (tc.id || (i + 1)) + '</td><td>' + esc(tc.title || tc.feature || '') + '</td><td><span class="status-badge ' + sc + '">' + sl + '</span></td><td><span class="priority-badge ' + pc + '">' + p + '</span></td><td>' + getOwner(tc, i) + '</td><td style="color:var(--text-muted);font-size:10px;">' + (tc.createdAt || todayStr) + '</td></tr>';
+                                return '<tr><td class="ent-id">TC-' + (tc.id || (i + 1)) + '</td><td>' + esc(tc.title || tc.feature || '') + '</td><td><span class="status-badge ' + sc + '">' + sl + '</span></td><td><span class="priority-badge ' + pc + '">' + p + '</span></td><td style="color:var(--text-muted);font-size:10px;">' + (tc.createdAt || todayStr) + '</td></tr>';
                             }).join('');
                         })()}</tbody>
                     </table>
