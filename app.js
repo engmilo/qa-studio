@@ -872,7 +872,7 @@ function renderDashboard() {
                             const sl = t(s);
                             const p = tc.priority === "Trivial" ? "Low" : (tc.priority || "Low");
                             const pc = 'priority-' + p.toLowerCase();
-                            const pl = t('p' + p.charAt(0).toLowerCase() + p.slice(1));
+                            const pl = t('p' + p);
                             return '<tr><td class="ent-id">TC-' + (tc.id || (i + 1)) + '</td><td>' + esc(tc.title || tc.feature || '') + '</td><td><span class="status-badge ' + sc + '">' + sl + '</span></td><td><span class="priority-badge ' + pc + '">' + pl + '</span></td><td style="color:var(--text-muted);font-size:10px;">' + (tc.createdAt || todayStr) + '</td></tr>';
                         }).join('');
                     })()}</tbody>
