@@ -1801,24 +1801,158 @@ function generateMockTestCases() {
     const now = new Date();
     const date = now.toISOString().slice(0, 10);
     const time = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
-    const mock = [
-        { id: "TC-001", title: "Valid user login with correct credentials", description: "Verify that a user can log in successfully with valid email and password.", steps: ["Navigate to login page", "Enter valid email address", "Enter valid password", "Click Sign In button"], expected: "User is redirected to dashboard and sees welcome message", priority: "Critical", tags: ["authentication", "positive"], risk: "Users cannot access the platform if this fails" },
-        { id: "TC-002", title: "Login with invalid credentials shows error", description: "Verify that entering wrong password displays a clear error message.", steps: ["Navigate to login page", "Enter valid email", "Enter incorrect password", "Click Sign In"], expected: "Error message 'Invalid email or password' is displayed, no redirect", priority: "High", tags: ["authentication", "negative"], risk: "Users may be confused if error messages are unclear" },
-        { id: "TC-003", title: "Password field accepts maximum allowed length", description: "Verify that the password field accepts and processes the maximum character limit.", steps: ["Go to registration page", "Enter a 128-character password", "Complete registration"], expected: "Password is accepted and account is created successfully", priority: "Medium", tags: ["boundary", "validation"], risk: "Boundary issues could cause silent truncation or crashes" },
-        { id: "TC-004", title: "Search returns relevant results", description: "Verify that the search bar returns matching items based on keyword input.", steps: ["Type a product name in the search bar", "Press Enter", "Observe search results"], expected: "Relevant results appear within 2 seconds, sorted by relevance", priority: "Medium", tags: ["search", "functional"], risk: "Users cannot find products efficiently" },
-        { id: "TC-005", title: "File upload validates file type", description: "Verify that uploading an unsupported file type shows an error message.", steps: ["Click Upload button", "Select a .exe file", "Confirm upload"], expected: "Error message 'Unsupported file type' is shown and file is rejected", priority: "Medium", tags: ["upload", "validation"], risk: "Security risk if invalid files are accepted" },
-        { id: "TC-006", title: "Checkout applies discount code", description: "Verify that entering a valid promo code reduces the cart total.", steps: ["Add items to cart", "Go to checkout", "Enter discount code 'SAVE10'", "Apply code"], expected: "Total is reduced by 10% and success message is shown", priority: "High", tags: ["checkout", "functional"], risk: "Revenue loss if discount codes malfunction" },
-        { id: "TC-007", title: "Responsive layout on mobile viewport", description: "Verify that the dashboard renders correctly on a 375px wide screen.", steps: ["Open app on mobile device (375px width)", "Navigate to Dashboard", "Verify all sections are visible"], expected: "All dashboard cards stack vertically without horizontal scroll", priority: "Low", tags: ["responsive", "ui-ux"], risk: "Poor mobile experience drives users away" },
-        { id: "TC-008", title: "Expired session redirects to login", description: "Verify that an expired session redirects the user to the login page with a timeout message.", steps: ["Log in and wait for session to expire", "Attempt to navigate to dashboard", "Observe redirect"], expected: "User is redirected to login page with 'Session expired' message", priority: "High", tags: ["security", "authentication"], risk: "Unauthorized access if session is not properly invalidated" },
-        { id: "TC-009", title: "SQL injection attempt on search field", description: "Verify that special characters and SQL-like input are sanitized in search.", steps: ["Navigate to search bar", "Enter ' OR 1=1; --", "Submit search"], expected: "Search returns no results or shows sanitized input; no data leak", priority: "Critical", tags: ["security", "negative"], risk: "Data breach if query is not sanitized" },
-        { id: "TC-010", title: "Complete purchase workflow end-to-end", description: "Verify the full purchase flow from add-to-cart through checkout to confirmation.", steps: ["Browse and add item to cart", "Proceed to checkout", "Enter shipping details", "Enter payment info", "Place order", "View confirmation page"], expected: "Order is confirmed, confirmation ID displayed, email sent", priority: "Critical", tags: ["workflow", "functional", "integration"], risk: "Core revenue flow breaks if any step fails" },
-        { id: "TC-011", title: "Pagination displays correct item totals", description: "Verify that pagination controls show accurate record counts and page navigation.", steps: ["Navigate to list view with 100+ items", "Verify page count display", "Click Next", "Click Previous", "Click page number 3"], expected: "Items are correctly split across pages, counts match, navigation is smooth", priority: "Medium", tags: ["ui-ux", "functional"], risk: "Users lose access to data if pagination is broken" },
-        { id: "TC-012", title: "Concurrent user data isolation", description: "Verify that two users' data remains isolated when accessing the app simultaneously.", steps: ["Log in as User A and create an item", "Log in as User B in another session", "Check that User B cannot see User A's item"], expected: "User B sees only their own data; no cross-contamination", priority: "High", tags: ["integration", "security"], risk: "Data privacy violation if isolation is broken" },
-        { id: "TC-013", title: "API rate limiting returns 429 for excessive requests", description: "Verify that exceeding API rate limits returns a proper 429 status code.", steps: ["Send 101 requests to the /api/login endpoint within 1 minute", "Monitor response status on the 101st request"], expected: "101st request returns HTTP 429 Too Many Requests with retry-after header", priority: "Medium", tags: ["api", "security"], risk: "Brute-force attacks if rate limiting is not enforced" },
-        { id: "TC-014", title: "Cart total updates on quantity change", description: "Verify that changing item quantity recalculates the subtotal and total correctly.", steps: ["Add item with price $10.00 to cart", "Change quantity to 3", "Verify subtotal", "Remove one item", "Verify total again"], expected: "Subtotal shows $30.00 then $20.00; no rounding errors", priority: "High", tags: ["functional", "regression"], risk: "Financial discrepancies if calculations are incorrect" },
-        { id: "TC-015", title: "Color contrast meets WCAG AA standard", description: "Verify that all text and UI elements have sufficient color contrast ratio.", steps: ["Open the app", "Use axe DevTools or contrast analyzer", "Run full-page contrast audit"], expected: "All text elements pass WCAG AA contrast ratio (4.5:1 for normal text)", priority: "Medium", tags: ["ui-ux", "accessibility"], risk: "Accessibility non-compliance can lead to legal issues" },
-        { id: "TC-016", title: "Navigation keyboard tab order is logical", description: "Verify that pressing Tab cycles through interactive elements in a logical order.", steps: ["Open login page", "Press Tab repeatedly from the top", "Observe focus order"], expected: "Focus moves: email → password → Sign In → Forgot Password → Register, no traps", priority: "Low", tags: ["ui-ux", "accessibility"], risk: "Keyboard-only users cannot navigate the app" },
-    ].map(tc => ({ ...tc, status: null }));
+
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+    const pickN = (arr, n) => { const s = new Set(); while (s.size < n) s.add(pick(arr)); return [...s]; };
+
+    const features = [
+        "user authentication", "payment checkout", "search functionality", "file upload", "cart management",
+        "user registration", "password reset", "product listing", "order history", "notification system",
+        "admin dashboard", "reporting module", "API gateway", "user profile", "shipping calculator",
+        "wishlist management", "review system", "chat support", "multi-language", "analytics export"
+    ];
+    const verbs = [
+        "Verify that", "Ensure that", "Confirm that", "Validate that", "Check that", "Test that"
+    ];
+    const actions = {
+        "user authentication": [
+            "a user can log in with valid credentials", "an invalid password shows an error message",
+            "the Remember Me checkbox persists the session", "a locked account shows a lockout message",
+            "OAuth login works with Google provider", "two-factor authentication code is accepted",
+            "session timeout redirects to login page", "logout clears all session data"
+        ],
+        "payment checkout": [
+            "a valid credit card completes payment", "an expired card shows a decline message",
+            "PayPal payment redirects correctly", "a promo code applies the discount",
+            "the tax amount is calculated correctly", "an invalid CVV shows validation error",
+            "a partial refund processes correctly", "multi-currency pricing displays correctly"
+        ],
+        "search functionality": [
+            "search returns relevant results for keywords", "special characters are sanitized in search",
+            "faceted filters narrow results correctly", "empty search shows appropriate message",
+            "autocomplete suggestions match typed input", "misspelled words show did-you-mean suggestions",
+            "pagination works after search query", "search history is saved per user"
+        ],
+        "file upload": [
+            "accepted file types upload successfully", "oversized files show size limit error",
+            "multiple files upload in parallel", "image preview generates after upload",
+            "virus-infected files are rejected", "upload progress bar updates in real-time",
+            "drag-and-drop zone accepts files", "file name with special characters is handled"
+        ],
+        "cart management": [
+            "adding an item increments the cart count", "removing an item updates the subtotal",
+            "changing quantity recalculates the total", "saved cart persists after logout",
+            "out-of-stock items show unavailable badge", "cart merge works after re-login",
+            "expired session preserves cart items", "bulk add from wishlist works correctly"
+        ],
+        "user registration": [
+            "new user can register with email and password", "duplicate email shows already-registered error",
+            "password strength indicator meets policy", "email verification link works within 24h",
+            "registration with social login skips password", "required fields show validation on blur",
+            "GDPR consent checkbox is required", "referral code is applied at registration"
+        ],
+        "password reset": [
+            "password reset email is sent within 30 seconds", "reset link expires after 1 hour",
+            "new password must differ from last 3 passwords", "reset link works only once",
+            "security question is required before reset", "reset notification is sent to backup email",
+            "weak new password is rejected with reason", "password reset logs out all other sessions"
+        ],
+        "product listing": [
+            "products display with correct pricing", "sort by price works ascending and descending",
+            "out-of-stock products are grayed out", "product carousel swipes on mobile",
+            "infinite scroll loads next page seamlessly", "compare up to 4 products side by side",
+            "recently viewed products appear in sidebar", "product badges show discount percentage"
+        ],
+        "order history": [
+            "order list shows all past orders paginated", "order details expand inline",
+            "cancel order button works before shipment", "return request is submitted successfully",
+            "order status updates in real-time", "invoice PDF download contains correct data",
+            "search within order history works", "filter by date range returns correct orders"
+        ],
+        "notification system": [
+            "push notification is delivered on new message", "email notification preferences are saved",
+            "in-app badge count matches unread items", "notification click navigates to correct page",
+            "bulk mark-as-read works for notifications", "notification sound plays when enabled",
+            "quiet hours suppress notifications correctly", "notification history is paginated"
+        ],
+        "admin dashboard": [
+            "revenue chart loads with correct data", "user count metric matches database query",
+            "order volume graph updates in real-time", "admin can filter dashboard by date range",
+            "export dashboard as PDF works correctly", "role-based permissions hide restricted widgets",
+            "system health indicators show green/red status", "activity log streams live events"
+        ],
+        "reporting module": [
+            "CSV export includes all selected columns", "date range filter returns correct data",
+            "report scheduled via email is delivered", "custom report builder saves templates",
+            "chart type switching works between bar/pie/line", "drill-down on chart opens detail view",
+            "summary totals match individual row sums", "report caching improves repeated load times"
+        ]
+    };
+    const results = [
+        "Operation completes successfully with confirmation message",
+        "Clear error message is displayed and action is prevented",
+        "Expected data appears within 2 seconds of request",
+        "Validation error is shown next to the relevant field",
+        "System logs the action and returns to previous state",
+        "Data is persisted across page reloads and sessions",
+        "Timeout message is shown after 30 seconds with retry option",
+        "Warning confirmation dialog appears before destructive action"
+    ];
+    const risks = [
+        "Core business flow is blocked if this fails",
+        "Security vulnerability if not properly handled",
+        "Revenue impact if functionality degrades",
+        "User trust is eroded by poor experience",
+        "Data integrity is compromised on failure",
+        "Regulatory compliance depends on this feature",
+        "Customer support load increases on regression",
+        "Integration dependency causes cascading failures"
+    ];
+    const tagPool = ["functional","security","ui-ux","performance","integration","accessibility","regression","negative","validation","positive","boundary","api","workflow"];
+    const statuses = ["pass","pass","pass","pass","pass","pass","fail","blocked",null];
+
+    const mock = [];
+    const usedCombos = new Set();
+    const selectedFeatures = pickN(features, 8);
+
+    for (let i = 0; i < 16; i++) {
+        const feature = selectedFeatures[i % selectedFeatures.length];
+        const pool = actions[feature] || actions["user authentication"];
+        let action;
+        let attempt = 0;
+        do {
+            action = pick(pool);
+            attempt++;
+        } while (usedCombos.has(feature + action) && attempt < 20);
+        usedCombos.add(feature + action);
+
+        const verb = pick(verbs);
+        const title = verb + " " + action;
+        const desc = `Test case to validate ${feature} behavior.`;
+        const steps = [
+            `Navigate to ${feature} section`,
+            `Set up preconditions for ${action}`,
+            `Execute the action and observe result`,
+            `Verify the system responds as expected`
+        ];
+        const priority = pick(["Critical","Critical","High","High","Medium","Medium","Low"]);
+        const tags = pickN(tagPool, Math.floor(Math.random() * 3) + 2);
+        const status = pick(statuses);
+        const risk = pick(risks);
+
+        mock.push({
+            id: "TC-" + String(i + 1).padStart(3, "0"),
+            title,
+            description: desc,
+            steps,
+            expected: pick(results),
+            priority,
+            tags,
+            risk,
+            status,
+            createdAt: date,
+        });
+    }
 
     latestTestCases = mock;
     saveLatestTestCases();
