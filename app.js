@@ -853,9 +853,25 @@ function renderDashboard() {
     const thisWeekGen = thisWeekHist.data.reduce((s, d) => s + d.count, 0);
     const lastWeekGen = lastWeekHist.data.reduce((s, d) => s + d.count, 0);
 
-    // ── Priority counts ──
+    // ── Priority counts (filtered by comparisonPeriod) ──
+    const fmt = d => d.toISOString().slice(0, 10);
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const diffToMon = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const mon = new Date(today);
+    mon.setDate(today.getDate() - diffToMon);
+    const weekStartStr = fmt(mon);
+    const weekStart = comparisonPeriod === "lastWeek"
+        ? fmt(new Date(mon.getTime() - 7 * 864e5))
+        : weekStartStr;
+    const weekEndDate = new Date(weekStart);
+    weekEndDate.setDate(weekEndDate.getDate() + 7);
+    const weekEndStr = fmt(weekEndDate);
+    const weekTests = allTests.filter(tc =>
+        tc.createdAt && tc.createdAt >= weekStart && tc.createdAt < weekEndStr
+    );
     const priorityCounts = {};
-    allTests.forEach(tc => {
+    weekTests.forEach(tc => {
         if (!tc.priority) return;
         const p = tc.priority === "Trivial" ? "Low" : tc.priority;
         priorityCounts[p] = (priorityCounts[p]||0) + 1;
@@ -864,8 +880,8 @@ function renderDashboard() {
     const pTotal = pCounts.reduce((s,c) => s+c, 0);
 
     // ── Day-over-day trend ──
-    const yesterdayStr = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const yesterdayStr = fmt(new Date(Date.now() - 864e5));
+    const todayStr = fmt(new Date());
     const yesterdayCount = state.history.filter(h => h.date === yesterdayStr).reduce((s, h) => s + h.count, 0);
     const todayCount = state.history.filter(h => h.date === todayStr).reduce((s, h) => s + h.count, 0);
     function trendBadge(curr, prev) {
