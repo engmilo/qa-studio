@@ -992,13 +992,11 @@ function renderDashboard() {
             options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0f172a',titleFont:{size:11},bodyFont:{size:12},padding:10,cornerRadius:8} }, scales:{ y:{ beginAtZero:true, grid:{color:bdrCol}, ticks:{font:{size:10},color:txtCol} }, x:{ grid:{display:false}, ticks:{font:{size:10},color:txtCol} } } }
         });
 
-        if (pTotal > 0) {
-            new Chart(document.getElementById('priorityChart'), {
-                type:'doughnut',
-                data:{ labels:[t('pCritical'),t('pHigh'),t('pMedium'),t('pLow')], datasets:[{ data:[priorityCounts["Critical"]||0, priorityCounts["High"]||0, priorityCounts["Medium"]||0, priorityCounts["Low"]||0], backgroundColor:['#dc2626cc','#f97316cc','#3b82f6cc','#10b981cc'], borderColor:['#dc2626','#f97316','#3b82f6','#10b981'], borderWidth:2 }] },
-                options:{ responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{ legend:{display:true, position:'bottom', labels:{boxWidth:10,boxHeight:10,borderRadius:2,font:{size:10},color:txtCol,padding:12,usePointStyle:true,pointStyle:'rectRounded'}}, tooltip:{backgroundColor:'#0f172a',titleFont:{size:11},bodyFont:{size:12},padding:10,cornerRadius:8} } }
-            });
-        }
+        new Chart(document.getElementById('priorityChart'), {
+            type:'doughnut',
+            data:{ labels:[t('pCritical'),t('pHigh'),t('pMedium'),t('pLow')], datasets:[{ data:[priorityCounts["Critical"]||0, priorityCounts["High"]||0, priorityCounts["Medium"]||0, priorityCounts["Low"]||0], backgroundColor:['#dc2626cc','#f97316cc','#3b82f6cc','#10b981cc'], borderColor:['#dc2626','#f97316','#3b82f6','#10b981'], borderWidth:2 }] },
+            options:{ responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{ legend:{display:true, position:'bottom', labels:{boxWidth:10,boxHeight:10,borderRadius:2,font:{size:10},color:txtCol,padding:12,usePointStyle:true,pointStyle:'rectRounded'}}, tooltip:{backgroundColor:'#0f172a',titleFont:{size:11},bodyFont:{size:12},padding:10,cornerRadius:8} } }
+        });
 
         new Chart(document.getElementById('trendChart'), {
             type:'line',
