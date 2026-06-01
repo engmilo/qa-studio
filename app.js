@@ -49,14 +49,9 @@ const i18n = {
         entTotal: "Total Test Cases",
         entRecent: "Recent Test Cases",
         entAllProjects: "All Projects",
-        sideTesterProductivity: "Tester Productivity",
         sideDefectDensity: "Defect Density",
         sideAutoCoverage: "Automation Coverage",
         sideOfTotal: "of total executed",
-        colOwner: "Owner",
-        colExecDate: "Execution Date",
-        testsAutomated: "Automated",
-        testsManual: "Manual",
         thisWeek: "This Week",
         lastWeek: "Last Week",
 
@@ -132,14 +127,10 @@ const i18n = {
         entTotal: "Testitapauksia yhteensä",
         entRecent: "Viimeisimmät testitapaukset",
         entAllProjects: "Kaikki projektit",
-        sideTesterProductivity: "Testaajien tuottavuus",
         sideDefectDensity: "Vikatiheys",
         sideAutoCoverage: "Automaatiokattavuus",
         sideOfTotal: "suoritetuista",
-        colOwner: "Omistaja",
         colExecDate: "Suorituspäivä",
-        testsAutomated: "Automatisoitu",
-        testsManual: "Manuaalinen",
         thisWeek: "Tämä viikko",
         lastWeek: "Viime viikko",
 
@@ -787,25 +778,6 @@ function renderDashboard() {
     }
     const dayTrend = trendBadge(todayCount, yesterdayCount);
 
-    // ── Week trend ──
-    const genTrend = lastWeekGen > 0
-        ? trendBadge(thisWeekGen, lastWeekGen)
-        : (thisWeekGen > 0 ? '<span class="ent-badge up">↑new</span>' : '');
-
-    // ── Owner assignment ──
-    const owners = ["Sarah Chen","Marcus Johnson","Aisha Patel","David Kim"];
-    function getOwner(tc, idx) { return tc.owner || owners[idx % owners.length]; }
-
-    // ── Aggregator counts per owner ──
-    const ownerCounts = {};
-    allTests.forEach((tc, i) => {
-        const o = getOwner(tc, i);
-        ownerCounts[o] = (ownerCounts[o]||0) + 1;
-    });
-
-    // ── Defect density: per-project defect rate ──
-    const activeProjs = state.projects.filter(p => (p.testCases||[]).length > 0);
-
     // ── Active period for trend ──
     const activeHist = comparisonPeriod === "thisWeek" ? thisWeekHist : lastWeekHist;
     const dayData = activeHist.data;
@@ -864,55 +836,31 @@ function renderDashboard() {
         </div>
     </div>
 
-    <!-- Bottom: trend + table + sidebar -->
-    <div style="display:grid;grid-template-columns:1fr 260px;gap:12px;">
-        <div style="display:flex;flex-direction:column;gap:14px;">
-            <div class="ent-col">
-                <div class="ent-chart-h">${t('dailyTrend')}</div>
-                <div style="height:160px;"><canvas id="trendChart"></canvas></div>
-            </div>
-            <div class="ent-col">
-                <div class="ent-chart-h">${t('entRecent')}</div>
-                <div class="ent-table-wrap">
-                    <table class="ent-table">
-                        <thead><tr>
-                            <th>${t('colId')}</th><th>${t('colTitle')}</th><th>${t('colStatus')}</th><th>${t('colPriority')}</th><th>${t('colExecDate')}</th>
-                        </tr></thead>
-                        <tbody>${(() => {
-                            const rows = allTests.slice(0, 8);
-                            return rows.map((tc, i) => {
-                                const s = tc.status || "untested";
-                                const sc = 'status-' + s;
-                                const sl = s.charAt(0).toUpperCase() + s.slice(1);
-                                const p = tc.priority === "Trivial" ? "Low" : (tc.priority || "Low");
-                                const pc = 'priority-' + p.toLowerCase();
-                                return '<tr><td class="ent-id">TC-' + (tc.id || (i + 1)) + '</td><td>' + esc(tc.title || tc.feature || '') + '</td><td><span class="status-badge ' + sc + '">' + sl + '</span></td><td><span class="priority-badge ' + pc + '">' + p + '</span></td><td style="color:var(--text-muted);font-size:10px;">' + (tc.createdAt || todayStr) + '</td></tr>';
-                            }).join('');
-                        })()}</tbody>
-                    </table>
-                </div>
-            </div>
+    <!-- Bottom: trend + table -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="ent-col">
+            <div class="ent-chart-h">${t('dailyTrend')}</div>
+            <div style="height:160px;"><canvas id="trendChart"></canvas></div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-            <div class="widget-card">
-                <div class="widget-h">${t('sideDefectDensity')}</div>
-                ${activeProjs.slice(0,4).map(p => {
-                    const tcs = p.testCases || [];
-                    const f = tcs.filter(t => t.status === "fail").length;
-                    const rate = tcs.length > 0 ? ((f / tcs.length) * 100).toFixed(1) : '0.0';
-                    const pct = Math.min(parseFloat(rate) * 8, 100);
-                    const fillColor = pct > 60 ? '#dc2626' : pct > 30 ? '#f97316' : '#10b981';
-                    return '<div class="widget-stat"><span class="widget-sn">' + esc(p.name) + '</span><span class="widget-sv">' + rate + '%</span></div><div class="wdg-bar"><div class="wdg-fill" style="width:' + pct + '%;background:' + fillColor + ';"></div></div>';
-                }).join('')}
-            </div>
-            <div class="widget-card">
-                <div class="widget-h">${t('sideAutoCoverage')}</div>
-                <div class="wdg-center">
-                    <div class="wdg-num">${total > 0 ? Math.round((pass / total) * 100) : 0}%</div>
-                    <div class="wdg-sub">${t('sideOfTotal')}</div>
-                </div>
-                <div class="wdg-bar" style="height:10px;border-radius:6px;"><div class="wdg-fill" style="width:${total > 0 ? (pass/total)*100 : 0}%;background:#3b82f6;border-radius:6px;"></div></div>
-                <div class="wdg-legend"><span>${t('dashPass')}: ${pass}</span><span>${t('dashTotal')}: ${total}</span></div>
+        <div class="ent-col">
+            <div class="ent-chart-h">${t('entRecent')}</div>
+            <div class="ent-table-wrap">
+                <table class="ent-table">
+                    <thead><tr>
+                        <th>${t('colId')}</th><th>${t('colTitle')}</th><th>${t('colStatus')}</th><th>${t('colPriority')}</th><th>${t('colExecDate')}</th>
+                    </tr></thead>
+                    <tbody>${(() => {
+                        const rows = allTests.slice(0, 8);
+                        return rows.map((tc, i) => {
+                            const s = tc.status || "untested";
+                            const sc = 'status-' + s;
+                            const sl = s.charAt(0).toUpperCase() + s.slice(1);
+                            const p = tc.priority === "Trivial" ? "Low" : (tc.priority || "Low");
+                            const pc = 'priority-' + p.toLowerCase();
+                            return '<tr><td class="ent-id">TC-' + (tc.id || (i + 1)) + '</td><td>' + esc(tc.title || tc.feature || '') + '</td><td><span class="status-badge ' + sc + '">' + sl + '</span></td><td><span class="priority-badge ' + pc + '">' + p + '</span></td><td style="color:var(--text-muted);font-size:10px;">' + (tc.createdAt || todayStr) + '</td></tr>';
+                        }).join('');
+                    })()}</tbody>
+                </table>
             </div>
         </div>
     </div>`;
