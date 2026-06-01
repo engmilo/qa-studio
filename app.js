@@ -925,27 +925,29 @@ function renderDashboard() {
 
     // ── Init charts ──
     if (typeof Chart !== 'undefined') {
+        const txtCol = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#64748b';
+        const bdrCol = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#e2e8f0';
         new Chart(document.getElementById('statusChart'), {
             type:'bar',
             data:{
                 labels:[t('dashPass'),t('dashFail'),t('dashBlocked'),t('dashUntested')],
-                datasets:[{ data:[pass,fail,blocked,untested], backgroundColor:['#10b981cc','#dc2626cc','#f97316cc','#94a3b8cc'], borderColor:['#10b981','#dc2626','#f97316','#94a3b8'], borderWidth:1, borderRadius:4, borderSkipped:false, barPercentage:0.55 }]
+                datasets:[{ data:[pass,fail,blocked,untested], backgroundColor:['#10b981cc','#dc2626cc','#f97316cc','#94a3b8cc'], borderColor:['#10b981','#dc2626','#f97316','#94a3b8'], borderWidth:1, borderRadius:4, borderSkipped:false, barPercentage:0.55, minBarLength:2 }]
             },
-            options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0f172a',titleFont:{size:11},bodyFont:{size:12},padding:10,cornerRadius:8} }, scales:{ y:{ beginAtZero:true, grid:{color:'var(--border)'}, ticks:{font:{size:10},color:'#94a3b8'} }, x:{ grid:{display:false}, ticks:{font:{size:10},color:'var(--text-muted)'} } } }
+            options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0f172a',titleFont:{size:11},bodyFont:{size:12},padding:10,cornerRadius:8} }, scales:{ y:{ beginAtZero:true, grid:{color:bdrCol}, ticks:{font:{size:10},color:txtCol} }, x:{ grid:{display:false}, ticks:{font:{size:10},color:txtCol} } } }
         });
 
         if (pTotal > 0) {
             new Chart(document.getElementById('priorityChart'), {
                 type:'doughnut',
-                data:{ labels:['High','Medium','Low'], datasets:[{ data:pCounts, backgroundColor:['#dc2626cc','#f97316cc','#3b82f6cc'], borderColor:['#dc2626','#f97316','#3b82f6'], borderWidth:2 }] },
-                options:{ responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0f172a',titleFont:{size:11},bodyFont:{size:12},padding:10,cornerRadius:8} } }
+                data:{ labels:['Critical','High','Medium','Low'], datasets:[{ data:[priorityCounts["Critical"]||0, priorityCounts["High"]||0, priorityCounts["Medium"]||0, priorityCounts["Low"]||0], backgroundColor:['#dc2626cc','#f97316cc','#3b82f6cc','#10b981cc'], borderColor:['#dc2626','#f97316','#3b82f6','#10b981'], borderWidth:2 }] },
+                options:{ responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{ legend:{display:true, position:'bottom', labels:{boxWidth:10,boxHeight:10,borderRadius:2,font:{size:10},color:txtCol,padding:12,usePointStyle:true,pointStyle:'rectRounded'}}, tooltip:{backgroundColor:'#0f172a',titleFont:{size:11},bodyFont:{size:12},padding:10,cornerRadius:8} } }
             });
         }
 
         new Chart(document.getElementById('trendChart'), {
             type:'line',
             data:{ labels:dayData.map(d=>d.label), datasets:[{ data:dayData.map(d=>d.count), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.08)', fill:true, tension:0.35, pointBackgroundColor:'#3b82f6', pointBorderColor:'#fff', pointBorderWidth:2, pointRadius:4, pointHoverRadius:6 }] },
-            options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0f172a',titleFont:{size:11},bodyFont:{size:12},padding:10,cornerRadius:8} }, scales:{ y:{ beginAtZero:true, grid:{color:'var(--border)'}, ticks:{font:{size:10},color:'#94a3b8'} }, x:{ grid:{display:false}, ticks:{font:{size:10},color:'var(--text-muted)'} } } }
+            options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0f172a',titleFont:{size:11},bodyFont:{size:12},padding:10,cornerRadius:8} }, scales:{ y:{ beginAtZero:true, grid:{color:bdrCol}, ticks:{font:{size:10},color:txtCol} }, x:{ grid:{display:false}, ticks:{font:{size:10},color:txtCol} } } }
         });
     }
 
