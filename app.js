@@ -850,7 +850,7 @@ function renderDashboard() {
                         <th>${t('colId')}</th><th>${t('colTitle')}</th><th>${t('colStatus')}</th><th>${t('colPriority')}</th><th>${t('colExecDate')}</th>
                     </tr></thead>
                         <tbody>${(() => {
-                            return allTests.map((tc, i) => {
+                            return allTests.slice().sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||'')).slice(0,16).map((tc, i) => {
                             const s = tc.status || "untested";
                             const sc = 'status-' + s;
                             const sl = s.charAt(0).toUpperCase() + s.slice(1);
