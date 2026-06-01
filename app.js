@@ -23,7 +23,7 @@ const i18n = {
         generate: "Generate Test Cases", generating: "Generating…",
         exportJson: "Export JSON", exportCsv: "Export CSV", exportExcel: "Export Excel",
         exportWord: "Export Word", saveProject: "Save to Project", save: "Save",
-        clearHistory: "Clear History", viewDetails: "View Details",
+        cancel: "Cancel", clearHistory: "Clear History", viewDetails: "View Details",
         noResults: "Describe a feature above and hit Generate.",
         colFeature: "Feature", colGenerated: "Date", colTime: "Time", colCount: "Tests",
         colName: "Name", colDesc: "Description", colCreated: "Created",
@@ -89,7 +89,8 @@ const i18n = {
         apiKeyLabel: "Anthropic API Key",
         apiKeyPlaceholder: "sk-ant-...",
         apiKeyHint: "Your key is sent to the proxy and forwarded to Anthropic. Never shared.",
-        detailDescription: "Description", detailSteps: "Steps", detailExpected: "Expected", detailTags: "Tags", detailRisk: "Risk Note",
+        detailTitle: "Title", detailDescription: "Description", detailSteps: "Steps", detailExpected: "Expected Result", detailTags: "Tags", detailRisk: "Risk",
+        editTitle: "Edit Test Case", addStep: "Add step", editLabelPriority: "Priority", editLabelTags: "Tags (comma separated)",
         noSearchResults: "No results matching your search.",
         dir: "ltr",
     },
@@ -109,7 +110,7 @@ const i18n = {
         generate: "Luo testitapaukset", generating: "Luodaan…",
         exportJson: "Vie JSON", exportCsv: "Vie CSV", exportExcel: "Vie Excel",
         exportWord: "Vie Word", saveProject: "Tallenna projektiin", save: "Tallenna",
-        clearHistory: "Tyhjennä historia", viewDetails: "Näytä tiedot",
+        cancel: "Peruuta", clearHistory: "Tyhjennä historia", viewDetails: "Näytä tiedot",
         noResults: "Kuvaile ominaisuus yllä ja paina Luo.",
         colFeature: "Ominaisuus", colGenerated: "Päivämäärä", colTime: "Aika", colCount: "Tapauksia",
         colName: "Nimi", colDesc: "Kuvaus", colCreated: "Luotu",
@@ -176,7 +177,8 @@ const i18n = {
         apiKeyLabel: "Anthropic API-avain",
         apiKeyPlaceholder: "sk-ant-...",
         apiKeyHint: "Avain lähetetään välityspalvelimelle ja edelleen Anthropicille. Ei jaeta.",
-        detailDescription: "Kuvaus", detailSteps: "Vaiheet", detailExpected: "Odotettu tulos", detailTags: "Tagit", detailRisk: "Riskimuistio",
+        detailTitle: "Otsikko", detailDescription: "Kuvaus", detailSteps: "Vaiheet", detailExpected: "Odotettu tulos", detailTags: "Tagit", detailRisk: "Riskit",
+        editTitle: "Muokkaa testitapausta", addStep: "Lisää vaihe", editLabelPriority: "Prioriteetti", editLabelTags: "Tagit (pilkuilla eroteltuna)",
         noSearchResults: "Ei hakutuloksia.",
         dir: "ltr",
     },
@@ -1588,37 +1590,37 @@ function openEditModal(tc, cardDiv) {
 
     const html = `
         <div class="edit-form">
-            <label>Title</label>
+            <label>${t("detailTitle")}</label>
             <input id="edit-title" class="api-input" value="${esc(tc.title)}" />
 
-            <label style="margin-top:12px;">Description</label>
+            <label style="margin-top:12px;">${t("detailDescription")}</label>
             <textarea id="edit-desc" class="api-input" rows="2">${esc(tc.description || "")}</textarea>
 
-            <label style="margin-top:12px;">Steps</label>
+            <label style="margin-top:12px;">${t("detailSteps")}</label>
             <div id="edit-steps-container">${stepsHTML(tc.steps)}</div>
-            <button id="edit-step-add" class="secondary-btn" style="margin-top:6px;font-size:12px;padding:4px 12px;"><i data-lucide="plus"></i> Add step</button>
+            <button id="edit-step-add" class="secondary-btn" style="margin-top:6px;font-size:12px;padding:4px 12px;"><i data-lucide="plus"></i> ${t("addStep")}</button>
 
-            <label style="margin-top:12px;">Expected Result</label>
+            <label style="margin-top:12px;">${t("detailExpected")}</label>
             <textarea id="edit-expected" class="api-input" rows="2">${esc(tc.expected || "")}</textarea>
 
-            <label style="margin-top:12px;">Priority</label>
+            <label style="margin-top:12px;">${t("editLabelPriority")}</label>
             <select id="edit-priority" class="api-input">
-                ${priorities.map(p => `<option value="${p}" ${tc.priority === p ? "selected" : ""}>${p}</option>`).join("")}
+                ${priorities.map(p => `<option value="${p}" ${tc.priority === p ? "selected" : ""}>${t('p' + p)}</option>`).join("")}
             </select>
 
-            <label style="margin-top:12px;">Tags (comma separated)</label>
+            <label style="margin-top:12px;">${t("editLabelTags")}</label>
             <input id="edit-tags" class="api-input" value="${esc(tagsVal)}" />
 
-            <label style="margin-top:12px;">Risk</label>
+            <label style="margin-top:12px;">${t("detailRisk")}</label>
             <textarea id="edit-risk" class="api-input" rows="2">${esc(tc.risk || "")}</textarea>
 
             <div style="display:flex;gap:8px;margin-top:16px;">
-                <button id="edit-save" class="primary-btn" style="flex:1;justify-content:center;"><i data-lucide="save"></i> Save</button>
-                <button id="edit-cancel" class="secondary-btn" style="flex:1;justify-content:center;">Cancel</button>
+                <button id="edit-save" class="primary-btn" style="flex:1;justify-content:center;"><i data-lucide="save"></i> ${t("save")}</button>
+                <button id="edit-cancel" class="secondary-btn" style="flex:1;justify-content:center;">${t("cancel")}</button>
             </div>
         </div>`;
 
-    openModal("Edit Test Case", html);
+    openModal(t("editTitle"), html);
 
     const container = document.getElementById("edit-steps-container");
 
