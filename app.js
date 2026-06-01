@@ -567,18 +567,28 @@ function updateUsageCounter() {
 // LIVE PREVIEW TYPING ANIMATION
 // ============================================================
 (function initLivePreview() {
-    const phrases = [
-        "As a user, I want to log in with email and password…",
-        "As a manager, I want to track team progress by sprint…",
-        "User can upload PDF, DOCX, PNG files up to 10 MB…",
-        "Shopping cart should persist across browser sessions…",
-        "Password reset link expires after 30 minutes…",
-        "Search results filter by category, price and rating…",
-    ];
+    const phrases = {
+        en: [
+            "As a user, I want to log in with email and password…",
+            "As a manager, I want to track team progress by sprint…",
+            "User can upload PDF, DOCX, PNG files up to 10 MB…",
+            "Shopping cart should persist across browser sessions…",
+            "Password reset link expires after 30 minutes…",
+            "Search results filter by category, price and rating…",
+        ],
+        fi: [
+            "Käyttäjänä haluan kirjautua sisään sähköpostilla ja salasanalla…",
+            "Esimiehenä haluan seurata tiimin edistymistä sprintin mukaan…",
+            "Käyttäjä voi ladata PDF-, DOCX- ja PNG-tiedostoja enintään 10 Mt…",
+            "Ostoskorin tulee säilyä eri selainistuntojen välillä…",
+            "Salasanan palautuslinkki vanhenee 30 minuutissa…",
+            "Hakutulokset suodatetaan luokan, hinnan ja arvostelun mukaan…",
+        ],
+    };
     const el = document.getElementById("livePreviewText");
     let phraseIdx = 0, charIdx = 0, deleting = false;
     function tick() {
-        const phrase = phrases[phraseIdx];
+        const phrase = (phrases[lang] || phrases.en)[phraseIdx];
         if(!deleting) {
             charIdx++;
             el.innerHTML = esc(phrase.slice(0, charIdx)) + '<span class="live-preview-cursor"></span>';
