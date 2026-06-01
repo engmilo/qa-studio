@@ -2360,14 +2360,14 @@
 <div id="bulkDeleteOverlay" class="modal-overlay">
     <div class="modal" style="max-width:400px;">
         <div class="modal-header">
-            <h2>Delete Selected</h2>
+            <h2 data-i18n="deleteSelected">Delete Selected</h2>
             <button id="bulkDeleteClose" class="close-btn"><i data-lucide="x"></i></button>
         </div>
         <div class="modal-content">
             <p id="bulkDeleteText"></p>
             <div style="display:flex;gap:8px;margin-top:16px;">
-                <button id="confirmBulkDelete" class="primary-btn" style="flex:1;justify-content:center;background:linear-gradient(135deg,var(--danger),#b91c1c);">Delete</button>
-                <button id="cancelBulkDelete" class="secondary-btn" style="flex:1;justify-content:center;">Cancel</button>
+                <button id="confirmBulkDelete" class="primary-btn" style="flex:1;justify-content:center;background:linear-gradient(135deg,var(--danger),#b91c1c);" data-i18n="delete">Delete</button>
+                <button id="cancelBulkDelete" class="secondary-btn" style="flex:1;justify-content:center;" data-i18n="cancel">Cancel</button>
             </div>
         </div>
     </div>
@@ -2467,9 +2467,9 @@
                   <span class="import-prompt-text" data-i18n="importPrompt">Paste or type your user stories below — copy them directly from Jira, Notion, spreadsheets, or any requirements document.</span>
                 </div>
                 <div class="textarea-wrapper">
-                    <textarea id="testInput" placeholder="Describe the feature you want test cases for…"></textarea>
-                    <button class="clear-textarea" id="clearTextarea" title="Clear">
-                        <i data-lucide="x"></i> Clear
+                    <textarea id="testInput" data-i18n-placeholder="testInputPlaceholder" placeholder="Describe the feature you want test cases for…"></textarea>
+                    <button class="clear-textarea" id="clearTextarea">
+                        <i data-lucide="x"></i> <span data-i18n="clearBtn">Clear</span>
                     </button>
                 </div>
                 <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:6px;">
@@ -2510,7 +2510,7 @@
                 <div class="bulk-buttons">
                     <button class="secondary-btn" id="selectAllBtn"><i data-lucide="check-square"></i> <span data-i18n="selectAll">Select All</span></button>
                     <button class="secondary-btn" id="deselectAllBtn"><i data-lucide="square"></i> <span data-i18n="deselectAll">Deselect All</span></button>
-                    <button class="danger-btn" id="deleteSelectedBtn"><i data-lucide="trash-2"></i> Delete</button>
+                    <button class="danger-btn" id="deleteSelectedBtn"><i data-lucide="trash-2"></i> <span data-i18n="delete">Delete</span></button>
                 </div>
             </div>
 

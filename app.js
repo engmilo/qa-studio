@@ -93,6 +93,40 @@ const i18n = {
         apiKeyHint: "Your key is sent to the proxy and forwarded to Anthropic. Never shared.",
         detailTitle: "Title", detailDescription: "Description", detailSteps: "Steps", detailExpected: "Expected Result", detailTags: "Tags", detailRisk: "Risk",
         editTitle: "Edit Test Case", addStep: "Add step", editLabelPriority: "Priority", editLabelTags: "Tags (comma separated)",
+        testInputPlaceholder: "Describe the feature you want test cases for…",
+        clearBtn: "Clear",
+        deleteSelected: "Delete Selected",
+        confirmImportData: "This will replace ALL your current data. Are you sure?",
+        demoFeature: "Demo — e-commerce platform",
+        toastProjectExists: name => `Project "${name}" already exists`,
+        toastTestDuplicated: "Test case duplicated",
+        toastApiConfigSaved: "API configuration saved!",
+        toastDataExported: "Data exported successfully!",
+        toastDataImported: "Data imported successfully!",
+        toastImportFailed: "Failed to parse import file",
+        toastTestUpdated: "Test case updated",
+        toastTestReordered: "Test case reordered",
+        toastDemoLoaded: n => `Loaded ${n} demo test cases`,
+        toastCharsExceeded: n => `Text exceeds ${n} character limit`,
+        toastGenerated: n => `Generated ${n} test cases!`,
+        toastCopied: "Copied to clipboard!",
+        toastCopyFailed: "Failed to copy",
+        toastCleared: "Cleared",
+        quotaWarning: "Storage is nearly full",
+        quotaHint: "Export your data and clear old test cases to free up space.",
+        quotaDismiss: "Dismiss",
+        apiErrServer: status => `Server error (HTTP ${status})`,
+        apiErrRateLimit: "Rate limit reached — please wait a moment and try again.",
+        apiErrUnavailable: "The AI service is temporarily unavailable. Please try again in a few seconds.",
+        apiErrAuth: "API authentication failed. Check your API configuration in Settings.",
+        apiErrServerError: "The AI server encountered an error. Try again or use a different model.",
+        errNetwork: "Could not reach the AI service. Check your API URL in Settings (gear icon in sidebar) or your internet connection.",
+        errGenerationFailed: "Generation Failed",
+        errRetry: "Retry",
+        errImportInvalid: "Invalid format",
+        errImportVersion: "Unsupported file version. Expected version 2.",
+        swUpdateAvailable: "New version available — please hard refresh (Ctrl+F5)",
+        swUpdateApplied: "Update applied! Reloading…",
         noSearchResults: "No results matching your search.",
         dir: "ltr",
     },
@@ -183,6 +217,40 @@ const i18n = {
         apiKeyHint: "Avain lähetetään välityspalvelimelle ja edelleen Anthropicille. Ei jaeta.",
         detailTitle: "Otsikko", detailDescription: "Kuvaus", detailSteps: "Vaiheet", detailExpected: "Odotettu tulos", detailTags: "Tagit", detailRisk: "Riskit",
         editTitle: "Muokkaa testitapausta", addStep: "Lisää vaihe", editLabelPriority: "Prioriteetti", editLabelTags: "Tagit (pilkuilla eroteltuna)",
+        testInputPlaceholder: "Kuvaile ominaisuus, jolle haluat testitapauksia…",
+        clearBtn: "Tyhjennä",
+        deleteSelected: "Poista valitut",
+        confirmImportData: "Tämä korvaa KAIKKI nykyiset tietosi. Oletko varma?",
+        demoFeature: "Demo — verkkokauppa-alusta",
+        toastProjectExists: name => `Projekti "${name}" on jo olemassa`,
+        toastTestDuplicated: "Testitapaus kopioitu",
+        toastApiConfigSaved: "API-asetukset tallennettu!",
+        toastDataExported: "Tiedot viety onnistuneesti!",
+        toastDataImported: "Tiedot tuotu onnistuneesti!",
+        toastImportFailed: "Tuontitiedoston lukeminen epäonnistui",
+        toastTestUpdated: "Testitapaus päivitetty",
+        toastTestReordered: "Testitapaus järjestetty uudelleen",
+        toastDemoLoaded: n => `Ladattiin ${n} demotestitapausta`,
+        toastCharsExceeded: n => `Teksti ylittää ${n} merkin rajan`,
+        toastGenerated: n => `Luotu ${n} testitapausta!`,
+        toastCopied: "Kopioitu leikepöydälle!",
+        toastCopyFailed: "Kopiointi epäonnistui",
+        toastCleared: "Tyhjennetty",
+        quotaWarning: "Tila on lähes täynnä",
+        quotaHint: "Vie tietosi ja tyhjennä vanhat testitapaukset vapauttaaksesi tilaa.",
+        quotaDismiss: "Hylkää",
+        apiErrServer: status => `Palvelinvirhe (HTTP ${status})`,
+        apiErrRateLimit: "Nopeusrajoitus saavutettu — odota hetki ja yritä uudelleen.",
+        apiErrUnavailable: "AI-palvelu ei ole väliaikaisesti käytettävissä. Yritä uudelleen hetken kuluttua.",
+        apiErrAuth: "API-todennus epäonnistui. Tarkista API-asetukset.",
+        apiErrServerError: "AI-palvelin kohtasi virheen. Yritä uudelleen tai käytä toista mallia.",
+        errNetwork: "AI-palveluun ei saatu yhteyttä. Tarkista API-osoite Asetuksista (rataskuvake sivupalkissa) tai internetyhteytesi.",
+        errGenerationFailed: "Luonti epäonnistui",
+        errRetry: "Yritä uudelleen",
+        errImportInvalid: "Virheellinen muoto",
+        errImportVersion: "Tiedoston versiota ei tueta. Odotettiin versiota 2.",
+        swUpdateAvailable: "Uusi versio saatavilla — päivitä sivu (Ctrl+F5)",
+        swUpdateApplied: "Päivitys asennettu! Ladataan uudelleen…",
         noSearchResults: "Ei hakutuloksia.",
         dir: "ltr",
     },
@@ -218,11 +286,9 @@ function applyLang() {
         el.title = t(el.dataset.tip);
     });
     document.body.dir = t("dir");
-    if (lang === "fi") {
-        testInput.setAttribute("placeholder", "Liitä user storysi tähän…");
-    } else {
-        testInput.setAttribute("placeholder", "Paste your user story here…");
-    }
+    const testInput_ = document.getElementById("testInput");
+    if (testInput_) testInput_.setAttribute("placeholder", t("testInputPlaceholder"));
+
     testInput.dir = "ltr";
     testInput.value = "";
     updateCharCounter();
@@ -524,7 +590,7 @@ document.getElementById("confirmSaveBtn").addEventListener("click", () => {
     const name = document.getElementById("projectNameInput").value.trim();
     if(!name) return;
     if(state.projects.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-        showToast(`Project "${name}" already exists`, "error");
+        showToast(t("toastProjectExists")(name), "error");
         return;
     }
     state.projects.unshift({
@@ -564,7 +630,7 @@ function updateUsageCounter() {
     const total = state.usageTotal || 0;
     el.innerHTML =
         `<span style="display:block;font-size:18px;font-weight:800;">${total}</span>` +
-        (typeof fn === "function" ? fn(total) : "generated");
+        (typeof fn === "function" ? fn(total) : t("charCounterLabel"));
 }
 
 // ============================================================
@@ -607,7 +673,7 @@ function updateUsageCounter() {
             el.innerHTML = esc(phrase.slice(0, charIdx)) + '<span class="live-preview-cursor"></span>';
             if(charIdx === 0) {
                 deleting = false;
-                phraseIdx = (phraseIdx + 1) % phrases.length;
+                phraseIdx = (phraseIdx + 1) % (phrases[lang] || phrases.en).length;
                 setTimeout(tick, 350);
                 return;
             }
@@ -1235,7 +1301,7 @@ clearTextareaBtn.addEventListener("click", () => {
     updateCharCounter();
     updateGenerateBtn();
     clearTextareaBtn.classList.remove("visible");
-    showToast("Cleared", "info", 1500);
+    showToast(t("toastCleared"), "info", 1500);
 });
 
 // ============================================================
@@ -1279,9 +1345,9 @@ function updateCharCounter() {
 // ============================================================
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
-        showToast("Copied to clipboard!", "success");
+        showToast(t("toastCopied"), "success");
     }).catch(() => {
-        showToast("Failed to copy", "error");
+        showToast(t("toastCopyFailed"), "error");
     });
 }
 
@@ -1377,7 +1443,7 @@ function duplicateTestCase(tc, index) {
     latestTestCases.splice(index + 1, 0, newTc);
     saveLatestTestCases();
     renderSavedTestCards();
-    showToast("Test case duplicated", "success");
+    showToast(t("toastTestDuplicated"), "success");
 }
 
 // ============================================================
@@ -1462,7 +1528,7 @@ document.getElementById("saveApiConfig").addEventListener("click", () => {
         tokens: cfg.tokens
     }));
     document.getElementById("apiConfigOverlay").classList.remove("visible");
-    showToast("API configuration saved!", "success");
+    showToast(t("toastApiConfigSaved"), "success");
 });
 
 // ============================================================
@@ -1492,7 +1558,7 @@ document.getElementById("exportAllData").addEventListener("click", () => {
 
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     dlBlob(blob, `qa-studio-backup-${new Date().toISOString().slice(0,10)}.json`);
-    showToast("Data exported successfully!", "success");
+    showToast(t("toastDataExported"), "success");
 });
 
 document.getElementById("selectImportFile").addEventListener("click", () => {
@@ -1508,10 +1574,10 @@ document.getElementById("importFileInput").addEventListener("change", (e) => {
         try {
             const data = JSON.parse(event.target.result);
 
-            if (!data || typeof data !== "object") throw new Error("Invalid format");
-            if (data.version !== 2) throw new Error("Unsupported file version. Expected version 2.");
+            if (!data || typeof data !== "object") throw new Error(t("errImportInvalid"));
+            if (data.version !== 2) throw new Error(t("errImportVersion"));
 
-            const ok = await showConfirm("This will replace ALL your current data. Are you sure?", t("importConfirmTitle"));
+            const ok = await showConfirm(t("confirmImportData"), t("importConfirmTitle"));
             if (!ok) return;
 
             if (Array.isArray(data.projects)) state.projects = data.projects;
@@ -1545,9 +1611,9 @@ document.getElementById("importFileInput").addEventListener("change", (e) => {
             renderSuites();
             updateUsageCounter();
 
-            showToast("Data imported successfully!", "success");
+            showToast(t("toastDataImported"), "success");
         } catch (err) {
-            showToast("Failed to parse import file", "error");
+            showToast(t("toastImportFailed"), "error");
         }
     };
     reader.readAsText(file);
@@ -1675,7 +1741,7 @@ function openEditModal(tc, cardDiv) {
         cardDiv.replaceWith(newCard);
         lucide.createIcons();
         closeModal();
-        showToast("Test case updated", "success");
+        showToast(t("toastTestUpdated"), "success");
     });
 
     document.getElementById("edit-cancel").addEventListener("click", closeModal);
@@ -1774,7 +1840,7 @@ function createTestCard(tc) {
             latestTestCases.splice(dropIdx, 0, moved);
             saveLatestTestCases();
             renderSavedTestCards();
-            showToast("Test case reordered", "info", 1500);
+            showToast(t("toastTestReordered"), "info", 1500);
         }
     });
 
@@ -2106,13 +2172,13 @@ function generateMockTestCases() {
     updateUsageCounter();
 
     state.usageTotal += mock.length;
-    state.history.unshift({ feature: "Demo — e-commerce platform", date, time, count: mock.length });
+    state.history.unshift({ feature: t("demoFeature"), date, time, count: mock.length });
     if (state.history.length > 50) state.history.pop();
     saveState();
 
     renderDashboard();
     closeSidebar();
-    showToast(`Loaded ${mock.length} demo test cases`, "success");
+    showToast(t("toastDemoLoaded")(mock.length), "success");
 }
 
 document.getElementById("demoBtn").addEventListener("click", generateMockTestCases);
@@ -2126,7 +2192,7 @@ generateBtn.addEventListener("click", async () => {
     if(!feature) return;
 
     if(feature.length > CHAR_LIMIT) {
-        showToast(`Text exceeds ${CHAR_LIMIT} character limit`, "error");
+        showToast(t("toastCharsExceeded")(CHAR_LIMIT), "error");
         return;
     }
 
@@ -2170,11 +2236,11 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
         if(!res.ok) {
             const errText = await res.text();
             const status = res.status;
-            let msg = `Server error (HTTP ${status})`;
-            if (status === 429) msg = "Rate limit reached — please wait a moment and try again.";
-            else if (status === 502 || status === 503) msg = "The AI service is temporarily unavailable. Please try again in a few seconds.";
-            else if (status === 401 || status === 403) msg = "API authentication failed. Check your API configuration in Settings.";
-            else if (status >= 500) msg = "The AI server encountered an error. Try again or use a different model.";
+            let msg = t("apiErrServer")(status);
+            if (status === 429) msg = t("apiErrRateLimit");
+            else if (status === 502 || status === 503) msg = t("apiErrUnavailable");
+            else if (status === 401 || status === 403) msg = t("apiErrAuth");
+            else if (status >= 500) msg = t("apiErrServerError");
             else if (errText) msg += `: ${errText.slice(0,150)}`;
             throw new Error(msg);
         }
@@ -2205,24 +2271,22 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
 
         localStorage.removeItem("qa_draft");
 
-        showToast(`Generated ${latestTestCases.length} test cases!`, "success");
+        showToast(t("toastGenerated")(latestTestCases.length), "success");
 
     } catch(err) {
         finishProgress(false);
-        const msg = err.message || "Unknown error";
+        let msg = err.message || (lang === "fi" ? "Tuntematon virhe" : "Unknown error");
         const isNetwork = msg.includes("fetch") || msg.includes("network") || msg.includes("Failed to fetch");
-        const displayMsg = isNetwork
-            ? "Could not reach the AI service. Check your API URL in Settings (gear icon in sidebar) or your internet connection."
-            : msg;
+        const displayMsg = isNetwork ? t("errNetwork") : msg;
         resultsEl.innerHTML = `<div class="table-card" style="text-align:center;padding:40px 24px;">
             <p style="font-size:40px;margin:0 0 12px;">⚠️</p>
-            <p style="font-size:16px;font-weight:600;margin:0 0 8px;color:var(--danger);">Generation Failed</p>
+            <p style="font-size:16px;font-weight:600;margin:0 0 8px;color:var(--danger);">${t("errGenerationFailed")}</p>
             <p style="color:var(--text-muted);font-size:14px;margin:0;line-height:1.6;">${esc(displayMsg)}</p>
             <button class="secondary-btn" style="margin-top:16px;" onclick="document.getElementById('generateBtn').click()">
-                <i data-lucide="refresh-cw"></i> Retry
+                <i data-lucide="refresh-cw"></i> ${t("errRetry")}
             </button>
         </div>`;
-        showToast(msg.slice(0,80), "error", 5000);
+        showToast(displayMsg.slice(0,80) || t("apiErrUnavailable"), "error", 5000);
     } finally {
         generateBtn.disabled = false;
         generateBtn.querySelector("span").textContent = t("generate");
@@ -2243,7 +2307,7 @@ if (navigator.storage && navigator.storage.estimate) {
                 const bar = document.createElement("div");
                 bar.id = "quotaWarn";
                 bar.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#f97316;color:#fff;font-size:13px;padding:10px 16px;z-index:9999;display:flex;align-items:center;gap:12px;justify-content:center;";
-                bar.innerHTML = `⚠️ Storage is nearly full (${Math.round(usage/quota*100)}%). Export your data and clear old test cases to free up space. <button id="quotaWarnDismiss" style="background:none;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:13px;">Dismiss</button>`;
+                bar.innerHTML = `⚠️ ${t("quotaWarning")} (${Math.round(usage/quota*100)}%). ${t("quotaHint")} <button id="quotaWarnDismiss" style="background:none;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:13px;">${t("quotaDismiss")}</button>`;
                 document.body.appendChild(bar);
                 document.getElementById("quotaWarnDismiss").onclick = () => {
                     bar.remove();
@@ -2290,13 +2354,13 @@ if ("serviceWorker" in navigator) {
             const sw = reg.installing;
             sw.addEventListener("statechange", () => {
                 if (sw.state === "installed" && navigator.serviceWorker.controller) {
-                    showToast("New version available — please hard refresh (Ctrl+F5)", "info", 8000);
+                    showToast(t("swUpdateAvailable"), "info", 8000);
                 }
             });
         });
     }).catch(() => {});
     navigator.serviceWorker.addEventListener("controllerchange", () => {
-        showToast("Update applied! Reloading…", "info", 3000);
+        showToast(t("swUpdateApplied"), "info", 3000);
         setTimeout(() => location.reload(), 2000);
     });
 }
