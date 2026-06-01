@@ -1805,16 +1805,98 @@ function generateMockTestCases() {
     const pick = arr => arr[Math.floor(Math.random() * arr.length)];
     const pickN = (arr, n) => { const s = new Set(); while (s.size < n) s.add(pick(arr)); return [...s]; };
 
-    const features = [
+    const isFi = lang === "fi";
+
+    const features = isFi ? [
+        "käyttäjän tunnistautuminen", "maksun kassaprosessi", "hakutoiminto", "tiedoston lataus", "ostoskorin hallinta",
+        "käyttäjän rekisteröinti", "salasanan palautus", "tuotelistaus", "tilaushistoria", "ilmoitusjärjestelmä",
+        "ylläpitonäkymä", "raportointimoduuli", "API-yhdyskäytävä", "käyttäjäprofiili", "toimituslaskuri",
+        "toivelistan hallinta", "arvostelujärjestelmä", "chatti-tuki", "monikielisyys", "analytiikan vienti"
+    ] : [
         "user authentication", "payment checkout", "search functionality", "file upload", "cart management",
         "user registration", "password reset", "product listing", "order history", "notification system",
         "admin dashboard", "reporting module", "API gateway", "user profile", "shipping calculator",
         "wishlist management", "review system", "chat support", "multi-language", "analytics export"
     ];
-    const verbs = [
+    const verbs = isFi ? [
+        "Varmista että", "Tarkista että", "Vahvista että", "Testaa että", "Todenna että", "Validoi että"
+    ] : [
         "Verify that", "Ensure that", "Confirm that", "Validate that", "Check that", "Test that"
     ];
-    const actions = {
+    const actions = isFi ? {
+        "käyttäjän tunnistautuminen": [
+            "käyttäjä voi kirjautua sisään kelvollisilla tunnuksilla", "virheellinen salasana näyttää virheilmoituksen",
+            "Muista minut-valintaruutu säilyttää istunnon", "lukittu tili näyttää lukitusilmoituksen",
+            "OAuth-kirjautuminen toimii Google-tarjoajalla", "kaksivaiheinen tunnistautumiskoodi hyväksytään",
+            "istunnon aikakatkaisu ohjaa kirjautumissivulle", "uloskirjautuminen tyhjentää istuntotiedot"
+        ],
+        "maksun kassaprosessi": [
+            "kelvollinen luottokortti suorittaa maksun", "vanhentunut kortti näyttää hylkäysilmoituksen",
+            "PayPal-maksu ohjaa oikein", "tarjouskoodi soveltaa alennuksen",
+            "veron määrä lasketaan oikein", "virheellinen CVV näyttää validointivirheen",
+            "osittainen hyvitys käsitellään oikein", "monivaluuttahinnoittelu näytetään oikein"
+        ],
+        "hakutoiminto": [
+            "haku palauttaa osuvia tuloksia avainsanoilla", "erikoismerkit puhdistetaan haussa",
+            "suodattimet rajaavat tulokset oikein", "tyhjä haku näyttää asianmukaisen viestin",
+            "automaattinen täydennys vastaa kirjoitettuun tekstiin", "väärin kirjoitetut sanat näyttävät ehdotuksia",
+            "sivutus toimii hakukyselyn jälkeen", "hakuhistoria tallennetaan käyttäjäkohtaisesti"
+        ],
+        "tiedoston lataus": [
+            "hyväksytyt tiedostotyypit latautuvat onnistuneesti", "liian suuret tiedostot näyttävät kokorajoitusvirheen",
+            "useita tiedostoja ladataan rinnakkain", "kuvan esikatselu luodaan latauksen jälkeen",
+            "virustartunnan saaneet tiedostot hylätään", "latauksen edistymispalkki päivittyy reaaliajassa",
+            "vedä ja pudota -alue hyväksyy tiedostot", "erikoismerkit tiedostonimessä käsitellään"
+        ],
+        "ostoskorin hallinta": [
+            "tuotteen lisääminen kasvattaa ostoskorin määrää", "tuotteen poistaminen päivittää välisumman",
+            "määrän muuttaminen laskee kokonaissumman uudelleen", "tallennettu ostoskori säilyy uloskirjautumisen jälkeen",
+            "loppuneet tuotteet näyttävät loppunut-merkinnän", "ostoskorin yhdistäminen toimii uudelleenkirjautumisen jälkeen",
+            "vanhentunut istunto säilyttää ostoskorin tiedot", "massalisäys toivelistalta toimii oikein"
+        ],
+        "käyttäjän rekisteröinti": [
+            "uusi käyttäjä voi rekisteröityä sähköpostilla ja salasanalla", "tuplasähköposti näyttää jo rekisteröity -virheen",
+            "salasanan vahvuusmittari täyttää käytännön vaatimukset", "sähköpostin vahvistuslinkki toimii 24 tunnin sisällä",
+            "sosiaalisen median kirjautuminen ohittaa salasanan", "pakolliset kentät näyttävät validoinnin blur-tapahtumassa",
+            "GDPR-suostumusvalintaruutu vaaditaan", "kutsukoodi sovelletaan rekisteröinnissä"
+        ],
+        "salasanan palautus": [
+            "salasanan palautussähköposti lähetetään 30 sekunnissa", "palautuslinkki vanhenee 1 tunnin jälkeen",
+            "uuden salasanan täytyy erota viimeisestä 3 salasanasta", "palautuslinkki toimii vain kerran",
+            "turvakysymys vaaditaan ennen palautusta", "palautusilmoitus lähetetään varasähköpostiin",
+            "heikko uusi salasana hylätään perustelujen kanssa", "salasanan palautus kirjaa ulos kaikista muista istunnoista"
+        ],
+        "tuotelistaus": [
+            "tuotteet näytetään oikealla hinnoittelulla", "lajittelu hinnan mukaan toimii nousevasti ja laskevasti",
+            "loppuneet tuotteet on himmennetty", "tuotekaruselli pyyhkäisee mobiililaitteella",
+            "ääretön vieritys lataa seuraavan sivun saumattomasti", "vertaa enintään 4 tuotetta rinnakkain",
+            "äskettäin katsotut tuotteet näkyvät sivupalkissa", "tuotemerkit näyttävät alennusprosentin"
+        ],
+        "tilaushistoria": [
+            "tilauslista näyttää kaikki menneet tilaukset sivutettuna", "tilauksen tiedot avautuvat rivinäkymässä",
+            "peruuta tilaus -painike toimii ennen lähetystä", "palautuspyyntö lähetetään onnistuneesti",
+            "tilauksen tila päivittyy reaaliajassa", "laskun PDF-lataus sisältää oikeat tiedot",
+            "haku tilaushistoriasta toimii", "suodatus päivämääräalueella palauttaa oikeat tilaukset"
+        ],
+        "ilmoitusjärjestelmä": [
+            "push-ilmoitus toimitetaan uudesta viestistä", "sähköposti-ilmoitusasetukset tallennetaan",
+            "sovelluksen sisäinen merkkimäärä vastaa lukemattomia kohteita", "ilmoituksen klikkaus ohjaa oikealle sivulle",
+            "massamerkintä luetuksi toimii ilmoituksille", "ilmoitusääni toistuu kun se on käytössä",
+            "hiljaiset tunnit vaimentavat ilmoitukset oikein", "ilmoitushistoria on sivutettu"
+        ],
+        "ylläpitonäkymä": [
+            "tulokaavio latautuu oikeilla tiedoilla", "käyttäjämäärämittari vastaa tietokantakyselyä",
+            "tilausvolyymikaavio päivittyy reaaliajassa", "ylläpitäjä voi suodattaa näkymää päivämääräalueella",
+            "näkymän vienti PDF-muodossa toimii oikein", "roolipohjaiset oikeudet piilottavat rajoitetut widgetit",
+            "järjestelmän tilailmaisimet näyttävät vihreän/punaisen tilan", "aktiivisuusloki suoratoistaa tapahtumia"
+        ],
+        "raportointimoduuli": [
+            "CSV-vienti sisältää kaikki valitut sarakkeet", "päivämääräaluesuodatin palauttaa oikeat tiedot",
+            "sähköpostilla ajastettu raportti toimitetaan", "mukautettu raporttien rakentaja tallentaa mallipohjat",
+            "kaaviotyypin vaihto toimii pylväs/piirakka/viiva -välillä", "porautuminen kaaviossa avaa yksityiskohtanäkymän",
+            "yhteenvetosummaukset vastaavat yksittäisten rivien summia", "raporttivälimuisti nopeuttaa toistuvia latauksia"
+        ]
+    } : {
         "user authentication": [
             "a user can log in with valid credentials", "an invalid password shows an error message",
             "the Remember Me checkbox persists the session", "a locked account shows a lockout message",
@@ -1888,7 +1970,16 @@ function generateMockTestCases() {
             "summary totals match individual row sums", "report caching improves repeated load times"
         ]
     };
-    const results = [
+    const results = isFi ? [
+        "Toiminto suoritetaan onnistuneesti vahvistusviestillä",
+        "Selkeä virheilmoitus näytetään ja toiminto estetään",
+        "Odotetut tiedot näkyvät 2 sekunnin sisällä pyynnöstä",
+        "Validointivirhe näytetään asianomaisen kentän vieressä",
+        "Järjestelmä kirjaa toiminnon ja palaa edelliseen tilaan",
+        "Tiedot säilyvät sivun uudelleenlatausten ja istuntojen yli",
+        "Aikakatkaisuviesti näytetään 30 sekunnin jälkeen uudelleenyritys-toiminnolla",
+        "Varoitusvahvistusikkuna tulee ennen tuhoavaa toimintoa"
+    ] : [
         "Operation completes successfully with confirmation message",
         "Clear error message is displayed and action is prevented",
         "Expected data appears within 2 seconds of request",
@@ -1898,7 +1989,16 @@ function generateMockTestCases() {
         "Timeout message is shown after 30 seconds with retry option",
         "Warning confirmation dialog appears before destructive action"
     ];
-    const risks = [
+    const risks = isFi ? [
+        "Keskeinen liiketoimintaprosessi estyy jos tämä epäonnistuu",
+        "Tietoturva-aukko jos ei käsitellä oikein",
+        "Tulovaikutus jos toiminto heikkenee",
+        "Käyttäjien luottamus heikkenee huonon kokemuksen takia",
+        "Tietojen eheys vaarantuu virhetilanteessa",
+        "Säädösten noudattaminen riippuu tästä toiminnosta",
+        "Asiakastuen kuormitus kasvaa regressiossa",
+        "Integraatioriippuvuus aiheuttaa kaskadiviä"
+    ] : [
         "Core business flow is blocked if this fails",
         "Security vulnerability if not properly handled",
         "Revenue impact if functionality degrades",
@@ -1908,8 +2008,14 @@ function generateMockTestCases() {
         "Customer support load increases on regression",
         "Integration dependency causes cascading failures"
     ];
-    const tagPool = ["functional","security","ui-ux","performance","integration","accessibility","regression","negative","validation","positive","boundary","api","workflow"];
+    const tagPool = isFi ? [
+        "toiminnallinen","turvallisuus","käyttöliittymä","suorituskyky","integraatio","saavutettavuus","regressio","negatiivinen","validointi","positiivinen","rajat","api","työnkulku"
+    ] : [
+        "functional","security","ui-ux","performance","integration","accessibility","regression","negative","validation","positive","boundary","api","workflow"
+    ];
     const statuses = ["pass","pass","pass","pass","pass","pass","fail","blocked",null];
+    const priorities = isFi ? ["Kriittinen","Kriittinen","Korkea","Korkea","Keskitaso","Keskitaso","Matala"] : ["Critical","Critical","High","High","Medium","Medium","Low"];
+    const prioMap = { "Kriittinen":"Critical", "Korkea":"High", "Keskitaso":"Medium", "Matala":"Low" };
 
     const mock = [];
     const usedCombos = new Set();
@@ -1917,7 +2023,7 @@ function generateMockTestCases() {
 
     for (let i = 0; i < 16; i++) {
         const feature = selectedFeatures[i % selectedFeatures.length];
-        const pool = actions[feature] || actions["user authentication"];
+        const pool = actions[feature] || actions[isFi ? "käyttäjän tunnistautuminen" : "user authentication"];
         let action;
         let attempt = 0;
         do {
@@ -1928,14 +2034,20 @@ function generateMockTestCases() {
 
         const verb = pick(verbs);
         const title = verb + " " + action;
-        const desc = `Test case to validate ${feature} behavior.`;
-        const steps = [
+        const desc = isFi ? `Testitapaus ${feature}-toiminnon varmistamiseksi.` : `Test case to validate ${feature} behavior.`;
+        const steps = isFi ? [
+            `Siirry ${feature}-osioon`,
+            `Aseta esiehdot kohteelle: ${action}`,
+            `Suorita toimenpide ja tarkkaile tulosta`,
+            `Varmista että järjestelmä vastaa odotetusti`
+        ] : [
             `Navigate to ${feature} section`,
             `Set up preconditions for ${action}`,
             `Execute the action and observe result`,
             `Verify the system responds as expected`
         ];
-        const priority = pick(["Critical","Critical","High","High","Medium","Medium","Low"]);
+        const rawPriority = pick(priorities);
+        const priority = isFi ? (prioMap[rawPriority] || "Medium") : rawPriority;
         const tags = pickN(tagPool, Math.floor(Math.random() * 3) + 2);
         const status = pick(statuses);
         const risk = pick(risks);
