@@ -54,6 +54,14 @@ const i18n = {
         sideOfTotal: "of total executed",
         thisWeek: "This Week",
         lastWeek: "Last Week",
+        importExportBtn: "Import / Export",
+        importExportTitle: "Import / Export Data",
+        exportLabel: "Export All Data",
+        downloadBackup: "Download JSON Backup",
+        importLabel: "Import Data",
+        selectJsonFile: "Select JSON File",
+        importWarning: "Warning: Importing will replace all existing data.",
+        importConfirmTitle: "Import",
 
         searchHistory: "Search history…",
         searchProjects: "Search projects…",
@@ -131,6 +139,14 @@ const i18n = {
         sideAutoCoverage: "Automaatiokattavuus",
         sideOfTotal: "suoritetuista",
         colExecDate: "Suorituspäivä",
+        importExportBtn: "Tuo / Vie",
+        importExportTitle: "Tuo / Vie tiedot",
+        exportLabel: "Vie kaikki tiedot",
+        downloadBackup: "Lataa JSON-varmuuskopio",
+        importLabel: "Tuo tietoja",
+        selectJsonFile: "Valitse JSON-tiedosto",
+        importWarning: "Varoitus: Tuonti korvaa kaikki olemassa olevat tiedot.",
+        importConfirmTitle: "Tuonti",
         thisWeek: "Tämä viikko",
         lastWeek: "Viime viikko",
 
@@ -743,7 +759,7 @@ function renderDashboard() {
             const d = new Date(today);
             d.setDate(d.getDate() - i);
             const dateStr = d.toISOString().slice(0, 10);
-            const label = d.toLocaleDateString("en", { weekday: "short" });
+            const label = d.toLocaleDateString(lang === "fi" ? "fi" : "en", { weekday: "short" });
             const count = state.history.filter(h => h.date === dateStr).reduce((s, h) => s + h.count, 0);
             if (count > maxVal) maxVal = count;
             data.push({ label, count });
@@ -853,10 +869,11 @@ function renderDashboard() {
                             return allTests.slice().sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||'')).slice(0,16).map((tc, i) => {
                             const s = tc.status || "untested";
                             const sc = 'status-' + s;
-                            const sl = s.charAt(0).toUpperCase() + s.slice(1);
+                            const sl = t(s);
                             const p = tc.priority === "Trivial" ? "Low" : (tc.priority || "Low");
                             const pc = 'priority-' + p.toLowerCase();
-                            return '<tr><td class="ent-id">TC-' + (tc.id || (i + 1)) + '</td><td>' + esc(tc.title || tc.feature || '') + '</td><td><span class="status-badge ' + sc + '">' + sl + '</span></td><td><span class="priority-badge ' + pc + '">' + p + '</span></td><td style="color:var(--text-muted);font-size:10px;">' + (tc.createdAt || todayStr) + '</td></tr>';
+                            const pl = t('p' + p.charAt(0).toLowerCase() + p.slice(1));
+                            return '<tr><td class="ent-id">TC-' + (tc.id || (i + 1)) + '</td><td>' + esc(tc.title || tc.feature || '') + '</td><td><span class="status-badge ' + sc + '">' + sl + '</span></td><td><span class="priority-badge ' + pc + '">' + pl + '</span></td><td style="color:var(--text-muted);font-size:10px;">' + (tc.createdAt || todayStr) + '</td></tr>';
                         }).join('');
                     })()}</tbody>
                 </table>
@@ -880,7 +897,7 @@ function renderDashboard() {
         if (pTotal > 0) {
             new Chart(document.getElementById('priorityChart'), {
                 type:'doughnut',
-                data:{ labels:['Critical','High','Medium','Low'], datasets:[{ data:[priorityCounts["Critical"]||0, priorityCounts["High"]||0, priorityCounts["Medium"]||0, priorityCounts["Low"]||0], backgroundColor:['#dc2626cc','#f97316cc','#3b82f6cc','#10b981cc'], borderColor:['#dc2626','#f97316','#3b82f6','#10b981'], borderWidth:2 }] },
+                data:{ labels:[t('pCritical'),t('pHigh'),t('pMedium'),t('pLow')], datasets:[{ data:[priorityCounts["Critical"]||0, priorityCounts["High"]||0, priorityCounts["Medium"]||0, priorityCounts["Low"]||0], backgroundColor:['#dc2626cc','#f97316cc','#3b82f6cc','#10b981cc'], borderColor:['#dc2626','#f97316','#3b82f6','#10b981'], borderWidth:2 }] },
                 options:{ responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{ legend:{display:true, position:'bottom', labels:{boxWidth:10,boxHeight:10,borderRadius:2,font:{size:10},color:txtCol,padding:12,usePointStyle:true,pointStyle:'rectRounded'}}, tooltip:{backgroundColor:'#0f172a',titleFont:{size:11},bodyFont:{size:12},padding:10,cornerRadius:8} } }
             });
         }
@@ -1478,7 +1495,7 @@ document.getElementById("importFileInput").addEventListener("change", (e) => {
             if (!data || typeof data !== "object") throw new Error("Invalid format");
             if (data.version !== 2) throw new Error("Unsupported file version. Expected version 2.");
 
-            const ok = await showConfirm("This will replace ALL your current data. Are you sure?", "Import");
+            const ok = await showConfirm("This will replace ALL your current data. Are you sure?", t("importConfirmTitle"));
             if (!ok) return;
 
             if (Array.isArray(data.projects)) state.projects = data.projects;

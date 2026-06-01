@@ -2377,23 +2377,23 @@
 <div id="importExportOverlay" class="modal-overlay">
     <div class="modal" style="max-width:480px;">
         <div class="modal-header">
-            <h2>Import / Export Data</h2>
+            <h2 data-i18n="importExportTitle">Import / Export Data</h2>
             <button id="importExportClose" class="close-btn"><i data-lucide="x"></i></button>
         </div>
         <div class="modal-content">
             <div class="api-config-section">
-                <label class="api-config-label">Export All Data</label>
+                <label class="api-config-label" data-i18n="exportLabel">Export All Data</label>
                 <button id="exportAllData" class="secondary-btn" style="width:100%;justify-content:center;">
-                    <i data-lucide="download"></i> Download JSON Backup
+                    <i data-lucide="download"></i> <span data-i18n="downloadBackup">Download JSON Backup</span>
                 </button>
             </div>
             <div class="api-config-section">
-                <label class="api-config-label">Import Data</label>
+                <label class="api-config-label" data-i18n="importLabel">Import Data</label>
                 <input type="file" id="importFileInput" accept=".json" style="display:none;" />
                 <button id="selectImportFile" class="secondary-btn" style="width:100%;justify-content:center;">
-                    <i data-lucide="upload"></i> Select JSON File
+                    <i data-lucide="upload"></i> <span data-i18n="selectJsonFile">Select JSON File</span>
                 </button>
-                <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">Warning: Importing will replace all existing data.</p>
+                <p style="font-size:12px;color:var(--text-muted);margin-top:8px;" data-i18n="importWarning">Warning: Importing will replace all existing data.</p>
             </div>
         </div>
     </div>
@@ -2527,7 +2527,7 @@
         <section id="view-dashboard" style="display:none;">
             <div class="section-header">
                 <button id="openImportExportBtn" class="secondary-btn">
-                    <i data-lucide="database"></i> Import / Export
+                    <i data-lucide="database"></i> <span data-i18n="importExportBtn">Import / Export</span>
                 </button>
             </div>
             <div id="dashContent"></div>

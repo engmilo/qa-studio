@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html><head><title>Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:Inter,sans-serif; background:#f0f2f5; padding:40px; color:#111827; }
+.card { background:#fff; border-radius:20px; border:1px solid #e5e7eb; padding:24px; max-width:480px; box-shadow:0 4px 12px rgba(0,0,0,.08); }
+.card h3 { font-size:12px; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:.06em; margin-bottom:16px; }
+.week-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; }
+.week-head .num { font-size:32px; font-weight:800; letter-spacing:-.03em; line-height:1; }
+.week-head .num span { font-size:13px; font-weight:400; color:#9ca3af; }
+.week-head .badge { font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; background:#d1fae5; color:#065f46; }
+.heatmap { display:flex; gap:4px; }
+.day-col { flex:1; display:flex; flex-direction:column; gap:3px; align-items:center; }
+.day-col .dlbl { font-size:9px; color:#9ca3af; font-weight:600; margin-bottom:2px; }
+.day-col .cell { width:100%; aspect-ratio:1; border-radius:4px; min-height:8px; transition:transform .15s; }
+.day-col .cell:hover { transform:scale(1.2); }
+.day-col .cell.l4 { background:#1d4ed8; }
+.day-col .cell.l3 { background:#3b82f6; }
+.day-col .cell.l2 { background:#93c5fd; }
+.day-col .cell.l1 { background:#dbeafe; }
+.day-col .cell.l0 { background:#f3f4f6; }
+.day-col .cell.l0.dark { background:#1a1d26; }
+.day-col .total { font-size:13px; font-weight:700; color:#111827; margin-top:4px; }
+.legend { display:flex; align-items:center; gap:6px; margin-top:12px; justify-content:flex-end; }
+.legend span { font-size:9px; color:#9ca3af; }
+.legend .s { width:10px; height:10px; border-radius:3px; }
+.legend .s.l0 { background:#f3f4f6; }
+.legend .s.l1 { background:#dbeafe; }
+.legend .s.l2 { background:#93c5fd; }
+.legend .s.l3 { background:#3b82f6; }
+.legend .s.l4 { background:#1d4ed8; }
+</style>
+</head><body>
+<div class="card">
+  <h3>Weekly Activity Map</h3>
+  <div class="week-head">
+    <div class="num">87 <span>tests</span></div>
+    <div class="badge">↑ 12%</div>
+  </div>
+  <div class="heatmap">
+    <div class="day-col">
+      <span class="dlbl">Mon</span>
+      <div class="cell l2"></div>
+      <div class="cell l1"></div>
+      <div class="cell l0"></div>
+      <div class="total">8</div>
+    </div>
+    <div class="day-col">
+      <span class="dlbl">Tue</span>
+      <div class="cell l3"></div>
+      <div class="cell l2"></div>
+      <div class="cell l0"></div>
+      <div class="total">14</div>
+    </div>
+    <div class="day-col">
+      <span class="dlbl">Wed</span>
+      <div class="cell l1"></div>
+      <div class="cell l0"></div>
+      <div class="cell l0"></div>
+      <div class="total">4</div>
+    </div>
+    <div class="day-col">
+      <span class="dlbl">Thu</span>
+      <div class="cell l4"></div>
+      <div class="cell l3"></div>
+      <div class="cell l2"></div>
+      <div class="total">18</div>
+    </div>
+    <div class="day-col">
+      <span class="dlbl">Fri</span>
+      <div class="cell l3"></div>
+      <div class="cell l1"></div>
+      <div class="cell l0"></div>
+      <div class="total">11</div>
+    </div>
+    <div class="day-col">
+      <span class="dlbl">Sat</span>
+      <div class="cell l4"></div>
+      <div class="cell l4"></div>
+      <div class="cell l3"></div>
+      <div class="total">22</div>
+    </div>
+    <div class="day-col">
+      <span class="dlbl">Sun</span>
+      <div class="cell l3"></div>
+      <div class="cell l2"></div>
+      <div class="cell l2"></div>
+      <div class="total">15</div>
+    </div>
+  </div>
+  <div class="legend">
+    <span>Fewer</span>
+    <div class="s l0"></div>
+    <div class="s l1"></div>
+    <div class="s l2"></div>
+    <div class="s l3"></div>
+    <div class="s l4"></div>
+    <span>More</span>
+  </div>
+</div>
+</body></html>

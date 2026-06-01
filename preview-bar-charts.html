@@ -1,0 +1,108 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Bar Chart Previews</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Inter, sans-serif; background: #f1f5f9; padding: 24px; color: #1e293b; }
+h1 { font-size: 18px; margin-bottom: 20px; color: #334155; }
+.preview-grid { display: flex; flex-direction: column; gap: 20px; max-width: 680px; margin: 0 auto; }
+.card { background: #fff; border-radius: 14px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: #64748b; margin-bottom: 12px; }
+
+/* ── Option 1: Horizontal bars per project ── */
+.h-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.h-bar-label { font-size: 12px; width: 80px; color: #334155; font-weight: 500; text-align: right; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.h-bar-track { flex: 1; height: 20px; background: #e2e8f0; border-radius: 6px; overflow: hidden; }
+.h-bar-fill { height: 100%; border-radius: 6px; transition: width .4s; }
+.h-bar-count { font-size: 11px; color: #64748b; width: 30px; text-align: right; font-weight: 600; }
+
+/* ── Option 2: Daily generation bars ── */
+.day-chart { display: flex; align-items: flex-end; gap: 4px; height: 80px; padding: 0 2px; }
+.day-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.day-bar { width: 100%; border-radius: 4px 4px 0 0; min-height: 4px; }
+.day-lbl { font-size: 9px; color: #94a3b8; font-weight: 500; }
+.day-val { font-size: 9px; color: #64748b; font-weight: 600; margin-top: 2px; }
+
+/* ── Option 3: Status bars ── */
+.stat-bars { display: flex; flex-direction: column; gap: 6px; }
+.stat-bar-row { display: flex; align-items: center; gap: 8px; }
+.stat-bar-lbl { font-size: 11px; width: 65px; color: #64748b; flex-shrink: 0; }
+.stat-bar-track { flex: 1; height: 22px; background: #e2e8f0; border-radius: 6px; overflow: hidden; }
+.stat-bar-fill { height: 100%; border-radius: 6px; transition: width .4s; }
+.stat-bar-val { font-size: 12px; font-weight: 700; width: 30px; text-align: right; }
+</style>
+</head><body>
+<div class="preview-grid">
+
+  <!-- Option 1 -->
+  <div class="card">
+    <div class="card-title">Option 1: Tests per Project</div>
+    <div class="h-bar-row">
+      <span class="h-bar-label">Login Flow</span>
+      <div class="h-bar-track"><div class="h-bar-fill" style="width:100%;background:linear-gradient(90deg,#3b82f6,#6366f1)"></div></div>
+      <span class="h-bar-count">48</span>
+    </div>
+    <div class="h-bar-row">
+      <span class="h-bar-label">Checkout</span>
+      <div class="h-bar-track"><div class="h-bar-fill" style="width:75%;background:linear-gradient(90deg,#3b82f6,#6366f1)"></div></div>
+      <span class="h-bar-count">36</span>
+    </div>
+    <div class="h-bar-row">
+      <span class="h-bar-label">User Profile</span>
+      <div class="h-bar-track"><div class="h-bar-fill" style="width:54%;background:linear-gradient(90deg,#3b82f6,#6366f1)"></div></div>
+      <span class="h-bar-count">26</span>
+    </div>
+    <div class="h-bar-row">
+      <span class="h-bar-label">Search</span>
+      <div class="h-bar-track"><div class="h-bar-fill" style="width:33%;background:linear-gradient(90deg,#06b6d4,#3b82f6)"></div></div>
+      <span class="h-bar-count">16</span>
+    </div>
+    <div class="h-bar-row">
+      <span class="h-bar-label">Admin</span>
+      <div class="h-bar-track"><div class="h-bar-fill" style="width:21%;background:linear-gradient(90deg,#06b6d4,#3b82f6)"></div></div>
+      <span class="h-bar-count">10</span>
+    </div>
+  </div>
+
+  <!-- Option 2 -->
+  <div class="card">
+    <div class="card-title">Option 2: Daily Generation</div>
+    <div class="day-chart">
+      <div class="day-col"><div class="day-bar" style="height:20px;background:linear-gradient(180deg,#3b82f6,#6366f1)"></div><span class="day-lbl">Mon</span><span class="day-val">12</span></div>
+      <div class="day-col"><div class="day-bar" style="height:52px;background:linear-gradient(180deg,#06b6d4,#3b82f6)"></div><span class="day-lbl">Tue</span><span class="day-val">31</span></div>
+      <div class="day-col"><div class="day-bar" style="height:80px;background:linear-gradient(180deg,#6366f1,#8b5cf6)"></div><span class="day-lbl">Wed</span><span class="day-val">48</span></div>
+      <div class="day-col"><div class="day-bar" style="height:10px;background:linear-gradient(180deg,#3b82f6,#4f46e5)"></div><span class="day-lbl">Thu</span><span class="day-val">6</span></div>
+      <div class="day-col"><div class="day-bar" style="height:38px;background:linear-gradient(180deg,#0ea5e9,#3b82f6)"></div><span class="day-lbl">Fri</span><span class="day-val">23</span></div>
+      <div class="day-col"><div class="day-bar" style="height:4px;background:linear-gradient(180deg,#3b82f6,#6366f1)"></div><span class="day-lbl">Sat</span><span class="day-val">0</span></div>
+      <div class="day-col"><div class="day-bar" style="height:28px;background:linear-gradient(180deg,#06b6d4,#6366f1)"></div><span class="day-lbl">Sun</span><span class="day-val">17</span></div>
+    </div>
+  </div>
+
+  <!-- Option 3 -->
+  <div class="card">
+    <div class="card-title">Option 3: Status Breakdown</div>
+    <div class="stat-bars">
+      <div class="stat-bar-row">
+        <span class="stat-bar-lbl">Pass</span>
+        <div class="stat-bar-track"><div class="stat-bar-fill" style="width:100%;background:linear-gradient(90deg,#10b981,#34d399)"></div></div>
+        <span class="stat-bar-val" style="color:#10b981">64</span>
+      </div>
+      <div class="stat-bar-row">
+        <span class="stat-bar-lbl">Fail</span>
+        <div class="stat-bar-track"><div class="stat-bar-fill" style="width:28%;background:linear-gradient(90deg,#dc2626,#f87171)"></div></div>
+        <span class="stat-bar-val" style="color:#dc2626">18</span>
+      </div>
+      <div class="stat-bar-row">
+        <span class="stat-bar-lbl">Blocked</span>
+        <div class="stat-bar-track"><div class="stat-bar-fill" style="width:9%;background:linear-gradient(90deg,#f97316,#fb923c)"></div></div>
+        <span class="stat-bar-val" style="color:#f97316">6</span>
+      </div>
+      <div class="stat-bar-row">
+        <span class="stat-bar-lbl">Untested</span>
+        <div class="stat-bar-track"><div class="stat-bar-fill" style="width:19%;background:linear-gradient(90deg,#94a3b8,#cbd5e1)"></div></div>
+        <span class="stat-bar-val" style="color:#94a3b8">12</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body></html>

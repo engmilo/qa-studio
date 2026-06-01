@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Analytics Dashboard · Preview</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+    padding: 24px;
+}
+.preview-badge {
+    display:inline-block;
+    background:#6366f1;
+    color:#fff;
+    font-size:11px;
+    font-weight:600;
+    padding:4px 12px;
+    border-radius:6px;
+    margin-bottom:20px;
+    letter-spacing:0.03em;
+}
+.dashboard {
+    max-width:1360px;
+    margin:0 auto;
+}
+/* grid */
+.kpi-grid {
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:16px;
+    margin-bottom:20px;
+}
+.chart-grid {
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:16px;
+    margin-bottom:20px;
+}
+.bottom-grid {
+    display:grid;
+    grid-template-columns:1fr 280px;
+    gap:16px;
+    margin-bottom:20px;
+}
+/* cards */
+.card {
+    background:#fff;
+    border-radius:12px;
+    border:1px solid #e2e8f0;
+    padding:20px;
+}
+.card-header {
+    font-size:11px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:#64748b;
+    margin-bottom:14px;
+}
+/* KPI */
+.kpi-card {
+    background:#fff;
+    border-radius:12px;
+    border:1px solid #e2e8f0;
+    padding:18px 20px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+.kpi-icon {
+    width:40px;height:40px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    flex-shrink:0;
+}
+.kpi-info { flex:1; }
+.kpi-value {
+    font-size:24px;
+    font-weight:700;
+    line-height:1.2;
+    color:#0f172a;
+}
+.kpi-label {
+    font-size:12px;
+    color:#64748b;
+    font-weight:500;
+    margin-top:2px;
+}
+.kpi-trend {
+    font-size:11px;
+    font-weight:600;
+    padding:2px 8px;
+    border-radius:6px;
+}
+.kpi-trend.up { background:#dcfce7; color:#16a34a; }
+.kpi-trend.down { background:#fee2e2; color:#dc2626; }
+/* chart containers */
+.chart-container {
+    position:relative;
+    height:260px;
+}
+.chart-container-sm {
+    position:relative;
+    height:240px;
+}
+.chart-container-pie {
+    position:relative;
+    height:220px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+/* table */
+.table-wrap {
+    overflow-x:auto;
+}
+table {
+    width:100%;
+    border-collapse:collapse;
+    font-size:12px;
+}
+thead th {
+    text-align:left;
+    padding:10px 12px;
+    font-weight:600;
+    color:#64748b;
+    border-bottom:2px solid #e2e8f0;
+    white-space:nowrap;
+}
+tbody td {
+    padding:10px 12px;
+    border-bottom:1px solid #f1f5f9;
+    color:#334155;
+}
+tbody tr:hover { background:#f8fafc; }
+.status-badge {
+    display:inline-block;
+    padding:2px 10px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:600;
+}
+.status-pass { background:#dcfce7; color:#16a34a; }
+.status-fail { background:#fee2e2; color:#dc2626; }
+.status-blocked { background:#ffedd5; color:#ea580c; }
+.status-untested { background:#f1f5f9; color:#94a3b8; }
+.priority-badge {
+    display:inline-block;
+    padding:2px 8px;
+    border-radius:4px;
+    font-size:10px;
+    font-weight:600;
+}
+.priority-high { background:#fee2e2; color:#dc2626; }
+.priority-medium { background:#ffedd5; color:#ea580c; }
+.priority-low { background:#f1f5f9; color:#64748b; }
+/* sidebar widgets */
+.sidebar { display:flex;flex-direction:column;gap:16px; }
+.widget-card {
+    background:#fff;
+    border-radius:12px;
+    border:1px solid #e2e8f0;
+    padding:18px 20px;
+}
+.widget-header {
+    font-size:11px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:#64748b;
+    margin-bottom:12px;
+}
+.widget-stat {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:6px 0;
+}
+.widget-stat + .widget-stat { border-top:1px solid #f1f5f9; }
+.widget-stat-name { font-size:12px; color:#475569; }
+.widget-stat-val { font-size:13px; font-weight:700; color:#0f172a; }
+.progress-bar {
+    height:6px;
+    background:#f1f5f9;
+    border-radius:4px;
+    overflow:hidden;
+    margin-top:6px;
+}
+.progress-fill {
+    height:100%;
+    border-radius:4px;
+}
+/* misc */
+.legend-row {
+    display:flex;
+    gap:18px;
+    justify-content:center;
+    margin-top:8px;
+}
+.legend-item {
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:11px;
+    color:#64748b;
+}
+.legend-dot {
+    width:8px;height:8px;
+    border-radius:2px;
+    flex-shrink:0;
+}
+@media (max-width:1024px) {
+    .kpi-grid { grid-template-columns:repeat(3,1fr); }
+    .chart-grid { grid-template-columns:1fr; }
+    .bottom-grid { grid-template-columns:1fr; }
+}
+@media (max-width:640px) {
+    .kpi-grid { grid-template-columns:repeat(2,1fr); }
+}
+</style>
+</head>
+<body>
+<div class="dashboard">
+
+<div class="preview-badge">&#9670; PREVIEW · Enterprise QA Dashboard</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-icon" style="background:#eff6ff;color:#3b82f6;">&#9744;</div>
+        <div class="kpi-info">
+            <div class="kpi-value">248</div>
+            <div class="kpi-label">Total Test Cases Today</div>
+        </div>
+        <span class="kpi-trend up">+12%</span>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon" style="background:#dcfce7;color:#16a34a;">&#10003;</div>
+        <div class="kpi-info">
+            <div class="kpi-value">186</div>
+            <div class="kpi-label">Passed</div>
+        </div>
+        <span class="kpi-trend up">+8%</span>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon" style="background:#fee2e2;color:#dc2626;">&#10007;</div>
+        <div class="kpi-info">
+            <div class="kpi-value">28</div>
+            <div class="kpi-label">Failed</div>
+        </div>
+        <span class="kpi-trend down">+5%</span>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon" style="background:#ffedd5;color:#ea580c;">&#9888;</div>
+        <div class="kpi-info">
+            <div class="kpi-value">14</div>
+            <div class="kpi-label">Blocked</div>
+        </div>
+        <span class="kpi-trend up">-3%</span>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon" style="background:#f1f5f9;color:#94a3b8;">&#9201;</div>
+        <div class="kpi-info">
+            <div class="kpi-value">20</div>
+            <div class="kpi-label">Not Executed</div>
+        </div>
+        <span class="kpi-trend up">-2%</span>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="chart-grid">
+    <div class="card">
+        <div class="card-header">Status vs Test Cases</div>
+        <div class="chart-container"><canvas id="barChart"></canvas></div>
+        <div class="legend-row">
+            <span class="legend-item"><span class="legend-dot" style="background:#16a34a;"></span>Passed (186)</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#dc2626;"></span>Failed (28)</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#ea580c;"></span>Blocked (14)</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#94a3b8;"></span>Not Executed (20)</span>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">Priority Distribution</div>
+        <div class="chart-container-pie"><canvas id="pieChart"></canvas></div>
+        <div class="legend-row">
+            <span class="legend-item"><span class="legend-dot" style="background:#dc2626;"></span>High</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#f97316;"></span>Medium</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#3b82f6;"></span>Low</span>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom: Trend + Table + Sidebar -->
+<div class="bottom-grid">
+    <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="card">
+            <div class="card-header">Daily Trend — Test Cases Created (Last 7 Days)</div>
+            <div class="chart-container-sm"><canvas id="lineChart"></canvas></div>
+        </div>
+        <div class="card">
+            <div class="card-header">Recent Test Cases</div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>TC ID</th><th>Title</th><th>Status</th><th>Priority</th><th>Owner</th><th>Execution Date</th></tr>
+                    </thead>
+                    <tbody id="testTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar">
+        <div class="widget-card">
+            <div class="widget-header">Tester Productivity</div>
+            <div class="widget-stat">
+                <span class="widget-stat-name">Sarah Chen</span>
+                <span class="widget-stat-val">47 tests</span>
+            </div>
+            <div class="widget-stat">
+                <span class="widget-stat-name">Marcus Johnson</span>
+                <span class="widget-stat-val">42 tests</span>
+            </div>
+            <div class="widget-stat">
+                <span class="widget-stat-name">Aisha Patel</span>
+                <span class="widget-stat-val">38 tests</span>
+            </div>
+            <div class="widget-stat">
+                <span class="widget-stat-name">David Kim</span>
+                <span class="widget-stat-val">35 tests</span>
+            </div>
+        </div>
+        <div class="widget-card">
+            <div class="widget-header">Defect Density</div>
+            <div class="widget-stat">
+                <span class="widget-stat-name">Checkout Module</span>
+                <span class="widget-stat-val">4.2/kloc</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:84%;background:#dc2626;"></div></div>
+            <div class="widget-stat">
+                <span class="widget-stat-name">User Auth</span>
+                <span class="widget-stat-val">1.8/kloc</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:36%;background:#f97316;"></div></div>
+            <div class="widget-stat">
+                <span class="widget-stat-name">Payment API</span>
+                <span class="widget-stat-val">3.1/kloc</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:62%;background:#ea580c;"></div></div>
+            <div class="widget-stat">
+                <span class="widget-stat-name">Search</span>
+                <span class="widget-stat-val">0.9/kloc</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:18%;background:#16a34a;"></div></div>
+        </div>
+        <div class="widget-card">
+            <div class="widget-header">Automation Coverage</div>
+            <div style="text-align:center;padding:8px 0;">
+                <span style="font-size:36px;font-weight:800;color:#3b82f6;">72%</span>
+                <div style="font-size:11px;color:#64748b;margin-top:2px;">of test cases automated</div>
+            </div>
+            <div class="progress-bar" style="height:10px;border-radius:6px;margin-top:8px;">
+                <div class="progress-fill" style="width:72%;background:#3b82f6;border-radius:6px;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:8px;">
+                <span style="font-size:11px;color:#64748b;">Automated: 178</span>
+                <span style="font-size:11px;color:#64748b;">Manual: 70</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+// ── Mock Data ──
+const statusCounts = [186, 28, 14, 20];
+const statusLabels = ['Passed','Failed','Blocked','Not Executed'];
+const statusColors = ['#16a34a','#dc2626','#ea580c','#94a3b8'];
+
+const priorityData = [52, 98, 78];
+const priorityLabels = ['High','Medium','Low'];
+const priorityColors = ['#dc2626','#f97316','#3b82f6'];
+
+const dayLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const dayCounts = [28, 34, 31, 42, 38, 45, 30];
+
+const testCases = [
+    { id:'TC-2401', title:'Verify user login with valid credentials', status:'pass', priority:'high', owner:'Sarah Chen', date:'2026-05-26' },
+    { id:'TC-2402', title:'Checkout with promo code discount', status:'pass', priority:'medium', owner:'Marcus Johnson', date:'2026-05-26' },
+    { id:'TC-2403', title:'Password reset email delivery', status:'fail', priority:'high', owner:'Aisha Patel', date:'2026-05-26' },
+    { id:'TC-2404', title:'Payment gateway timeout handling', status:'blocked', priority:'medium', owner:'David Kim', date:'2026-05-25' },
+    { id:'TC-2405', title:'Search results relevance filter', status:'pass', priority:'low', owner:'Sarah Chen', date:'2026-05-25' },
+    { id:'TC-2406', title:'Multi-language content rendering', status:'pass', priority:'medium', owner:'Marcus Johnson', date:'2026-05-25' },
+    { id:'TC-2407', title:'Session expiry after inactivity', status:'fail', priority:'high', owner:'Aisha Patel', date:'2026-05-24' },
+    { id:'TC-2408', title:'File upload size validation', status:'untested', priority:'low', owner:'David Kim', date:'2026-05-24' },
+];
+
+// ── Bar Chart ──
+new Chart(document.getElementById('barChart'), {
+    type:'bar',
+    data:{
+        labels:statusLabels,
+        datasets:[{
+            data:statusCounts,
+            backgroundColor:statusColors.map(c=>c+'cc'),
+            borderColor:statusColors,
+            borderWidth:1,
+            borderRadius:4,
+            borderSkipped:false,
+            barPercentage:0.55,
+        }]
+    },
+    options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:'#0f172a', titleFont:{size:11}, bodyFont:{size:12}, padding:10, cornerRadius:8 } },
+        scales:{
+            y:{ beginAtZero:true, grid:{ color:'#f1f5f9' }, ticks:{ font:{size:11}, color:'#94a3b8', stepSize:50 } },
+            x:{ grid:{ display:false }, ticks:{ font:{size:11}, color:'#64748b' } }
+        }
+    }
+});
+
+// ── Pie Chart ──
+new Chart(document.getElementById('pieChart'), {
+    type:'doughnut',
+    data:{
+        labels:priorityLabels,
+        datasets:[{
+            data:priorityData,
+            backgroundColor:priorityColors.map(c=>c+'cc'),
+            borderColor:priorityColors,
+            borderWidth:2,
+        }]
+    },
+    options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        cutout:'65%',
+        plugins:{
+            legend:{ display:false },
+            tooltip:{ backgroundColor:'#0f172a', titleFont:{size:11}, bodyFont:{size:12}, padding:10, cornerRadius:8 }
+        }
+    }
+});
+
+// ── Line Chart ──
+new Chart(document.getElementById('lineChart'), {
+    type:'line',
+    data:{
+        labels:dayLabels,
+        datasets:[{
+            data:dayCounts,
+            borderColor:'#3b82f6',
+            backgroundColor:'rgba(59,130,246,0.08)',
+            fill:true,
+            tension:0.35,
+            pointBackgroundColor:'#3b82f6',
+            pointBorderColor:'#fff',
+            pointBorderWidth:2,
+            pointRadius:4,
+            pointHoverRadius:6,
+        }]
+    },
+    options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+            legend:{ display:false },
+            tooltip:{ backgroundColor:'#0f172a', titleFont:{size:11}, bodyFont:{size:12}, padding:10, cornerRadius:8 }
+        },
+        scales:{
+            y:{ beginAtZero:true, grid:{ color:'#f1f5f9' }, ticks:{ font:{size:11}, color:'#94a3b8', stepSize:10 } },
+            x:{ grid:{ display:false }, ticks:{ font:{size:11}, color:'#64748b' } }
+        }
+    }
+});
+
+// ── Table ──
+const tbody = document.getElementById('testTable');
+testCases.forEach(tc => {
+    const statusClass = tc.status === 'pass' ? 'status-pass' : tc.status === 'fail' ? 'status-fail' : tc.status === 'blocked' ? 'status-blocked' : 'status-untested';
+    const statusLabel = tc.status.charAt(0).toUpperCase() + tc.status.slice(1);
+    const priClass = 'priority-' + tc.priority;
+    tbody.innerHTML += `<tr>
+        <td style="font-weight:600;color:#0f172a;">${tc.id}</td>
+        <td>${tc.title}</td>
+        <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+        <td><span class="priority-badge ${priClass}">${tc.priority.charAt(0).toUpperCase()+tc.priority.slice(1)}</span></td>
+        <td>${tc.owner}</td>
+        <td style="color:#64748b;">${tc.date}</td>
+    </tr>`;
+});
+</script>
+</body>
+</html>
