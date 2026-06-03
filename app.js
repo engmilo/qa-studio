@@ -821,13 +821,31 @@ function renderDashboard() {
     const filteredProjects = state.projects.filter(p => !projectFilter || p.name === projectFilter);
     const filteredTests = filteredProjects.reduce((arr, p) => arr.concat(p.testCases), []);
     const allTests = projectFilter ? filteredTests : filteredTests.concat(latestTestCases);
-    const total = allTests.length;
-    const pass = allTests.filter(tc => tc.status === "pass").length;
-    const fail = allTests.filter(tc => tc.status === "fail").length;
-    const blocked = allTests.filter(tc => tc.status === "blocked").length;
-    const untested = allTests.filter(tc => !tc.status).length;
 
-    if (total === 0 && state.usageTotal === 0) {
+    // ── Week range from comparisonPeriod ──
+    const fmt = d => d.toISOString().slice(0, 10);
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const diffToMon = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const mon = new Date(today);
+    mon.setDate(today.getDate() - diffToMon);
+    const weekStartStr = fmt(mon);
+    const weekStart = comparisonPeriod === "lastWeek"
+        ? fmt(new Date(mon.getTime() - 7 * 864e5))
+        : weekStartStr;
+    const weekEndDate = new Date(weekStart);
+    weekEndDate.setDate(weekEndDate.getDate() + 7);
+    const weekEndStr = fmt(weekEndDate);
+    const weekTests = allTests.filter(tc =>
+        tc.createdAt && tc.createdAt >= weekStart && tc.createdAt < weekEndStr
+    );
+    const total = weekTests.length;
+    const pass = weekTests.filter(tc => tc.status === "pass").length;
+    const fail = weekTests.filter(tc => tc.status === "fail").length;
+    const blocked = weekTests.filter(tc => tc.status === "blocked").length;
+    const untested = weekTests.filter(tc => !tc.status).length;
+
+    if (allTests.length === 0 && state.usageTotal === 0) {
         document.getElementById("dashContent").innerHTML = `<div class="empty-state">${t("dashEmpty")}</div>`;
         return;
     }
@@ -853,23 +871,7 @@ function renderDashboard() {
     const thisWeekGen = thisWeekHist.data.reduce((s, d) => s + d.count, 0);
     const lastWeekGen = lastWeekHist.data.reduce((s, d) => s + d.count, 0);
 
-    // ── Priority counts (filtered by comparisonPeriod) ──
-    const fmt = d => d.toISOString().slice(0, 10);
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-    const diffToMon = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-    const mon = new Date(today);
-    mon.setDate(today.getDate() - diffToMon);
-    const weekStartStr = fmt(mon);
-    const weekStart = comparisonPeriod === "lastWeek"
-        ? fmt(new Date(mon.getTime() - 7 * 864e5))
-        : weekStartStr;
-    const weekEndDate = new Date(weekStart);
-    weekEndDate.setDate(weekEndDate.getDate() + 7);
-    const weekEndStr = fmt(weekEndDate);
-    const weekTests = allTests.filter(tc =>
-        tc.createdAt && tc.createdAt >= weekStart && tc.createdAt < weekEndStr
-    );
+    // ── Priority counts ──
     const priorityCounts = {};
     weekTests.forEach(tc => {
         if (!tc.priority) return;
@@ -964,7 +966,7 @@ function renderDashboard() {
                         <th>${t('colId')}</th><th>${t('colTitle')}</th><th>${t('colStatus')}</th><th>${t('colPriority')}</th><th>${t('colExecDate')}</th>
                     </tr></thead>
                         <tbody>${(() => {
-                            return allTests.slice().sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||'')).slice(0,16).map((tc, i) => {
+                            return weekTests.slice().sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||'')).slice(0,16).map((tc, i) => {
                             const s = tc.status || "untested";
                             const sc = 'status-' + s;
                             const sl = t(s);
