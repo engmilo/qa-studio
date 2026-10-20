@@ -84,7 +84,7 @@ const i18n = {
         apiEndpointUrl: "API Endpoint URL",
         apiEndpointPlaceholder: "https://your-api.com/endpoint",
         apiModelName: "Model Name",
-        apiModelPlaceholder: "claude-sonnet-4-20250514",
+        apiModelPlaceholder: "claude-sonnet-5-5",
         apiMaxTokens: "Max Tokens",
         apiTokensPlaceholder: "4096",
         saveConfig: "Save Configuration",
@@ -208,7 +208,7 @@ const i18n = {
         apiEndpointUrl: "API-päätepisteen URL",
         apiEndpointPlaceholder: "https://your-api.com/endpoint",
         apiModelName: "Mallin nimi",
-        apiModelPlaceholder: "claude-sonnet-4-20250514",
+        apiModelPlaceholder: "claude-sonnet-5-5",
         apiMaxTokens: "Enimmäistokens",
         apiTokensPlaceholder: "4096",
         saveConfig: "Tallenna asetukset",
@@ -1483,7 +1483,7 @@ function showSkeletonLoader() {
 function loadApiConfig() {
     const config = JSON.parse(localStorage.getItem("qa_api_config") || "{}");
     document.getElementById("apiUrlInput").value = config.url || "";
-    document.getElementById("apiModelInput").value = config.model || "claude-sonnet-4-20250514";
+    document.getElementById("apiModelInput").value = config.model || "claude-sonnet-5-5";
     document.getElementById("apiTokensInput").value = config.tokens || 4096;
     document.getElementById("apiKeyInput").value = "";
     const btn = document.getElementById("saveApiConfig");
@@ -1499,7 +1499,7 @@ function loadApiConfig() {
 function getApiConfig() {
     return {
         url: document.getElementById("apiUrlInput").value.trim(),
-        model: document.getElementById("apiModelInput").value.trim() || "claude-sonnet-4-20250514",
+        model: document.getElementById("apiModelInput").value.trim() || "claude-sonnet-4-claude-sonnet-5-5",
         tokens: parseInt(document.getElementById("apiTokensInput").value) || 4096,
         apiKey: document.getElementById("apiKeyInput").value.trim()
     };
