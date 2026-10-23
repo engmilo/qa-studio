@@ -50,7 +50,8 @@ nav {
 nav .container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    <!-- justify-content: space-between; -->
+    justify-content: center;
     height: 64px;
 }
 .nav-logo {
@@ -288,7 +289,13 @@ body.dark .back-to-top:hover {
 }
 
 /* ── Mobile ── */
-@media (max-width: 768px) {
+nav .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 64px;
+}
+    @media (max-width: 768px) {
     .nav-links { display: none; }
     .mobile-toggle { display: block; }
     .nav-links.open {
