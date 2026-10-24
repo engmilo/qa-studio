@@ -1,4 +1,3 @@
-```javascript
 import { test, expect } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
@@ -23,7 +22,7 @@ test("initial state shows empty results and disabled buttons", async ({ page }) 
     "exportWord",
     "saveProjectBtn",
   ]) {
-    await expect(page.locator(`#${id}`)).toBeDisabled();
+    await expect(page.locator("#" + id)).toBeDisabled();
   }
 });
 
@@ -110,4 +109,4 @@ test("generate with mocked API produces test cards", async ({ page }) => {
 
   if (!response.ok) {
     th
-```
+
