@@ -1,3 +1,4 @@
+```javascript
 import { test, expect } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
@@ -15,7 +16,13 @@ test("initial state shows empty results and disabled buttons", async ({ page }) 
   await expect(demoBtn).toBeEnabled();
 
   // All export/save buttons start disabled
-  for (const id of ["exportJson", "exportCsv", "exportExcel", "exportWord", "saveProjectBtn"]) {
+  for (const id of [
+    "exportJson",
+    "exportCsv",
+    "exportExcel",
+    "exportWord",
+    "saveProjectBtn",
+  ]) {
     await expect(page.locator(`#${id}`)).toBeDisabled();
   }
 });
@@ -36,40 +43,42 @@ test("demo button generates 16 test cases", async ({ page }) => {
 
 test("search filters test cards", async ({ page }) => {
   await page.locator("#demoBtn").click();
+
   await expect(page.locator("#results .test-card")).toHaveCount(16);
 
   // Type in search box
   const searchInput = page.locator("#generatorSearch");
   await searchInput.fill("login");
-  await page.waitForTimeout(300); // debounce
 
-  // Some cards should be filtered (less than 16 visible)
+  // Wait until filtering has taken effect
   const visible = page.locator("#results .test-card");
+  await expect(visible).not.toHaveCount(16);
+
+  // Some matching cards should remain
   const count = await visible.count();
-  expect(count).toBeLessThan(16);
   expect(count).toBeGreaterThan(0);
 });
 
 test("bulk select and delete test cases", async ({ page }) => {
   await page.locator("#demoBtn").click();
+
   await expect(page.locator("#results .test-card")).toHaveCount(16);
-  await page.waitForTimeout(300);
 
-  // Click first card's checkbox to reveal bulk actions bar
+  // Click first card's checkbox
   await page.locator("#results .test-checkbox").first().click();
-  await page.waitForTimeout(200);
 
-  // Bulk actions bar should now be visible; click Select All
+  // Select All
   await page.locator("#selectAllBtn").click();
+
   await expect(page.locator("#selectedCount")).toHaveText("16");
 
   // Open delete confirmation
   await page.locator("#deleteSelectedBtn").click();
+
   await expect(page.locator("#bulkDeleteOverlay")).toHaveClass(/visible/);
 
   // Confirm delete
   await page.locator("#confirmBulkDelete").click();
-  await page.waitForTimeout(200);
 
   // All cards should be gone
   await expect(page.locator("#results .test-card")).toHaveCount(0);
@@ -77,17 +86,21 @@ test("bulk select and delete test cases", async ({ page }) => {
 
 test("save to project and verify in projects view", async ({ page }) => {
   await page.locator("#demoBtn").click();
+
   await expect(page.locator("#results .test-card")).toHaveCount(16);
 
   // Open save modal
   await page.locator("#saveProjectBtn").click();
+
   await expect(page.locator("#saveModalOverlay")).toHaveClass(/visible/);
 
   // Type project name and description, then save
   await page.locator("#projectNameInput").fill("Login Tests");
-  await page.locator("#projectDescInput").fill("User login feature tests");
+  await page
+    .locator("#projectDescInput")
+    .fill("User login feature tests");
+
   await page.locator("#confirmSaveBtn").click();
-  await page.waitForTimeout(200);
 
   // After save, the textarea and results should be cleared
   await expect(page.locator("#testInput")).toHaveValue("");
@@ -95,16 +108,19 @@ test("save to project and verify in projects view", async ({ page }) => {
 
   // Navigate to projects view
   await page.locator('[data-view="projects"]').click();
+
   await expect(page.locator("#projectsContent")).toContainText("Login Tests");
-  await expect(page.locator("#projectsContent")).toContainText("User login feature tests");
+  await expect(page.locator("#projectsContent")).toContainText(
+    "User login feature tests"
+  );
   await expect(page.locator("#projectsContent")).toContainText("16");
 });
 
-test("generate with mocked API produces test cards", async ({ page, request }) => {
-  // Read the mock response fixture
-  const mockResponse = await (await fetch(
-    "http://localhost:3333/e2e/mocks/api-response.json"
-  )).json();
+test("generate with mocked API produces test cards", async ({ page }) => {
+  // Read the existing mock response fixture
+  const mockResponse = await (
+    await fetch("http://localhost:3333/e2e/mocks/api-response.json")
+  ).json();
 
   // Intercept calls to the AI proxy
   await page.route("**/qa-proxy.eng-milo.workers.dev**", (route) => {
@@ -115,11 +131,11 @@ test("generate with mocked API produces test cards", async ({ page, request }) =
     });
   });
 
-  // Open API config and provide a dummy key so the proxy doesn't reject
+  // Open API config and provide a dummy key
   await page.locator("#openApiConfigBtn").click();
+
   await page.locator("#apiKeyInput").fill("sk-test-dummy-key");
   await page.locator("#saveApiConfig").click();
-  await page.waitForTimeout(200);
 
   // Type a feature
   const input = page.locator("#testInput");
@@ -132,3 +148,4 @@ test("generate with mocked API produces test cards", async ({ page, request }) =
   await expect(page.locator("#results .test-card")).toHaveCount(10);
   await expect(page.locator("#resultsMeta")).toContainText("10");
 });
+```
