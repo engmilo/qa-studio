@@ -2,6 +2,18 @@
 // CONFIG
 // ============================================================
 const WORKER_URL = "https://qa-proxy.eng-milo.workers.dev";
+const DEFAULT_MODEL = "claude-sonnet-4-20250514";
+
+// Only Claude models that exist in the Settings dropdown are accepted
+function isValidModel(v) {
+    const sel = document.getElementById("apiModelInput");
+    return typeof v === "string" && v.startsWith("claude-") &&
+        Array.from(sel.options).some(o => o.value === v);
+}
+function selectedModel() {
+    const v = document.getElementById("apiModelInput").value.trim();
+    return isValidModel(v) ? v : DEFAULT_MODEL;
+}
 
 // ============================================================
 // I18N
@@ -128,6 +140,9 @@ const i18n = {
         swUpdateAvailable: "New version available — please hard refresh (Ctrl+F5)",
         swUpdateApplied: "Update applied! Reloading…",
         noSearchResults: "No results matching your search.",
+        colExecDate: "Created",
+        toastTruncated: "The AI response was cut off at the token limit, so some test cases may be missing. Increase Max Tokens in API Configuration.",
+        toastStorageFull: "Could not save to browser storage (it may be full). Export a backup and clear old data.",
         dir: "ltr",
     },
     fi: {
@@ -177,7 +192,7 @@ const i18n = {
         sideDefectDensity: "Vikatiheys",
         sideAutoCoverage: "Automaatiokattavuus",
         sideOfTotal: "suoritetuista",
-        colExecDate: "Suorituspäivä",
+        colExecDate: "Luotu",
         importExportBtn: "Tuo / Vie",
         importExportTitle: "Tuo / Vie tiedot",
         exportLabel: "Vie kaikki tiedot",
@@ -252,6 +267,8 @@ const i18n = {
         swUpdateAvailable: "Uusi versio saatavilla — päivitä sivu (Ctrl+F5)",
         swUpdateApplied: "Päivitys asennettu! Ladataan uudelleen…",
         noSearchResults: "Ei hakutuloksia.",
+        toastTruncated: "Tekoälyn vastaus katkesi tokenirajaan, joten osa testitapauksista voi puuttua. Nosta enimmäistokenien määrää API-asetuksissa.",
+        toastStorageFull: "Tallennus selaimen muistiin epäonnistui (muisti voi olla täynnä). Vie varmuuskopio ja tyhjennä vanhoja tietoja.",
         dir: "ltr",
     },
 };
@@ -290,7 +307,6 @@ function applyLang() {
     if (testInput_) testInput_.setAttribute("placeholder", t("testInputPlaceholder"));
 
     testInput.dir = "ltr";
-    testInput.value = "";
     updateCharCounter();
     updateUsageCounter();
     renderSavedTestCards();
@@ -300,35 +316,113 @@ function applyLang() {
 // ============================================================
 // STATE
 // ============================================================
+// ---- Data normalization: AI output, imported files and stored data all pass through here ----
+const PRIORITIES = ["Critical", "High", "Medium", "Low", "Trivial"];
+const STATUSES = ["pass", "fail", "blocked"];
+const LIM = { id: 40, title: 300, text: 2000, step: 500, steps: 30, tag: 60, tags: 20, name: 200, desc: 500, feature: 120, items: 500 };
+const toStr = (v, max) => (typeof v === "string" || typeof v === "number" ? String(v) : "").trim().slice(0, max);
+const todayISO = () => new Date().toISOString().slice(0, 10);
+const asDate = v => (/^\d{4}-\d{2}-\d{2}/.test(String(v ?? "")) ? String(v).slice(0, 10) : "");
+const listOf = (v, maxItems, maxLen) =>
+    (Array.isArray(v) ? v : typeof v === "string" ? [v] : [])
+        .map(x => toStr(x, maxLen)).filter(Boolean).slice(0, maxItems);
+const pickPriority = v => PRIORITIES.find(p => p.toLowerCase() === String(v ?? "").trim().toLowerCase()) || "Medium";
+const pickStatus = v => STATUSES.find(s => s === String(v ?? "").trim().toLowerCase()) || null;
+
+function uniqueId(candidate, used, fallbackIndex) {
+    let id = toStr(candidate, LIM.id).replace(/[^\w.-]/g, "");
+    let n = fallbackIndex + 1;
+    while (!id || used.has(id)) id = "TC-" + String(n++).padStart(3, "0");
+    used.add(id);
+    return id;
+}
+function normalizeTestCase(raw, index, used) {
+    const tc = raw && typeof raw === "object" ? raw : {};
+    return {
+        id: uniqueId(tc.id, used, index),
+        title: toStr(tc.title, LIM.title) || "Untitled test case",
+        description: toStr(tc.description, LIM.text),
+        steps: listOf(tc.steps, LIM.steps, LIM.step),
+        expected: toStr(tc.expected, LIM.text),
+        priority: pickPriority(tc.priority),
+        tags: listOf(tc.tags, LIM.tags, LIM.tag),
+        risk: toStr(tc.risk, LIM.text),
+        status: pickStatus(tc.status),
+        createdAt: asDate(tc.createdAt),
+    };
+}
+function normalizeTestCases(list) {
+    const used = new Set();
+    return (Array.isArray(list) ? list : []).slice(0, LIM.items).map((tc, i) => normalizeTestCase(tc, i, used));
+}
+function normalizeProjects(list) {
+    const usedIds = new Set();
+    return (Array.isArray(list) ? list : []).slice(0, 200).map((p, i) => {
+        const src = p && typeof p === "object" ? p : {};
+        let id = Number.isFinite(src.id) ? src.id : toStr(src.id, 40).replace(/[^\w-]/g, "");
+        let bump = 0;
+        while (id === "" || usedIds.has(id)) id = Date.now() + i + (++bump);
+        usedIds.add(id);
+        return {
+            id,
+            name: toStr(src.name, LIM.name) || `Project ${i + 1}`,
+            description: toStr(src.description, LIM.desc),
+            created: asDate(src.created) || todayISO(),
+            testCases: normalizeTestCases(src.testCases),
+        };
+    });
+}
+function normalizeHistory(list) {
+    return (Array.isArray(list) ? list : []).slice(0, 50).map(h => {
+        const src = h && typeof h === "object" ? h : {};
+        const time = toStr(src.time, 5);
+        return {
+            feature: toStr(src.feature, LIM.feature),
+            date: asDate(src.date) || todayISO(),
+            time: /^\d{2}:\d{2}$/.test(time) ? time : "",
+            count: Number.isFinite(src.count) ? Math.max(0, Math.min(Math.floor(src.count), 100000)) : 0,
+        };
+    });
+}
+
+// ---- Safe storage access ----
+function readJSON(key, fallback) {
+    try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback; } catch (e) { return fallback; }
+}
+function safeSet(key, value) {
+    try { localStorage.setItem(key, value); return true; }
+    catch (e) { console.warn("QA Studio: storage write failed", e); return false; }
+}
+
 const state = {
-    usageTotal: parseInt(localStorage.getItem("qa_usage_total") || "0"),
-    history:    JSON.parse(localStorage.getItem("qa_history")   || "[]"),
-    projects:   JSON.parse(localStorage.getItem("qa_projects")  || "[]"),
+    usageTotal: Math.max(0, parseInt(localStorage.getItem("qa_usage_total") || "0", 10) || 0),
+    history:    normalizeHistory(readJSON("qa_history", [])),
+    projects:   normalizeProjects(readJSON("qa_projects", [])),
 };
 
 function saveState() {
-    localStorage.setItem("qa_usage_total", String(state.usageTotal));
-    localStorage.setItem("qa_history",     JSON.stringify(state.history));
-    localStorage.setItem("qa_projects",    JSON.stringify(state.projects));
+    const ok = [
+        safeSet("qa_usage_total", String(state.usageTotal)),
+        safeSet("qa_history",     JSON.stringify(state.history)),
+        safeSet("qa_projects",    JSON.stringify(state.projects)),
+    ].every(Boolean);
+    if (!ok) showToast(t("toastStorageFull"), "error", 6000);
+    return ok;
 }
 
 function saveLatestTestCases() {
-    try { localStorage.setItem("qa_latest_tests", JSON.stringify(latestTestCases)); } catch(e) {}
+    safeSet("qa_latest_tests", JSON.stringify(latestTestCases));
 }
 function loadLatestTestCases() {
-    try {
-        const saved = localStorage.getItem("qa_latest_tests");
-        if (saved) latestTestCases = JSON.parse(saved);
-    } catch(e) {}
+    latestTestCases = normalizeTestCases(readJSON("qa_latest_tests", []));
 }
 
 // ============================================================
 // HELPERS
 // ============================================================
-function esc(str) {
-    const d = document.createElement("div");
-    d.textContent = String(str);
-    return d.innerHTML;
+function esc(value) {
+    return String(value ?? "").replace(/[&<>"']/g, ch =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
 }
 function statusLabel(s) {
     if(s === "pass") return t("pass");
@@ -341,9 +435,12 @@ function priorityLabel(p) {
     return map[p] ? t(map[p]) : p;
 }
 function dlBlob(blob, filename) {
-    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: filename });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement("a"), { href: url, download: filename });
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(a.href);
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 function now24h() {
     const d = new Date();
@@ -386,10 +483,10 @@ const savedTheme = localStorage.getItem("qa_theme") || "light";
 document.body.classList.remove("light", "dark");
 document.body.classList.add(savedTheme);
 
-const oldCfg = JSON.parse(localStorage.getItem("qa_api_config") || "{}");
-if (oldCfg.apiKey) {
+const oldCfg = readJSON("qa_api_config", {});
+if (oldCfg && oldCfg.apiKey) {
     delete oldCfg.apiKey;
-    localStorage.setItem("qa_api_config", JSON.stringify(oldCfg));
+    safeSet("qa_api_config", JSON.stringify(oldCfg));
 }
 function closeSidebar() {
     document.querySelector(".sidebar")?.classList.remove("open");
@@ -766,8 +863,13 @@ document.getElementById("exportCsv").addEventListener("click", () => {
         (tc.steps||[]).join(" | "),tc.expected||"",
         tc.priority,(tc.tags||[]).join(" | "),tc.risk||"",tc.status||"Untested",
     ]);
-    const csv = [header,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
-    dlBlob(new Blob([csv],{type:"text/csv"}),"test-cases.csv");
+    const csvCell = v => {
+        let s = String(v ?? "");
+        if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;   // stop spreadsheet formulas
+        return `"${s.replace(/"/g, '""')}"`;
+    };
+    const csv = [header,...rows].map(r => r.map(csvCell).join(",")).join("\r\n");
+    dlBlob(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }), "test-cases.csv");
 });
 document.getElementById("exportExcel").addEventListener("click", () => {
     if(!latestTestCases.length) return;
@@ -792,8 +894,8 @@ document.getElementById("exportWord").addEventListener("click", () => {
             <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td><td>${esc(tc.description||"")}</td>
             <td>${(tc.steps||[]).map(s=>`• ${esc(s)}`).join("<br>")}</td>
             <td>${esc(tc.expected||"")}</td><td>${esc(tc.priority)}</td>
-            <td>${(tc.tags||[]).join(", ")}</td><td>${esc(tc.risk||"")}</td>
-            <td>${tc.status||"Untested"}</td>
+            <td>${(tc.tags||[]).map(esc).join(", ")}</td><td>${esc(tc.risk||"")}</td>
+            <td>${esc(tc.status||"Untested")}</td>
         </tr>`).join("");
     const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office'
         xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
@@ -911,7 +1013,7 @@ function renderDashboard() {
             </div>
             <select id="entProjFilter" class="ent-select">
                 <option value="">${t('entAllProjects')}</option>
-                ${state.projects.map(p => '<option value="' + p.name + '">' + p.name + '</option>').join('')}
+                ${state.projects.map(p => `<option value="${esc(p.name)}"${p.name === projectFilter ? " selected" : ""}>${esc(p.name)}</option>`).join("")}
             </select>
         </div>
     </div>
@@ -973,7 +1075,7 @@ function renderDashboard() {
                             const p = tc.priority === "Trivial" ? "Low" : (tc.priority || "Low");
                             const pc = 'priority-' + p.toLowerCase();
                             const pl = t('p' + p);
-                            return '<tr><td class="ent-id">TC-' + (tc.id || (i + 1)) + '</td><td>' + esc(tc.title || tc.feature || '') + '</td><td><span class="status-badge ' + sc + '">' + sl + '</span></td><td><span class="priority-badge ' + pc + '">' + pl + '</span></td><td style="color:var(--text-muted);font-size:10px;">' + (tc.createdAt || todayStr) + '</td></tr>';
+                            return '<tr><td class="ent-id">' + esc(tc.id || ("TC-" + String(i + 1).padStart(3, "0"))) + '</td><td>' + esc(tc.title || tc.feature || '') + '</td><td><span class="status-badge ' + sc + '">' + sl + '</span></td><td><span class="priority-badge ' + pc + '">' + pl + '</span></td><td style="color:var(--text-muted);font-size:10px;">' + esc(tc.createdAt || todayStr) + '</td></tr>';
                         }).join('');
                     })()}</tbody>
                 </table>
@@ -1050,9 +1152,9 @@ function renderHistory() {
             <tbody id="historyBody">${state.history.map(h => `
                 <tr>
                     <td>${esc(h.feature)}</td>
-                    <td>${h.date}</td>
+                    <td>${esc(h.date)}</td>
                     <td>${h.time ? `<span class="time-badge">${esc(h.time)}</span>` : "—"}</td>
-                    <td>${h.count}</td>
+                    <td>${esc(h.count)}</td>
                 </tr>`).join("")}
             </tbody>
         </table>
@@ -1154,13 +1256,13 @@ function renderProjects() {
                 <th></th>
             </tr></thead>
             <tbody id="projectsBody">${state.projects.map(p => `
-                <tr class="clickable" data-pid="${p.id}">
+                <tr class="clickable" data-pid="${esc(p.id)}">
                     <td><strong>${esc(p.name)}</strong></td>
                     <td style="color:var(--text-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.description)}</td>
-                    <td>${p.created}</td>
+                    <td>${esc(p.created)}</td>
                     <td style="color:var(--text-muted);font-size:13px;">${p.testCases.length} ${t("testsLabel")}</td>
                     <td>
-                        <button class="danger-btn delete-project-btn" data-pid="${p.id}">
+                        <button class="danger-btn delete-project-btn" data-pid="${esc(p.id)}">
                             ${t("delete")}
                         </button>
                     </td>
@@ -1182,7 +1284,7 @@ function renderProjects() {
             const rows = project.testCases.map(tc => `
                 <tr>
                     <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td>
-                    <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${priorityLabel(tc.priority)}</span></td>
+                    <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(priorityLabel(tc.priority))}</span></td>
                     <td style="color:var(--text-muted)">${statusLabel(tc.status)}</td>
                 </tr>`).join("");
             openModal(project.name, `
@@ -1244,8 +1346,8 @@ function renderSuites() {
             <div class="section-header">
                 <h2>${esc(p.name)}</h2>
                 <div style="display:flex;align-items:center;gap:14px;">
-                    <span style="color:var(--text-muted);font-size:13px;">${p.created}</span>
-                    <button class="danger-btn delete-suite-btn" data-pid="${p.id}">
+                    <span style="color:var(--text-muted);font-size:13px;">${esc(p.created)}</span>
+                    <button class="danger-btn delete-suite-btn" data-pid="${esc(p.id)}">
                         ${t("delete")}
                     </button>
                 </div>
@@ -1255,7 +1357,7 @@ function renderSuites() {
                 <tbody>${p.testCases.map(tc => `
                     <tr>
                         <td>${esc(tc.id)}</td><td>${esc(tc.title)}</td>
-                        <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${priorityLabel(tc.priority)}</span></td>
+                        <td><span class="priority-badge priority-${esc(tc.priority)}" style="font-size:11px;">${esc(priorityLabel(tc.priority))}</span></td>
                         <td style="color:var(--text-muted)">${statusLabel(tc.status)}</td>
                     </tr>`).join("")}
                 </tbody>
@@ -1481,9 +1583,9 @@ function showSkeletonLoader() {
 // API CONFIG
 // ============================================================
 function loadApiConfig() {
-    const config = JSON.parse(localStorage.getItem("qa_api_config") || "{}");
+    const config = readJSON("qa_api_config", {});
     document.getElementById("apiUrlInput").value = config.url || "";
-    document.getElementById("apiModelInput").value = config.model || "claude-sonnet-4-20250514";
+    document.getElementById("apiModelInput").value = isValidModel(config.model) ? config.model : DEFAULT_MODEL;
     document.getElementById("apiTokensInput").value = config.tokens || 4096;
     document.getElementById("apiKeyInput").value = "";
     const btn = document.getElementById("saveApiConfig");
@@ -1499,7 +1601,7 @@ function loadApiConfig() {
 function getApiConfig() {
     return {
         url: document.getElementById("apiUrlInput").value.trim(),
-        model: document.getElementById("apiModelInput").value.trim() || "claude-sonnet-4-20250514",
+        model: selectedModel(),
         tokens: parseInt(document.getElementById("apiTokensInput").value) || 4096,
         apiKey: document.getElementById("apiKeyInput").value.trim()
     };
@@ -1584,6 +1686,7 @@ document.getElementById("selectImportFile").addEventListener("click", () => {
 document.getElementById("importFileInput").addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { showToast(t("toastImportFailed"), "error"); e.target.value = ""; return; }
 
     const reader = new FileReader();
     reader.onload = async (event) => {
@@ -1596,10 +1699,12 @@ document.getElementById("importFileInput").addEventListener("change", (e) => {
             const ok = await showConfirm(t("confirmImportData"), t("importConfirmTitle"));
             if (!ok) return;
 
-            if (Array.isArray(data.projects)) state.projects = data.projects;
-            if (Array.isArray(data.history)) state.history = data.history;
-            if (typeof data.usageTotal === "number") state.usageTotal = data.usageTotal;
-            if (Array.isArray(data.latestTestCases)) latestTestCases = data.latestTestCases;
+            if (Array.isArray(data.projects)) state.projects = normalizeProjects(data.projects);
+            if (Array.isArray(data.history)) state.history = normalizeHistory(data.history);
+            if (Number.isFinite(data.usageTotal)) state.usageTotal = Math.max(0, Math.floor(data.usageTotal));
+            if (Array.isArray(data.latestTestCases)) latestTestCases = normalizeTestCases(data.latestTestCases);
+            selectedTestCases.clear();
+            updateBulkActions();
             if (data.settings && typeof data.settings === "object") {
                 if (data.settings.lang === "en" || data.settings.lang === "fi") {
                     lang = data.settings.lang;
@@ -1787,10 +1892,10 @@ function createTestCard(tc) {
     div.innerHTML = `
         <div class="test-card-header">
             <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
-                <div class="test-checkbox ${isSelected ? 'checked' : ''}" data-id="${tc.id}">
+                <div class="test-checkbox ${isSelected ? 'checked' : ''}" data-id="${esc(tc.id)}">
                     <i data-lucide="check"></i>
                 </div>
-                <h3 id="title-${tc.id}" class="clickable-title" title="Click for details, double-click to edit">${esc(tc.id)} — ${esc(tc.title)}</h3>
+                <h3 id="title-${esc(tc.id)}" class="clickable-title" title="Click for details, double-click to edit">${esc(tc.id)} — ${esc(tc.title)}</h3>
             </div>
             <span class="priority-badge priority-${esc(tc.priority)}">${esc(priorityLabel(tc.priority))}</span>
         </div>
@@ -1802,7 +1907,7 @@ function createTestCard(tc) {
             <button class="icon-btn" data-action="edit" title="Edit"><i data-lucide="pencil"></i></button>
         </div>`;
 
-    const titleEl = div.querySelector(`#title-${tc.id}`);
+    const titleEl = div.querySelector(".clickable-title");
     titleEl.addEventListener("click", openDetails);
 
     titleEl.addEventListener("dblclick", (e) => {
@@ -2221,7 +2326,7 @@ generateBtn.addEventListener("click", async () => {
 
     try {
         const config = getApiConfig();
-        const apiUrl = config.url || "https://qa-proxy.eng-milo.workers.dev";
+        const apiUrl = /^https:\/\//i.test(config.url) ? config.url : WORKER_URL;
 
         const res = await fetch(apiUrl, {
             method: "POST",
@@ -2262,10 +2367,14 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
         }
 
         const data = await res.json();
-        const raw = data.content.map(b => b.text || "").join("").trim();
-        latestTestCases = repairJSON(raw);
+        if (!data || !Array.isArray(data.content)) throw new Error(t("apiErrServerError"));
+        const raw = data.content.map(b => (b && typeof b.text === "string" ? b.text : "")).join("").trim();
+        const generated = normalizeTestCases(repairJSON(raw));
+        if (!generated.length) throw new Error(t("apiErrServerError"));
+        generated.forEach(tc => { tc.createdAt = todayISO(); });
+        latestTestCases = generated;
         latestTestCases.sort((a,b) => (priorityOrder[a.priority]||9) - (priorityOrder[b.priority]||9));
-        latestTestCases.forEach(tc => { if(!tc.status) tc.status = null; if(!tc.createdAt) tc.createdAt = new Date().toISOString(); });
+        if (data.stop_reason === "max_tokens") showToast(t("toastTruncated"), "warning", 8000);
 
         saveLatestTestCases();
         renderSavedTestCards();
@@ -2298,10 +2407,11 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
             <p style="font-size:40px;margin:0 0 12px;">⚠️</p>
             <p style="font-size:16px;font-weight:600;margin:0 0 8px;color:var(--danger);">${t("errGenerationFailed")}</p>
             <p style="color:var(--text-muted);font-size:14px;margin:0;line-height:1.6;">${esc(displayMsg)}</p>
-            <button class="secondary-btn" style="margin-top:16px;" onclick="document.getElementById('generateBtn').click()">
+            <button id="retryBtn" class="secondary-btn" style="margin-top:16px;">
                 <i data-lucide="refresh-cw"></i> ${t("errRetry")}
             </button>
         </div>`;
+        document.getElementById("retryBtn")?.addEventListener("click", () => generateBtn.click());
         showToast(displayMsg.slice(0,80) || t("apiErrUnavailable"), "error", 5000);
     } finally {
         generateBtn.disabled = false;

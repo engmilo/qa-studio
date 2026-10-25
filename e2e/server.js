@@ -2,7 +2,8 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 
-const PORT = process.env.PORT || 3333;
+const PORT = Number(process.env.PORT) || 3333;
+const HOST = "127.0.0.1";
 const ROOT = path.resolve(__dirname, "..");
 
 const MIME = {
@@ -16,25 +17,36 @@ const MIME = {
   ".ico": "image/x-icon",
 };
 
-http.createServer((req, res) => {
-  let file = path.join(ROOT, req.url === "/" ? "app.html" : req.url);
-  const ext = path.extname(file);
-  const ct = MIME[ext] || "application/octet-stream";
+const send = (res, code, body) => {
+  res.writeHead(code, { "Content-Type": "text/plain; charset=utf-8" });
+  res.end(body);
+};
 
-  fs.readFile(file, (err, data) => {
-    if (err) {
-      res.writeHead(404, { "Content-Type": "text/plain" });
-      res.end("Not Found");
-      return;
+http
+  .createServer((req, res) => {
+    let pathname;
+    try {
+      pathname = decodeURIComponent(new URL(req.url, "http://localhost").pathname);
+    } catch {
+      return send(res, 400, "Bad Request");
     }
-    // Allow all origins for testing
-    res.writeHead(200, {
-      "Content-Type": ct,
-      "Access-Control-Allow-Origin": "*",
-      "Cache-Control": "no-cache",
+    if (pathname.includes("\0")) return send(res, 400, "Bad Request");
+    if (pathname === "/") pathname = "/app.html";
+
+    const file = path.join(ROOT, pathname);
+    if (!file.startsWith(ROOT + path.sep)) return send(res, 403, "Forbidden");
+    // never serve dotfiles/folders (.git, .github, .env ...)
+    if (path.relative(ROOT, file).split(path.sep).some((seg) => seg.startsWith("."))) {
+      return send(res, 404, "Not Found");
+    }
+
+    fs.readFile(file, (err, data) => {
+      if (err) return send(res, 404, "Not Found");
+      res.writeHead(200, {
+        "Content-Type": MIME[path.extname(file).toLowerCase()] || "application/octet-stream",
+        "Cache-Control": "no-cache",
+      });
+      res.end(data);
     });
-    res.end(data);
-  });
-}).listen(PORT, () => {
-  process.stdout.write(`static server on http://localhost:${PORT}\n`);
-});
+  })
+  .listen(PORT, HOST, () => process.stdout.write(`static server on http://${HOST}:${PORT}\n`));
