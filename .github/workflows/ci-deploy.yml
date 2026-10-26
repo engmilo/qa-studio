@@ -54,7 +54,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
       - name: Stamp service-worker cache version
         run: sed -i "s/qa-studio-v[0-9a-z]*/qa-studio-${GITHUB_SHA::7}/" public/sw.js
       - uses: actions/upload-pages-artifact@v3
