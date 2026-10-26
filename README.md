@@ -1,116 +1,91 @@
-# QA Studio — AI Test Case Generator
+# QA Studio
 
-A client-side PWA for QA engineers. Describe a feature and get structured, prioritised test cases instantly — powered by Anthropic Claude.
+AI-assisted test case generator for QA engineers. Describe a feature or paste user stories, get 14-18 structured test cases, then edit, track, organise and export them. Runs entirely in the browser; there is no backend database.
 
-🔗 **Live site:** https://engmilo.github.io/qa-studio
+**Live app:** https://engmilo.github.io/qa-studio/ (landing page) and https://engmilo.github.io/qa-studio/app.html (the app)
 
----
+Built by [Milo Haireche](https://www.linkedin.com/in/milohaireche) - QA team lead, 20+ years in testing.
 
-## Features
+## What it does
 
-- 🤖 AI-generated test cases (via Claude API) with local Demo mode (no API key needed)
-- 🎯 Priority levels: Critical → Trivial, with pass/fail/blocked status tracking
-- 📋 Step-by-step test structure: description, steps, expected results, tags & risk notes
-- 📥 Export: JSON, CSV, Excel, Word
-- 📁 Projects, Suites, Dashboard & History views with search
-- 🌙 Light / Dark mode with persistent preference
-- 🌐 English & Finnish (FI) — UI + AI-generated content
-- 📊 Dashboard with status distribution, priority breakdown & generation trend charts
-- 📱 PWA — installable, works offline for previously saved data
+- **Generate** test cases from a feature description with Claude. Output covers positive, negative, boundary, validation, UI/UX, API, integration, regression and security cases, each with title, description, steps, expected result, priority, tags and risk.
+- **Demo mode** creates 16 sample test cases locally, with no API call.
+- **Work with the results:** edit every field, set Pass / Fail / Blocked status, drag to reorder, search, select several and delete in bulk.
+- **Organise:** save results to named projects, browse them as suites, see a history of generation runs.
+- **Dashboard:** weekly KPIs (total, passed, failed, blocked, untested), status and priority charts, 7-day trend, recent test cases, project filter.
+- **Export:** JSON, CSV, Excel (.xlsx) and Word. The Word file is an HTML-based `.doc` that Word opens, not a native `.docx`.
+- **Backup:** export and import all data as one JSON file.
+- **Languages:** English and Finnish. **Themes:** light and dark.
+- **Installable PWA** with a service worker.
 
----
+## How it works
 
-## Quick Start
-
-### Use the live app
-
-Go to **https://engmilo.github.io/qa-studio** — no setup required.
-
-### Run locally
-
-```bash
-git clone https://github.com/engmilo/qa-studio.git
-cd qa-studio
-```
-
-Then open `app.html` in your browser, or serve with any static server:
-
-```bash
-npx http-server . -p 8080
-```
-
----
-
-## API Configuration
-
-The app uses a shared proxy by default (`qa-proxy.eng-milo.workers.dev`). To use your own Anthropic API key or a custom endpoint, open the **Settings** panel in the sidebar.
-
-Your API key is never persisted to localStorage — it lives only in the current session.
-
----
-
-## E2E Tests
-
-```bash
-npm install
-npx playwright install chromium
-npx playwright test
-```
-
-The test suite covers:
-
-| File | Tests |
+| Part | Details |
 |---|---|
-| `e2e/landing.spec.js` | Page load, CTAs, language/theme toggle, navigation |
-| `e2e/generator.spec.js` | Demo generation, search filter, bulk select/delete, save to project, mocked API generation |
-| `e2e/projects.spec.js` | Dashboard, project details, suites, history, i18n/theme in app |
+| Front end | Plain HTML, CSS and JavaScript. No framework, no build step. |
+| Libraries | Lucide icons, Chart.js and SheetJS, loaded from public CDNs with integrity hashes; Inter font from Google Fonts. |
+| AI | Requests go to a Cloudflare Worker proxy, which forwards them to the Anthropic API. The Worker source is not part of this repository. |
+| Storage | Everything is kept in your browser's `localStorage`. Nothing is sent anywhere except the text you generate from. |
+| Tests | Playwright end-to-end tests (desktop and a mobile viewport). The AI proxy is mocked, so no real API calls are made. |
 
-The API generation test uses `page.route()` to mock the Cloudflare Worker — no real API key required.
+### Privacy and API key
 
----
+- The text you type is sent to the proxy and on to Anthropic to generate test cases. Do not paste confidential material.
+- In **API Configuration** you can choose a Claude model, set max tokens, and enter your own Anthropic API key. The key is sent with the request, is not written to browser storage, and has to be re-entered after a reload.
+- Test cases, projects and history stay in `localStorage` on your device. "Clear All Data" removes them.
 
-## Project Structure
+## Repository layout
 
 ```
-qa-studio/
-├── index.html              # Landing page
-├── app.html                # App shell (styles inline)
-├── app.js                  # All app logic (~1860 lines)
-├── sw.js                   # Service worker (precaches app.js + CDN libs)
-├── manifest.json           # PWA manifest
-├── icon.svg                # App icon
-├── preview.png             # Social preview
-├── package.json            # Playwright dev dependency
-├── playwright.config.js    # Playwright configuration
-├── e2e/
-│   ├── landing.spec.js     # Landing page E2E tests
-│   ├── generator.spec.js   # Generator / demo / save E2E tests
-│   ├── projects.spec.js    # Projects / suites / dashboard E2E tests
-│   ├── server.js           # Static server for test runner
-│   └── mocks/
-│       └── api-response.json  # Mock API response fixture
-├── libs/                   # Vendored CDN libs (precached by SW)
-├── .github/
-│   └── workflows/
-│       ├── deploy.yml      # Auto-deploy to GitHub Pages on push
-│       └── test.yml        # Run E2E tests on push / PR
-└── .gitignore
+public/          the website (this is the only folder that gets published)
+  index.html     landing page
+  landing.js     landing page script
+  app.html       the app shell, styles and markup
+  app.js         application logic
+  sw.js          service worker
+  manifest.json  PWA manifest
+e2e/             Playwright tests, test helpers, static test server
+docs/design/     early design mock-ups (not part of the site)
+.github/         CI and deploy workflow, Dependabot config
 ```
 
----
+## Run it locally
 
-## Tech Stack
+You need Node.js 20 or newer.
 
-- Vanilla HTML/CSS/JS — no build step, no framework
-- [Lucide Icons](https://lucide.dev) — via CDN (precached by SW)
-- [SheetJS](https://sheetjs.com) — Excel export (precached by SW)
-- [Inter font](https://fonts.google.com/specimen/Inter)
-- Anthropic Claude API via Cloudflare Worker proxy
-- [Playwright](https://playwright.dev) — E2E tests
-- GitHub Pages — hosting
+```bash
+npm ci
+node e2e/server.js        # serves public/ at http://127.0.0.1:3333
+```
 
----
+Open http://127.0.0.1:3333/app.html. The AI features need the proxy to be reachable; Demo mode works without it. The service worker's cache list uses `/qa-studio/...` paths, so offline caching only works on the deployed site, not locally.
+
+## Tests
+
+```bash
+npx playwright install chromium
+npm test                  # runs everything
+npm run report            # opens the last HTML report
+```
+
+The suite covers the generator, projects, suites, history, dashboard numbers, language and theme switching, API error handling (429, 401, 500, network failure, truncated responses), import/export, CSV export safety, and hostile content in AI output and imported files.
+
+## CI and deploy
+
+`.github/workflows/ci-deploy.yml` runs the tests on every pull request and every push to `main`. On `main`, the site is deployed to GitHub Pages **only if the tests pass**, and only the `public/` folder is published.
+
+## Security notes
+
+- All user, AI and imported text is HTML-escaped before display, and AI output and imported files are validated and normalised before use.
+- A Content Security Policy restricts scripts to this site and the three CDN hosts above; inline scripts are not allowed.
+- CSV exports prefix cells that start with `=`, `+`, `-` or `@` so spreadsheets do not run them as formulas.
+
+## Known limitations
+
+- Libraries and the Inter font load from CDNs, so the app needs a network connection on first load.
+- Only Anthropic Claude models are supported.
+- The proxy's own safeguards (origin checks, rate limits, spend caps) are configured outside this repository.
 
 ## License
 
-MIT
+MIT - see [LICENSE](LICENSE).
