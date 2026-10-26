@@ -4,7 +4,7 @@ AI-assisted test case generator for QA engineers. Describe a feature or paste us
 
 **Live app:** https://engmilo.github.io/qa-studio/ (landing page) and https://engmilo.github.io/qa-studio/app.html (the app)
 
-Built by [Milo Haireche](https://www.linkedin.com/in/milohaireche) - QA team lead, 20+ years in testing.
+Built by [Milo Haireche](https://www.linkedin.com/in/milohaireche) - QA Engineer, 20+ years in testing.
 
 ## What it does
 
