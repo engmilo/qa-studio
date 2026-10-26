@@ -15,7 +15,8 @@ Built by [Milo Haireche](https://www.linkedin.com/in/milohaireche) - QA team lea
 - **Dashboard:** weekly KPIs (total, passed, failed, blocked, untested), status and priority charts, 7-day trend, recent test cases, project filter.
 - **Export:** JSON, CSV, Excel (.xlsx) and Word. The Word file is an HTML-based `.doc` that Word opens, not a native `.docx`.
 - **Backup:** export and import all data as one JSON file.
-- **Languages:** English and Finnish. **Themes:** light and dark.
+- **Languages:** English and Finnish. 
+- **Themes:** light and dark.
 - **Installable PWA** with a service worker.
 
 ## How it works
@@ -24,14 +25,14 @@ Built by [Milo Haireche](https://www.linkedin.com/in/milohaireche) - QA team lea
 |---|---|
 | Front end | Plain HTML, CSS and JavaScript. No framework, no build step. |
 | Libraries | Lucide icons, Chart.js and SheetJS, loaded from public CDNs with integrity hashes; Inter font from Google Fonts. |
-| AI | Requests go to a Cloudflare Worker proxy, which forwards them to the Anthropic API. The Worker source is not part of this repository. |
+| AI | Requests go to a Cloudflare Worker proxy, which forwards them to the Anthropic API.The Worker source is in worker/index.mjs.    Every user must supply their own Anthropic API key
 | Storage | Everything is kept in your browser's `localStorage`. Nothing is sent anywhere except the text you generate from. |
 | Tests | Playwright end-to-end tests (desktop and a mobile viewport). The AI proxy is mocked, so no real API calls are made. |
 
 ### Privacy and API key
 
 - The text you type is sent to the proxy and on to Anthropic to generate test cases. Do not paste confidential material.
-- In **API Configuration** you can choose a Claude model, set max tokens, and enter your own Anthropic API key. The key is sent with the request, is not written to browser storage, and has to be re-entered after a reload.
+- In **API Configuration** The key is required. The key is sent with the request, is not written to browser storage, and has to be re-entered after a reload.
 - Test cases, projects and history stay in `localStorage` on your device. "Clear All Data" removes them.
 
 ## Repository layout
