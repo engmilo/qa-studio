@@ -3,27 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <title>QA Studio</title>
 <meta name="description" content="AI-powered test case generator. Generate, save, and track test cases by project. Built by Milo Haireche." />
 <meta property="og:title" content="QA Studio" />
 <meta property="og:description" content="AI-powered test case generator. Generate, save, and track test cases by project." />
-<meta property="og:image" content="preview.png" />
+<meta property="og:image" content="https://engmilo.github.io/qa-studio/preview.png" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://engmilo.github.io/qa-studio/" />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="QA Studio" />
 <meta name="twitter:description" content="AI-powered test case generator. Generate, save, and track test cases by project." />
-<meta name="twitter:image" content="preview.png" />
+<meta name="twitter:image" content="https://engmilo.github.io/qa-studio/preview.png" />
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="">
+<meta name="apple-mobile-web-app-title" content="QA Studio">
 <meta name="theme-color" content="#3b82f6">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; manifest-src 'self' object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>">
 <link rel="manifest" href="manifest.json">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="vendor/inter.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -50,7 +49,7 @@ nav {
 nav .container {
     display: flex;
     align-items: center;
-    <!-- justify-content: space-between; -->
+    
     justify-content: center;
     height: 64px;
 }
@@ -360,6 +359,7 @@ body.dark .faq-q { color: #e5e7eb; }
 body.dark .faq-q:hover { background: #1f232d; }
 body.dark .faq-a { color: #9ca3af; }
 body.dark footer { border-color: #2d3139; color: #6b7280; }
+body.dark .nav-links.open { background: rgba(15,17,23,.98); border-bottom-color: #2d3139; }
 </style>
 </head>
 <body>
@@ -381,7 +381,7 @@ body.dark footer { border-color: #2d3139; color: #6b7280; }
             </div>
             <a href="app.html" class="nav-cta" data-i18n="navCta">Open App</a>
         </div>
-        <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
     </div>
@@ -437,27 +437,27 @@ body.dark footer { border-color: #2d3139; color: #6b7280; }
 <section class="section" id="how">
     <div class="container">
         <h2 class="section-title" data-i18n="howTitle">How it Works</h2>
-        <p class="section-sub" data-i18n="howSub">Three simple steps to go from feature to test cases.</p>
+        <p class="section-sub" data-i18n="howSub">Four simple steps from feature to test cases.</p>
         <div class="steps">
             <div class="step">
                 <div class="step-num">1</div>
-                <h3 data-i18n="step1Title">Describe a Feature</h3>
-                <p data-i18n="step1Desc">Type or paste a feature description — for example, "User login with email and password" — or pick a random story to get started quickly.</p>
+                <h3 data-i18n="step1Title">Add Your API Key</h3>
+                <p data-i18n="step1Desc">Open API Configuration in the sidebar and paste your own Anthropic API key. It is sent with each request but never saved in your browser.</p>
             </div>
             <div class="step">
                 <div class="step-num">2</div>
-                <h3 data-i18n="step2Title">Generate Test Cases</h3>
-                <p data-i18n="step2Desc">Click "Generate" and the AI creates 4–6 structured test cases with title, description, steps, expected results, priority, and tags.</p>
+                <h3 data-i18n="step2Title">Describe a Feature</h3>
+                <p data-i18n="step2Desc">Type or paste a feature description or user story, for example "User login with email and password".</p>
             </div>
             <div class="step">
                 <div class="step-num">3</div>
-                <h3 data-i18n="step3Title">Review &amp; Export</h3>
-                <p data-i18n="step3Desc">Mark each test case as pass/fail/blocked, sort by priority, save to projects, and export in your preferred format.</p>
+                <h3 data-i18n="step3Title">Generate Test Cases</h3>
+                <p data-i18n="step3Desc">Click "Generate" and the AI creates 14–18 structured test cases covering positive, negative, boundary and security scenarios, each with steps, expected result, priority and tags.</p>
             </div>
             <div class="step">
                 <div class="step-num">4</div>
-                <h3 data-i18n="step4Title">Configure API (Optional)</h3>
-                <p data-i18n="step4Desc">Use the built-in proxy by default, or open API Configuration in the sidebar to enter your own Anthropic API key, switch models (Sonnet, Haiku, Opus), or point to a custom endpoint.</p>
+                <h3 data-i18n="step4Title">Review &amp; Export</h3>
+                <p data-i18n="step4Desc">Mark each test case as pass/fail/blocked, edit or reorder them, save to projects, and export as JSON, CSV, Excel or Word.</p>
             </div>
         </div>
     </div>
@@ -470,23 +470,23 @@ body.dark footer { border-color: #2d3139; color: #6b7280; }
         <p class="section-sub" data-i18n="faqSub">Common questions about QA Studio.</p>
         <div class="faq-list">
             <div class="faq-item">
-                <button class="faq-q"><span data-i18n="faq1q">Do I need an API key?</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-                <div class="faq-a" data-i18n="faq1a">No! QA Studio comes with a built-in Cloudflare proxy that uses a shared API key. You can also provide your own Anthropic API key in Settings if you prefer.</div>
+                <button type="button" class="faq-q" aria-expanded="false"><span data-i18n="faq1q">Do I need an API key?</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <div class="faq-a" data-i18n="faq1a">Yes. QA Studio sends your request through a small proxy to Anthropic's API, using your own Anthropic API key. The key is not stored in your browser. You can create one at console.anthropic.com.</div>
             </div>
             <div class="faq-item">
-                <button class="faq-q"><span data-i18n="faq2q">Is my data stored on a server?</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <button type="button" class="faq-q" aria-expanded="false"><span data-i18n="faq2q">Is my data stored on a server?</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
                 <div class="faq-a" data-i18n="faq2a">No. All your projects, test cases, and settings are stored locally in your browser's localStorage. Nothing is sent to any server except the AI generation request.</div>
             </div>
             <div class="faq-item">
-                <button class="faq-q"><span data-i18n="faq3q">Can I export my test cases?</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <button type="button" class="faq-q" aria-expanded="false"><span data-i18n="faq3q">Can I export my test cases?</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
                 <div class="faq-a" data-i18n="faq3a">Yes. Export as JSON, CSV, Excel, or Word. You can also import previously exported JSON backups to restore your data.</div>
             </div>
             <div class="faq-item">
-                <button class="faq-q"><span data-i18n="faq4q">What languages are supported?</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <button type="button" class="faq-q" aria-expanded="false"><span data-i18n="faq4q">What languages are supported?</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
                 <div class="faq-a" data-i18n="faq4a">The interface is available in English and Finnish. The AI generates test case content in your selected language automatically.</div>
             </div>
             <div class="faq-item">
-                <button class="faq-q"><span data-i18n="faq5q">Can I use this offline?</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <button type="button" class="faq-q" aria-expanded="false"><span data-i18n="faq5q">Can I use this offline?</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
                 <div class="faq-a" data-i18n="faq5a">The app is a fully client-side PWA. Previously generated test cases and projects are accessible offline. AI generation requires an internet connection.</div>
             </div>
         </div>

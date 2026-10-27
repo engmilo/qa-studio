@@ -10,13 +10,13 @@ const i18n = {
         featDashTitle: "Dashboard & Tracking", featDashDesc: "Visual charts for status distribution, priority breakdown, and generation trends. Track pass/fail/blocked per test case.",
         featExportTitle: "Multi-Format Export", featExportDesc: "Export your test cases as JSON, CSV, Excel, or Word. Share with your team or import into your test management tool.",
         featLangTitle: "Multi-Language", featLangDesc: "Full support for English and Finnish. The AI generates test case content in your selected language automatically.",
-        howTitle: "How it Works", howSub: "Four simple steps to go from feature to test cases.",
-        step1Title: "Describe a Feature", step1Desc: "Type or paste a feature description — for example, \"User login with email and password\" — then generate comprehensive test cases in seconds.",
-        step2Title: "Generate Test Cases", step2Desc: "Click \"Generate\" and the AI creates 14–18 structured test cases covering positive, negative, edge, validation, UI/UX, functional, API, integration, regression, and security scenarios.",
-        step3Title: "Review & Export", step3Desc: "Mark each test case as pass/fail/blocked, sort by priority, save to projects, and export in your preferred format.",
-        step4Title: "Configure API (Optional)", step4Desc: "Use the built-in proxy by default, or open API Configuration in the sidebar to enter your own Anthropic API key, switch between models (Sonnet, Haiku, Opus), or point to a custom endpoint.",
+        howTitle: "How it Works", howSub: "Four simple steps from feature to test cases.",
+        step1Title: "Add Your API Key", step1Desc: "Open API Configuration in the sidebar and paste your own Anthropic API key. It is sent with each request but never saved in your browser.",
+        step2Title: "Describe a Feature", step2Desc: "Type or paste a feature description or user story, for example \"User login with email and password\".",
+        step3Title: "Generate Test Cases", step3Desc: "Click \"Generate\" and the AI creates 14–18 structured test cases covering positive, negative, boundary and security scenarios, each with steps, expected result, priority and tags.",
+        step4Title: "Review & Export", step4Desc: "Mark each test case as pass/fail/blocked, edit or reorder them, save to projects, and export as JSON, CSV, Excel or Word.",
         faqTitle: "FAQ", faqSub: "Common questions about QA Studio.",
-        faq1q: "Do I need an API key?", faq1a: "You need an Anthropic API key to generate test cases. Open API Configuration in the app's sidebar, enter your key, and choose a model. The API Endpoint URL defaults to the built-in proxy — you can leave it as-is or point to any Anthropic-compatible endpoint.",
+        faq1q: "Do I need an API key?", faq1a: "Yes. QA Studio sends your request through a small proxy to Anthropic's API, using your own Anthropic API key. The key is not stored in your browser. You can create one at console.anthropic.com.",
         faq2q: "Is my data stored on a server?", faq2a: "No. All your projects, test cases, and settings are stored locally in your browser's localStorage. Nothing is sent to any server except the AI generation request.",
         faq3q: "Can I export my test cases?", faq3a: "Yes. Export as JSON, CSV, Excel, or Word. You can also import previously exported JSON backups to restore your data.",
         faq4q: "What languages are supported?", faq4a: "The interface is available in English and Finnish. The AI generates test case content in your selected language automatically.",
@@ -33,13 +33,13 @@ const i18n = {
         featDashTitle: "Hallintapaneeli", featDashDesc: "Visuaaliset kaaviot tilajakaumasta, prioriteeteista ja luontitrendeistä. Merkitse testitapaukset hyväksytyksi/hylätyksi/estetyksi.",
         featExportTitle: "Monimuotoinen vienti", featExportDesc: "Vie testitapauksesi JSON-, CSV-, Excel- tai Word-muodossa. Jaa tiimillesi tai tuo testinhallintatyökaluusi.",
         featLangTitle: "Monikielisyys", featLangDesc: "Täysi tuki englanniksi ja suomeksi. Tekoäly luo testitapaukset automaattisesti valitsemallasi kielellä.",
-        howTitle: "Toiminta", howSub: "Neljä yksinkertaista vaihetta ominaisuudesta testitapauksiin.",
-        step1Title: "Kuvaile ominaisuus", step1Desc: "Kirjoita tai liitä ominaisuuskuvaus — esimerkiksi \"Käyttäjän kirjautuminen sähköpostilla ja salasanalla\" — ja luo kattavat testitapaukset sekunneissa.",
-        step2Title: "Luo testitapaukset", step2Desc: "Paina \"Luo\" ja tekoäly luo 14–18 jäsenneltyä testitapausta kattaen positiiviset, negatiiviset, raja-arvo-, validointi-, käyttöliittymä-, toiminnallisuus-, API-, integraatio-, regressio- ja tietoturvatapaukset.",
-        step3Title: "Tarkista ja vie", step3Desc: "Merkitse jokainen testitapaus hyväksytyksi/hylätyksi/estetyksi, lajittele prioriteetin mukaan, tallenna projekteihin ja vie haluamassasi muodossa.",
-        step4Title: "Määritä API (valinnainen)", step4Desc: "Käytä oletuksena sisäänrakennettua välityspalvelinta tai avaa API-asetukset sivupalkissa lisätäksesi oman Anthropic API -avaimesi, vaihtaaksesi mallia (Sonnet, Haiku, Opus) tai osoittaaksesi omaan päätepisteeseen.",
+        howTitle: "Toiminta", howSub: "Neljä helppoa vaihetta ominaisuudesta testitapauksiin.",
+        step1Title: "Lisää API-avaimesi", step1Desc: "Avaa sivupalkista API-asetukset ja liitä oma Anthropic API -avaimesi. Avain lähetetään jokaisen pyynnön mukana, mutta sitä ei tallenneta selaimeesi.",
+        step2Title: "Kuvaile ominaisuus", step2Desc: "Kirjoita tai liitä ominaisuuskuvaus tai user story, esimerkiksi \"Käyttäjän kirjautuminen sähköpostilla ja salasanalla\".",
+        step3Title: "Luo testitapaukset", step3Desc: "Paina \"Luo\", niin tekoäly luo 14–18 jäsenneltyä testitapausta, jotka kattavat positiiviset, negatiiviset, raja-arvo- ja tietoturvaskenaariot. Jokaisella on vaiheet, odotettu tulos, prioriteetti ja tagit.",
+        step4Title: "Tarkista ja vie", step4Desc: "Merkitse jokainen testitapaus hyväksytyksi, hylätyksi tai estetyksi, muokkaa tai järjestele niitä, tallenna projekteihin ja vie JSON-, CSV-, Excel- tai Word-muodossa.",
         faqTitle: "UKK", faqSub: "Usein kysytyt kysymykset QA Studiosta.",
-        faq1q: "Tarvitsenko API-avaimen?", faq1a: "Tarvitset Anthropic API -avaimen testitapausten luomiseen. Avaa API-asetukset sovelluksen sivupalkissa, syötä avaimesi ja valitse malli. API-päätepisteen URL osoittaa oletuksena sisäänrakennettuun välityspalvelimeen — voit jättää sen ennalleen tai osoittaa mihin tahansa Anthropic-yhteensopivaan päätepisteeseen.",
+        faq1q: "Tarvitsenko API-avaimen?", faq1a: "Kyllä. QA Studio lähettää pyyntösi pienen välityspalvelimen kautta Anthropicin rajapintaan käyttäen omaa Anthropic API -avaintasi. Avainta ei tallenneta selaimeesi. Voit luoda avaimen osoitteessa console.anthropic.com.",
         faq2q: "Tallennetaanko tietoni palvelimelle?", faq2a: "Ei. Kaikki projektisi, testitapauksesi ja asetukset tallennetaan paikallisesti selaimesi localStorageen. Mitään ei lähetetä palvelimelle paitsi tekoälypyyntö.",
         faq3q: "Voinko viedä testitapaukseni?", faq3a: "Kyllä. Vie JSON-, CSV-, Excel- tai Word-muodossa. Voit myös tuoda aiemmin vietyjä JSON-varmuuskopioita palauttaaksesi tietosi.",
         faq4q: "Mitä kieliä tuetaan?", faq4a: "Käyttöliittymä on saatavilla englanniksi ja suomeksi. Tekoäly luo testitapausten sisällön automaattisesti valitsemallasi kielellä.",
@@ -121,3 +121,20 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 document.getElementById("backToTop").addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
 });
+
+// a11y: keep aria-expanded in sync
+(function () {
+  document.querySelectorAll(".faq-q").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var item = btn.closest(".faq-item");
+      btn.setAttribute("aria-expanded", item && item.classList.contains("open") ? "true" : "false");
+    });
+  });
+  var toggle = document.getElementById("mobileToggle");
+  var links = document.getElementById("navLinks");
+  if (toggle && links) {
+    var sync = function () { toggle.setAttribute("aria-expanded", links.classList.contains("open") ? "true" : "false"); };
+    toggle.addEventListener("click", function () { setTimeout(sync, 0); });
+    links.addEventListener("click", function () { setTimeout(sync, 0); });
+  }
+})();
