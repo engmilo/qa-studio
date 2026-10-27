@@ -15,6 +15,8 @@ const MIME = {
   ".png": "image/png",
   ".webmanifest": "application/manifest+json",
   ".ico": "image/x-icon",
+  ".woff2": "font/woff2",
+  ".woff": "font/woff",
 };
 
 const send = (res, code, body) => {

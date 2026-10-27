@@ -24,7 +24,7 @@ Built by [Milo Haireche](https://www.linkedin.com/in/milohaireche) - QA Engineer
 | Part | Details |
 |---|---|
 | Front end | Plain HTML, CSS and JavaScript. No framework, no build step. |
-| Libraries | Lucide icons, Chart.js and SheetJS, loaded from public CDNs with integrity hashes; Inter font from Google Fonts. |
+| Libraries | Lucide icons, Chart.js, SheetJS and the Inter font are bundled in `public/vendor/` (versions and licenses in `public/vendor/THIRD_PARTY_NOTICES.md`). The app contacts no third-party server except the AI proxy. |
 | AI | Requests go to a Cloudflare Worker proxy, which forwards them to the Anthropic API.The Worker source is in worker/index.mjs.    Every user must supply their own Anthropic API key
 | Storage | Everything is kept in your browser's `localStorage`. Nothing is sent anywhere except the text you generate from. |
 | Tests | Playwright end-to-end tests (desktop and a mobile viewport). The AI proxy is mocked, so no real API calls are made. |
@@ -45,6 +45,8 @@ public/          the website (this is the only folder that gets published)
   app.js         application logic
   sw.js          service worker
   manifest.json  PWA manifest
+  vendor/        bundled libraries and the Inter font
+  icons/         PNG app icons (made by scripts/make-icons.js)
 e2e/             Playwright tests, test helpers, static test server
 docs/design/     early design mock-ups (not part of the site)
 .github/         CI and deploy workflow, Dependabot config
@@ -59,7 +61,7 @@ npm ci
 node e2e/server.js        # serves public/ at http://127.0.0.1:3333
 ```
 
-Open http://127.0.0.1:3333/app.html. The AI features need the proxy to be reachable; Demo mode works without it. The service worker's cache list uses `/qa-studio/...` paths, so offline caching only works on the deployed site, not locally.
+Open http://127.0.0.1:3333/app.html. The AI features need the proxy to be reachable; Demo mode works without it. The service worker also works locally, so you can test offline use at http://127.0.0.1:3333.
 
 ## Tests
 
@@ -78,12 +80,12 @@ The suite covers the generator, projects, suites, history, dashboard numbers, la
 ## Security notes
 
 - All user, AI and imported text is HTML-escaped before display, and AI output and imported files are validated and normalised before use.
-- A Content Security Policy restricts scripts to this site and the three CDN hosts above; inline scripts are not allowed.
+- A Content Security Policy limits scripts, fonts and connections to this site (plus the AI proxy for requests); inline scripts are not allowed.
 - CSV exports prefix cells that start with `=`, `+`, `-` or `@` so spreadsheets do not run them as formulas.
 
 ## Known limitations
 
-- Libraries and the Inter font load from CDNs, so the app needs a network connection on first load.
+- The first visit needs a network connection. After that the app is cached for offline use; AI generation always needs a connection.
 - Only Anthropic Claude models are supported.
 - The proxy's own safeguards (origin checks, rate limits, spend caps) are configured outside this repository.
 

@@ -2420,9 +2420,7 @@ Return ONLY the raw JSON array, no markdown, no explanation.`,
 });
 
 // ── PWA: Register service worker ──
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
-}
+// The service worker is registered once, at the end of this file.
 
 // ── LocalStorage quota warning ──
 if (navigator.storage && navigator.storage.estimate) {
@@ -2475,9 +2473,12 @@ window.addEventListener("pageshow", () => {
 
 // ── SW update detection ──
 if ("serviceWorker" in navigator) {
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloading = false;
     navigator.serviceWorker.register("sw.js").then(reg => {
         reg.addEventListener("updatefound", () => {
             const sw = reg.installing;
+            if (!sw) return;
             sw.addEventListener("statechange", () => {
                 if (sw.state === "installed" && navigator.serviceWorker.controller) {
                     showToast(t("swUpdateAvailable"), "info", 8000);
@@ -2486,6 +2487,8 @@ if ("serviceWorker" in navigator) {
         });
     }).catch(() => {});
     navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (!hadController || reloading) return;   // very first install: nothing to reload
+        reloading = true;
         showToast(t("swUpdateApplied"), "info", 3000);
         setTimeout(() => location.reload(), 2000);
     });
