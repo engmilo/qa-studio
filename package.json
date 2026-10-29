@@ -8,6 +8,7 @@
     "test:worker": "node --test worker/worker.test.mjs"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.52.0"
   }
 }

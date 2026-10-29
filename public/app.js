@@ -63,9 +63,6 @@ const i18n = {
         entTotal: "Total Test Cases",
         entRecent: "Recent Test Cases",
         entAllProjects: "All Projects",
-        sideDefectDensity: "Defect Density",
-        sideAutoCoverage: "Automation Coverage",
-        sideOfTotal: "of total executed",
         thisWeek: "This Week",
         lastWeek: "Last Week",
         importExportBtn: "Import / Export",
@@ -140,6 +137,23 @@ const i18n = {
         swUpdateAvailable: "New version available — please hard refresh (Ctrl+F5)",
         swUpdateApplied: "Update applied! Reloading…",
         noSearchResults: "No results matching your search.",
+        close: "Close",
+        toggleMenu: "Toggle menu",
+        toggleTheme: "Toggle theme",
+        showHideKey: "Show or hide key",
+        clearSearch: "Clear search",
+        generatorSearchLabel: "Search test cases",
+        testInputLabel: "Feature description or user stories",
+        skipToContent: "Skip to main content",
+        mainNav: "Main navigation",
+        selectTestCase: "Select test case",
+        moveUp: "Move up",
+        moveDown: "Move down",
+        editTestCase: "Edit test case",
+        removeStep: "Remove step",
+        cardTitleHint: "Open details (double-click to edit)",
+        confirmTitle: "Confirm",
+        filterProject: "Project",
         colExecDate: "Created",
         toastTruncated: "The AI response was cut off at the token limit, so some test cases may be missing. Increase Max Tokens in API Configuration.",
         toastStorageFull: "Could not save to browser storage (it may be full). Export a backup and clear old data.",
@@ -189,9 +203,6 @@ const i18n = {
         entTotal: "Testitapauksia yhteensä",
         entRecent: "Viimeisimmät testitapaukset",
         entAllProjects: "Kaikki projektit",
-        sideDefectDensity: "Vikatiheys",
-        sideAutoCoverage: "Automaatiokattavuus",
-        sideOfTotal: "suoritetuista",
         colExecDate: "Luotu",
         importExportBtn: "Tuo / Vie",
         importExportTitle: "Tuo / Vie tiedot",
@@ -267,6 +278,23 @@ const i18n = {
         swUpdateAvailable: "Uusi versio saatavilla — päivitä sivu (Ctrl+F5)",
         swUpdateApplied: "Päivitys asennettu! Ladataan uudelleen…",
         noSearchResults: "Ei hakutuloksia.",
+        close: "Sulje",
+        toggleMenu: "Avaa tai sulje valikko",
+        toggleTheme: "Vaihda teema",
+        showHideKey: "Näytä tai piilota avain",
+        clearSearch: "Tyhjennä haku",
+        generatorSearchLabel: "Hae testitapauksista",
+        testInputLabel: "Ominaisuuskuvaus tai user storyt",
+        skipToContent: "Siirry pääsisältöön",
+        mainNav: "Päävalikko",
+        selectTestCase: "Valitse testitapaus",
+        moveUp: "Siirrä ylös",
+        moveDown: "Siirrä alas",
+        editTestCase: "Muokkaa testitapausta",
+        removeStep: "Poista vaihe",
+        cardTitleHint: "Avaa tiedot (kaksoisnapsauta muokataksesi)",
+        confirmTitle: "Vahvista",
+        filterProject: "Projekti",
         toastTruncated: "Tekoälyn vastaus katkesi tokenirajaan, joten osa testitapauksista voi puuttua. Nosta enimmäistokenien määrää API-asetuksissa.",
         toastStorageFull: "Tallennus selaimen muistiin epäonnistui (muisti voi olla täynnä). Vie varmuuskopio ja tyhjennä vanhoja tietoja.",
         dir: "ltr",
@@ -301,6 +329,10 @@ function applyLang() {
     });
     document.querySelectorAll("[data-tip]").forEach(el => {
         el.title = t(el.dataset.tip);
+    });
+    document.querySelectorAll("[data-i18n-aria]").forEach(el => {
+        const val = t(el.dataset.i18nAria);
+        if (typeof val === "string") el.setAttribute("aria-label", val);
     });
     document.body.dir = t("dir");
     const testInput_ = document.getElementById("testInput");
@@ -491,6 +523,12 @@ if (oldCfg && oldCfg.apiKey) {
 function closeSidebar() {
     document.querySelector(".sidebar")?.classList.remove("open");
     document.getElementById("sidebarOverlay")?.classList.remove("visible");
+    const hb = document.getElementById("hamburgerBtn");
+    if (hb) {
+        hb.setAttribute("aria-expanded", "false");
+        hb.innerHTML = '<i data-lucide="menu"></i>';
+        if (window.lucide) lucide.createIcons();
+    }
 }
 
 document.getElementById("themeToggleBtn")?.addEventListener("click", toggleTheme);
@@ -518,6 +556,7 @@ if(savedTheme === "dark") {
 function updateFlagButtons() {
     document.querySelectorAll("#langFlags .lang-btn").forEach(btn => {
         btn.classList.toggle("active-lang", btn.dataset.lang === lang);
+        btn.setAttribute("aria-pressed", String(btn.dataset.lang === lang));
     });
 }
 updateFlagButtons();
@@ -565,8 +604,12 @@ document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
         if(!view) return;
         Object.values(views).forEach(v => (v.style.display = "none"));
         views[view].style.display = "block";
-        document.querySelectorAll(".sidebar-nav .nav-item").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".sidebar-nav .nav-item").forEach(b => {
+            b.classList.remove("active");
+            b.removeAttribute("aria-current");
+        });
         btn.classList.add("active");
+        btn.setAttribute("aria-current", "page");
         document.getElementById("pageTitle").textContent =
             view === "generator" ? t("generatorPageTitle") : t(view);
         document.getElementById("pageSubtitle").style.display =
@@ -576,6 +619,8 @@ document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
         if(view === "suites")    renderSuites();
         if(view === "history")   renderHistory();
         closeSidebar();
+        const heading = document.getElementById("pageTitle");
+        if (heading) heading.focus({ preventScroll: true });
     });
 });
 
@@ -585,6 +630,7 @@ const sidebar = document.querySelector(".sidebar");
 const sidebarOverlay = document.getElementById("sidebarOverlay");
 hamburgerBtn.addEventListener("click", () => {
     const isOpen = sidebar.classList.toggle("open");
+    hamburgerBtn.setAttribute("aria-expanded", String(isOpen));
     sidebarOverlay.classList.toggle("visible");
     hamburgerBtn.innerHTML = isOpen ? '<i data-lucide="x"></i>' : '<i data-lucide="menu"></i>';
     lucide.createIcons();
@@ -592,6 +638,7 @@ hamburgerBtn.addEventListener("click", () => {
 sidebarOverlay.addEventListener("click", () => {
     sidebar.classList.remove("open");
     sidebarOverlay.classList.remove("visible");
+    hamburgerBtn.setAttribute("aria-expanded", "false");
     hamburgerBtn.innerHTML = '<i data-lucide="menu"></i>';
     lucide.createIcons();
 });
@@ -616,8 +663,9 @@ function trapFocus(container) {
         }
     };
     container.addEventListener("keydown", handler);
-    setTimeout(() => first.focus(), 50);
+    const focusTimer = setTimeout(() => first.focus(), 50);
     return () => {
+        clearTimeout(focusTimer);
         container.removeEventListener("keydown", handler);
         if (prev && prev.focus) prev.focus();
     };
@@ -635,20 +683,23 @@ function closeModal() {
     if (trapCleanup) { trapCleanup(); trapCleanup = null; }
 }
 
+let pendingConfirm = null;
 function showConfirm(message, dangerLabel) {
     return new Promise(resolve => {
+        if (pendingConfirm) pendingConfirm(false);
+        pendingConfirm = resolve;
         const overlay = document.getElementById("confirmOverlay");
         document.getElementById("confirmMessage").textContent = message;
         const okBtn = document.getElementById("confirmOk");
-        okBtn.textContent = dangerLabel || "Delete";
+        okBtn.textContent = dangerLabel || t("delete");
         okBtn.style.background = dangerLabel ? "linear-gradient(135deg,var(--danger),#b91c1c)" : "linear-gradient(135deg,var(--primary),var(--primary-dark))";
         overlay.classList.add("visible");
         lucide.createIcons();
-        const cleanup = () => { overlay.classList.remove("visible"); };
+        const cleanup = () => { overlay.classList.remove("visible"); pendingConfirm = null; };
         document.getElementById("confirmOk").onclick = () => { cleanup(); resolve(true); };
         document.getElementById("confirmCancel").onclick = () => { cleanup(); resolve(false); };
         document.getElementById("confirmClose").onclick = () => { cleanup(); resolve(false); };
-        overlay.addEventListener("click", e => { if (e.target === overlay) { cleanup(); resolve(false); } });
+        overlay.onclick = e => { if (e.target === overlay) { cleanup(); resolve(false); } };
     });
 }
 document.getElementById("modalClose").addEventListener("click", closeModal);
@@ -777,6 +828,8 @@ function updateUsageCounter() {
             setTimeout(tick, 18);
         }
     }
+    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) { el.textContent = (phrases[lang] || phrases.en)[0]; return; }
     setTimeout(tick, 800);
 })();
 
@@ -794,6 +847,7 @@ function startProgress() {
         pct += Math.random() * 9 + 2;
         if(pct > 85) pct = 85;
         bar.style.width = pct + "%";
+        bar.parentElement.setAttribute("aria-valuenow", String(Math.round(pct)));
     }, 320);
 }
 function finishProgress(success = true) {
@@ -802,6 +856,7 @@ function finishProgress(success = true) {
     const wrap = document.getElementById("progressWrap");
     if(!success) bar.style.background = "#dc2626";
     bar.style.width = "100%";
+    bar.parentElement.setAttribute("aria-valuenow", "100");
     setTimeout(() => {
         wrap.style.display = "none";
         bar.style.width = "0%";
@@ -841,12 +896,7 @@ updateGenerateBtn();
 const priorityOrder  = { Critical:1, High:2, Medium:3, Low:4, Trivial:5 };
 const priorityColors = { Critical:"#dc2626", High:"#f97316", Medium:"#3b82f6", Low:"#10b981", Trivial:"#6b7280" };
 
-function getFeedback() {
-    try { return JSON.parse(localStorage.getItem("qa_feedback") || "{}"); } catch(e) { return {}; }
-}
-function saveFeedback(fb) {
-    localStorage.setItem("qa_feedback", JSON.stringify(fb));
-}
+
 
 // ============================================================
 // EXPORTS
@@ -919,7 +969,7 @@ document.getElementById("exportWord").addEventListener("click", () => {
 // DASHBOARD
 // ============================================================
 function renderDashboard() {
-    const allProjectTests = state.projects.reduce((arr, p) => arr.concat(p.testCases), []);
+    
     const filteredProjects = state.projects.filter(p => !projectFilter || p.name === projectFilter);
     const filteredTests = filteredProjects.reduce((arr, p) => arr.concat(p.testCases), []);
     const allTests = projectFilter ? filteredTests : filteredTests.concat(latestTestCases);
@@ -1008,10 +1058,10 @@ function renderDashboard() {
         <div class="ent-title">${t('entTitle')}</div>
         <div class="ent-filters">
             <div class="toggle-row">
-                <button class="toggle-btn${activeToggle === 'thisWeek' ? ' active' : ''}" data-period="thisWeek">${t('thisWeek')}</button>
-                <button class="toggle-btn${activeToggle === 'lastWeek' ? ' active' : ''}" data-period="lastWeek">${t('lastWeek')}</button>
+                <button class="toggle-btn${activeToggle === 'thisWeek' ? ' active' : ''}" data-period="thisWeek" aria-pressed="${activeToggle === 'thisWeek'}">${t('thisWeek')}</button>
+                <button class="toggle-btn${activeToggle === 'lastWeek' ? ' active' : ''}" data-period="lastWeek" aria-pressed="${activeToggle === 'lastWeek'}">${t('lastWeek')}</button>
             </div>
-            <select id="entProjFilter" class="ent-select">
+            <select id="entProjFilter" class="ent-select" aria-label="${t('filterProject')}">
                 <option value="">${t('entAllProjects')}</option>
                 ${state.projects.map(p => `<option value="${esc(p.name)}"${p.name === projectFilter ? " selected" : ""}>${esc(p.name)}</option>`).join("")}
             </select>
@@ -1022,23 +1072,23 @@ function renderDashboard() {
     <div class="ent-cards">
         <div class="ent-card">
             <div class="ent-card-i"><i data-lucide="file-text" style="width:16px;height:16px;color:#3b82f6"></i></div>
-            <div class="ent-card-b"><div class="ent-card-v" style="color:#3b82f6">${total}</div><div class="ent-card-l">${t('entTotal')}</div>${dayTrend}</div>
+            <div class="ent-card-b"><div class="ent-card-v" style="color:var(--primary-text)">${total}</div><div class="ent-card-l">${t('entTotal')}</div>${dayTrend}</div>
         </div>
         <div class="ent-card">
             <div class="ent-card-i"><i data-lucide="check-circle" style="width:16px;height:16px;color:#10b981"></i></div>
-            <div class="ent-card-b"><div class="ent-card-v" style="color:#10b981">${pass}</div><div class="ent-card-l">${t('dashPass')}</div></div>
+            <div class="ent-card-b"><div class="ent-card-v" style="color:var(--success-text)">${pass}</div><div class="ent-card-l">${t('dashPass')}</div></div>
         </div>
         <div class="ent-card">
             <div class="ent-card-i"><i data-lucide="x-circle" style="width:16px;height:16px;color:#dc2626"></i></div>
-            <div class="ent-card-b"><div class="ent-card-v" style="color:#dc2626">${fail}</div><div class="ent-card-l">${t('dashFail')}</div></div>
+            <div class="ent-card-b"><div class="ent-card-v" style="color:var(--danger-text)">${fail}</div><div class="ent-card-l">${t('dashFail')}</div></div>
         </div>
         <div class="ent-card">
             <div class="ent-card-i"><i data-lucide="alert-triangle" style="width:16px;height:16px;color:#f97316"></i></div>
-            <div class="ent-card-b"><div class="ent-card-v" style="color:#f97316">${blocked}</div><div class="ent-card-l">${t('dashBlocked')}</div></div>
+            <div class="ent-card-b"><div class="ent-card-v" style="color:var(--warning-text)">${blocked}</div><div class="ent-card-l">${t('dashBlocked')}</div></div>
         </div>
         <div class="ent-card">
             <div class="ent-card-i"><i data-lucide="clock" style="width:16px;height:16px;color:#94a3b8"></i></div>
-            <div class="ent-card-b"><div class="ent-card-v" style="color:#94a3b8">${untested}</div><div class="ent-card-l">${t('dashUntested')}</div></div>
+            <div class="ent-card-b"><div class="ent-card-v" style="color:var(--text-muted)">${untested}</div><div class="ent-card-l">${t('dashUntested')}</div></div>
         </div>
     </div>
 
@@ -1083,8 +1133,18 @@ function renderDashboard() {
         </div>
     </div>`;
 
+    // ── Text summaries for the charts (screen readers) ──
+    const describe = (id, text) => {
+        const c = document.getElementById(id);
+        if (c) { c.setAttribute("role", "img"); c.setAttribute("aria-label", text); }
+    };
+    describe("statusChart", `${t('statusColChart')}: ${t('dashPass')} ${pass}, ${t('dashFail')} ${fail}, ${t('dashBlocked')} ${blocked}, ${t('dashUntested')} ${untested}`);
+    describe("priorityChart", `${t('priorityDistribution')}: ${t('pCritical')} ${priorityCounts["Critical"]||0}, ${t('pHigh')} ${priorityCounts["High"]||0}, ${t('pMedium')} ${priorityCounts["Medium"]||0}, ${t('pLow')} ${priorityCounts["Low"]||0}`);
+    describe("trendChart", `${t('dailyTrend')}: ` + dayData.map(d => `${d.label} ${d.count}`).join(", "));
+
     // ── Init charts ──
     if (typeof Chart !== 'undefined') {
+        if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) Chart.defaults.animation = false;
         const txtCol = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#64748b';
         const bdrCol = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#e2e8f0';
         new Chart(document.getElementById('statusChart'), {
@@ -1129,7 +1189,7 @@ function renderDashboard() {
     });
 }
 
-function renderSidebarWidgets() {}
+
 
 // ============================================================
 // HISTORY
@@ -1163,11 +1223,7 @@ function renderHistory() {
     el.innerHTML = tableHtml;
 
     if (!document.getElementById("historySearch")) {
-        const searchInput = document.createElement("input");
-        searchInput.type = "text";
-        searchInput.className = "search-input";
-        searchInput.placeholder = t("searchHistory");
-        searchInput.id = "historySearch";
+        
 
         const searchWrapper = document.createElement("div");
         searchWrapper.className = "search-wrapper";
@@ -1175,7 +1231,7 @@ function renderHistory() {
             <label class="sr-only" for="historySearch">${esc(t("searchHistory"))}</label>
             <i data-lucide="search" class="search-icon"></i>
             <input type="text" id="historySearch" class="search-input" placeholder="${esc(t("searchHistory"))}" />
-            <button class="search-clear" id="clearHistorySearch"><i data-lucide="x"></i></button>`;
+            <button class="search-clear" id="clearHistorySearch" type="button" aria-label="${esc(t("clearSearch"))}"><i data-lucide="x"></i></button>`;
 
         el.parentNode.insertBefore(searchWrapper, el);
 
@@ -1257,12 +1313,12 @@ function renderProjects() {
             </tr></thead>
             <tbody id="projectsBody">${state.projects.map(p => `
                 <tr class="clickable" data-pid="${esc(p.id)}">
-                    <td><strong>${esc(p.name)}</strong></td>
+                    <td><button type="button" class="row-open-btn"><strong>${esc(p.name)}</strong></button></td>
                     <td style="color:var(--text-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.description)}</td>
                     <td>${esc(p.created)}</td>
                     <td style="color:var(--text-muted);font-size:13px;">${p.testCases.length} ${t("testsLabel")}</td>
                     <td>
-                        <button class="danger-btn delete-project-btn" data-pid="${esc(p.id)}">
+                        <button class="danger-btn delete-project-btn" data-pid="${esc(p.id)}" aria-label="${esc(t("delete"))}: ${esc(p.name)}">
                             ${t("delete")}
                         </button>
                     </td>
@@ -1304,7 +1360,7 @@ function renderProjects() {
             <label class="sr-only" for="projectsSearch">${esc(t("searchProjects"))}</label>
             <i data-lucide="search" class="search-icon"></i>
             <input type="text" id="projectsSearch" class="search-input" placeholder="${esc(t("searchProjects"))}" />
-            <button class="search-clear" id="clearProjectsSearch"><i data-lucide="x"></i></button>`;
+            <button class="search-clear" id="clearProjectsSearch" type="button" aria-label="${esc(t("clearSearch"))}"><i data-lucide="x"></i></button>`;
 
         el.parentNode.insertBefore(searchWrapper, el);
 
@@ -1347,7 +1403,7 @@ function renderSuites() {
                 <h2>${esc(p.name)}</h2>
                 <div style="display:flex;align-items:center;gap:14px;">
                     <span style="color:var(--text-muted);font-size:13px;">${esc(p.created)}</span>
-                    <button class="danger-btn delete-suite-btn" data-pid="${esc(p.id)}">
+                    <button class="danger-btn delete-suite-btn" data-pid="${esc(p.id)}" aria-label="${esc(t("delete"))}: ${esc(p.name)}">
                         ${t("delete")}
                     </button>
                 </div>
@@ -1404,11 +1460,10 @@ document.addEventListener("keydown", (e) => {
         const activeModal = document.querySelector(".modal-overlay.visible");
         if (activeModal) {
             activeModal.classList.remove("visible");
+            if (activeModal.id === "confirmOverlay" && pendingConfirm) { pendingConfirm(false); pendingConfirm = null; }
         }
     }
-    if (e.ctrlKey && e.key === "z" && !e.shiftKey) {
-        // Do nothing (Ctrl+Z)
-    }
+    
 });
 
 
@@ -1459,36 +1514,6 @@ function updateCharCounter() {
 }
 
 // ============================================================
-// NEW FEATURES: COPY TO CLIPBOARD
-// ============================================================
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        showToast(t("toastCopied"), "success");
-    }).catch(() => {
-        showToast(t("toastCopyFailed"), "error");
-    });
-}
-
-function copyTestCase(tc) {
-    const text = `ID: ${tc.id}
-Title: ${tc.title}
-Description: ${tc.description}
-Steps: ${tc.steps.join("\n")}
-Expected: ${tc.expected}
-Priority: ${tc.priority}
-Tags: ${tc.tags.join(", ")}`;
-    copyToClipboard(text);
-}
-
-function copyAllTestCases() {
-    if (!latestTestCases.length) return;
-    const text = latestTestCases.map(tc =>
-        `TC-${tc.id}: ${tc.title}\n${tc.description}\n\nSteps:\n${tc.steps.map((s,i) => `${i+1}. ${s}`).join("\n")}\n\nExpected: ${tc.expected}\n`
-    ).join("\n---\n\n");
-    copyToClipboard(text);
-}
-
-// ============================================================
 // NEW FEATURES: BULK SELECT & DELETE
 // ============================================================
 let selectedTestCases = new Set();
@@ -1516,6 +1541,22 @@ function selectAllTestCases() {
     latestTestCases.forEach(tc => selectedTestCases.add(tc.id));
     updateBulkActions();
     renderSavedTestCards();
+}
+
+function focusByKey(key) {
+    const el = document.querySelector('[data-focus-key="' + String(key).replace(/"/g, '\\"') + '"]');
+    if (el && !el.disabled) { el.focus(); return true; }
+    return false;
+}
+
+function moveTestCase(id, delta) {
+    const i = latestTestCases.findIndex(x => x.id === id);
+    const j = i + delta;
+    if (i < 0 || j < 0 || j >= latestTestCases.length) return;
+    [latestTestCases[i], latestTestCases[j]] = [latestTestCases[j], latestTestCases[i]];
+    saveLatestTestCases();
+    renderSavedTestCards();
+    showToast(t("toastTestReordered") + " (" + (j + 1) + "/" + latestTestCases.length + ")", "info", 1500);
 }
 
 function deselectAllTestCases() {
@@ -1550,19 +1591,6 @@ document.getElementById("confirmBulkDelete").addEventListener("click", () => {
     document.getElementById("bulkDeleteOverlay").classList.remove("visible");
     showToast(t("deletedTests"), "success");
 });
-
-// ============================================================
-// NEW FEATURES: DUPLICATE TEST CASE
-// ============================================================
-function duplicateTestCase(tc, index) {
-    const newTc = JSON.parse(JSON.stringify(tc));
-    newTc.id = `TC-${String(latestTestCases.length + 1).padStart(3, '0')}`;
-    newTc.status = null;
-    latestTestCases.splice(index + 1, 0, newTc);
-    saveLatestTestCases();
-    renderSavedTestCards();
-    showToast(t("toastTestDuplicated"), "success");
-}
 
 // ============================================================
 // NEW FEATURES: SKELETON LOADER
@@ -1783,36 +1811,36 @@ function openEditModal(tc, cardDiv) {
         return (arr || [""]).map((s, i) => `
             <div class="edit-step-row">
                 <span class="edit-step-num">${i + 1}.</span>
-                <input class="api-input edit-step-input" value="${esc(s)}" />
-                <button class="edit-step-remove" ${(arr||[]).length <= 1 ? "style='visibility:hidden'" : ""}><i data-lucide="x"></i></button>
+                <input class="api-input edit-step-input" value="${esc(s)}" aria-label="${esc(t("detailSteps"))} ${i + 1}" />
+                <button type="button" class="edit-step-remove" aria-label="${esc(t("removeStep"))}" ${(arr||[]).length <= 1 ? "style='visibility:hidden'" : ""}><i data-lucide="x"></i></button>
             </div>
         `).join("");
     }
 
     const html = `
         <div class="edit-form">
-            <label>${t("detailTitle")}</label>
+            <label for="edit-title">${t("detailTitle")}</label>
             <input id="edit-title" class="api-input" value="${esc(tc.title)}" />
 
-            <label style="margin-top:12px;">${t("detailDescription")}</label>
+            <label for="edit-desc" style="margin-top:12px;">${t("detailDescription")}</label>
             <textarea id="edit-desc" class="api-input" rows="2">${esc(tc.description || "")}</textarea>
 
-            <label style="margin-top:12px;">${t("detailSteps")}</label>
-            <div id="edit-steps-container">${stepsHTML(tc.steps)}</div>
+            <span id="edit-steps-label" style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin:12px 0 4px;">${t("detailSteps")}</span>
+            <div id="edit-steps-container" role="group" aria-labelledby="edit-steps-label">${stepsHTML(tc.steps)}</div>
             <button id="edit-step-add" class="secondary-btn" style="margin-top:6px;font-size:12px;padding:4px 12px;"><i data-lucide="plus"></i> ${t("addStep")}</button>
 
-            <label style="margin-top:12px;">${t("detailExpected")}</label>
+            <label for="edit-expected" style="margin-top:12px;">${t("detailExpected")}</label>
             <textarea id="edit-expected" class="api-input" rows="2">${esc(tc.expected || "")}</textarea>
 
-            <label style="margin-top:12px;">${t("editLabelPriority")}</label>
+            <label for="edit-priority" style="margin-top:12px;">${t("editLabelPriority")}</label>
             <select id="edit-priority" class="api-input">
                 ${priorities.map(p => `<option value="${p}" ${tc.priority === p ? "selected" : ""}>${t('p' + p)}</option>`).join("")}
             </select>
 
-            <label style="margin-top:12px;">${t("editLabelTags")}</label>
+            <label for="edit-tags" style="margin-top:12px;">${t("editLabelTags")}</label>
             <input id="edit-tags" class="api-input" value="${esc(tagsVal)}" />
 
-            <label style="margin-top:12px;">${t("detailRisk")}</label>
+            <label for="edit-risk" style="margin-top:12px;">${t("detailRisk")}</label>
             <textarea id="edit-risk" class="api-input" rows="2">${esc(tc.risk || "")}</textarea>
 
             <div style="display:flex;gap:8px;margin-top:16px;">
@@ -1828,6 +1856,7 @@ function openEditModal(tc, cardDiv) {
     function renumberSteps() {
         container.querySelectorAll(".edit-step-row").forEach((row, i) => {
             row.querySelector(".edit-step-num").textContent = `${i + 1}.`;
+            row.querySelector(".edit-step-input").setAttribute("aria-label", `${t("detailSteps")} ${i + 1}`);
             row.querySelector(".edit-step-remove").style.visibility = container.children.length <= 1 ? "hidden" : "visible";
         });
     }
@@ -1843,7 +1872,7 @@ function openEditModal(tc, cardDiv) {
     document.getElementById("edit-step-add").addEventListener("click", () => {
         const row = document.createElement("div");
         row.className = "edit-step-row";
-        row.innerHTML = `<span class="edit-step-num">${container.children.length + 1}.</span><input class="api-input edit-step-input" value="" /><button class="edit-step-remove"><i data-lucide="x"></i></button>`;
+        row.innerHTML = `<span class="edit-step-num">${container.children.length + 1}.</span><input class="api-input edit-step-input" value="" aria-label="${esc(t("detailSteps"))} ${container.children.length + 1}" /><button type="button" class="edit-step-remove" aria-label="${esc(t("removeStep"))}"><i data-lucide="x"></i></button>`;
         container.appendChild(row);
         renumberSteps();
         lucide.createIcons();
@@ -1862,6 +1891,7 @@ function openEditModal(tc, cardDiv) {
         cardDiv.replaceWith(newCard);
         lucide.createIcons();
         closeModal();
+        focusByKey(tc.id + ":edit");
         showToast(t("toastTestUpdated"), "success");
     });
 
@@ -1877,6 +1907,7 @@ function createTestCard(tc) {
     div.setAttribute("data-id", tc.id);
     div.setAttribute("draggable", "true");
     const isSelected = selectedTestCases.has(tc.id);
+    const tcIndex = latestTestCases.indexOf(tc);
 
     function openDetails() {
         const steps = (tc.steps || []).map(s => `<li>${esc(s)}</li>`).join("");
@@ -1892,23 +1923,29 @@ function createTestCard(tc) {
     div.innerHTML = `
         <div class="test-card-header">
             <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
-                <div class="test-checkbox ${isSelected ? 'checked' : ''}" data-id="${esc(tc.id)}">
+                <div class="test-checkbox ${isSelected ? 'checked' : ''}" data-id="${esc(tc.id)}" data-focus-key="${esc(tc.id)}:checkbox" role="checkbox" tabindex="0" aria-checked="${isSelected ? "true" : "false"}" aria-label="${esc(t("selectTestCase"))} ${esc(tc.id)}">
                     <i data-lucide="check"></i>
                 </div>
-                <h3 id="title-${esc(tc.id)}" class="clickable-title" title="Click for details, double-click to edit">${esc(tc.id)} — ${esc(tc.title)}</h3>
+                <h3><span class="clickable-title" role="button" tabindex="0" data-focus-key="${esc(tc.id)}:title" title="${esc(t("cardTitleHint"))}">${esc(tc.id)} — ${esc(tc.title)}</span></h3>
             </div>
             <span class="priority-badge priority-${esc(tc.priority)}">${esc(priorityLabel(tc.priority))}</span>
         </div>
         <div class="test-card-actions" style="flex-wrap:wrap;">
-            <button class="status-btn pass-btn ${tc.status === "pass" ? "active-pass" : ""}">${t("pass")}</button>
-            <button class="status-btn fail-btn ${tc.status === "fail" ? "active-fail" : ""}">${t("fail")}</button>
-            <button class="status-btn blocked-btn ${tc.status === "blocked" ? "active-blocked" : ""}">${t("blocked")}</button>
+            <button type="button" class="status-btn pass-btn ${tc.status === "pass" ? "active-pass" : ""}" aria-pressed="${tc.status === "pass"}">${t("pass")}</button>
+            <button type="button" class="status-btn fail-btn ${tc.status === "fail" ? "active-fail" : ""}" aria-pressed="${tc.status === "fail"}">${t("fail")}</button>
+            <button type="button" class="status-btn blocked-btn ${tc.status === "blocked" ? "active-blocked" : ""}" aria-pressed="${tc.status === "blocked"}">${t("blocked")}</button>
             <span style="flex:1"></span>
-            <button class="icon-btn" data-action="edit" title="Edit"><i data-lucide="pencil"></i></button>
+            <button type="button" class="icon-btn" data-action="up" data-focus-key="${esc(tc.id)}:up" title="${esc(t("moveUp"))}" aria-label="${esc(t("moveUp"))}" ${tcIndex <= 0 ? "disabled" : ""}><i data-lucide="chevron-up"></i></button>
+            <button type="button" class="icon-btn" data-action="down" data-focus-key="${esc(tc.id)}:down" title="${esc(t("moveDown"))}" aria-label="${esc(t("moveDown"))}" ${tcIndex >= latestTestCases.length - 1 ? "disabled" : ""}><i data-lucide="chevron-down"></i></button>
+            <button type="button" class="icon-btn" data-action="edit" data-focus-key="${esc(tc.id)}:edit" title="${esc(t("editTestCase"))}" aria-label="${esc(t("editTestCase"))}"><i data-lucide="pencil"></i></button>
         </div>`;
 
     const titleEl = div.querySelector(".clickable-title");
     titleEl.addEventListener("click", openDetails);
+    titleEl.addEventListener("keydown", (e) => {
+        if (e.target !== titleEl) return;
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDetails(); }
+    });
 
     titleEl.addEventListener("dblclick", (e) => {
         e.stopPropagation();
@@ -1920,13 +1957,20 @@ function createTestCard(tc) {
         });
     });
 
-    div.querySelector(".test-checkbox").addEventListener("click", () => toggleTestCaseSelection(tc.id));
+    const checkbox = div.querySelector(".test-checkbox");
+    checkbox.addEventListener("click", () => toggleTestCaseSelection(tc.id));
+    checkbox.addEventListener("keydown", (e) => {
+        if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggleTestCaseSelection(tc.id); }
+    });
 
     function setStatus(status) {
         tc.status = tc.status === status ? null : status;
         div.querySelector(".pass-btn").classList.toggle("active-pass", tc.status === "pass");
         div.querySelector(".fail-btn").classList.toggle("active-fail", tc.status === "fail");
         div.querySelector(".blocked-btn").classList.toggle("active-blocked", tc.status === "blocked");
+        div.querySelector(".pass-btn").setAttribute("aria-pressed", String(tc.status === "pass"));
+        div.querySelector(".fail-btn").setAttribute("aria-pressed", String(tc.status === "fail"));
+        div.querySelector(".blocked-btn").setAttribute("aria-pressed", String(tc.status === "blocked"));
         saveLatestTestCases();
         renderDashboard();
     }
@@ -1936,7 +1980,10 @@ function createTestCard(tc) {
 
     div.querySelectorAll(".icon-btn").forEach(btn => {
         btn.addEventListener("click", () => {
-            if (btn.dataset.action === "edit") openEditModal(tc, div);
+            const action = btn.dataset.action;
+            if (action === "edit") openEditModal(tc, div);
+            else if (action === "up") moveTestCase(tc.id, -1);
+            else if (action === "down") moveTestCase(tc.id, 1);
         });
     });
 
@@ -1991,8 +2038,13 @@ function renderSavedTestCards(filter) {
             (tc.status || "").toLowerCase().includes(query)
           )
         : latestTestCases;
+    const activeKey = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.focusKey : null;
     resultsEl.innerHTML = "";
     filtered.forEach(tc => resultsEl.appendChild(createTestCard(tc)));
+    if (activeKey && !focusByKey(activeKey)) {
+        const alt = resultsEl.querySelector('[data-focus-key^="' + activeKey.split(":")[0] + ':"]:not([disabled])');
+        if (alt) alt.focus();
+    }
     lucide.createIcons();
     const shown = filtered.length;
     const total = latestTestCases.length;
@@ -2307,7 +2359,7 @@ document.getElementById("demoBtn").addEventListener("click", generateMockTestCas
 // ============================================================
 // UPDATED: Generate button with skeleton
 // ============================================================
-const originalGenerateHandler = generateBtn.onclick;
+
 generateBtn.addEventListener("click", async () => {
     const feature = testInput.value.trim();
     if(!feature) return;

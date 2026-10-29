@@ -64,7 +64,7 @@
             --body-bg: #f0f2f5;
             --card-bg: #ffffff;
             --text: #111827;
-            --text-muted: #6b7280;
+            --text-muted: #5b6472;
             --border: #e5e7eb;
             --sidebar-bg: #ffffff;
             --hover-bg: #f9fafb;
@@ -72,7 +72,11 @@
             --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
             --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
             --shadow-glow: 0 0 20px rgba(59,130,246,0.15);
-        }
+    --primary-text: #1d4ed8;
+    --warning-text: #c2410c;
+    --danger-text: #b91c1c;
+            --success-text: #047857;
+}
 
         body.dark {
             --body-bg: #0f1117;
@@ -86,7 +90,11 @@
             --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
             --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
             --shadow-glow: 0 0 20px rgba(59,130,246,0.2);
-        }
+    --primary-text: #60a5fa;
+    --warning-text: #fb923c;
+    --danger-text: #f87171;
+            --success-text: #34d399;
+}
 
         body {
             background: var(--body-bg);
@@ -95,13 +103,14 @@
         }
 
         /* Smooth transitions for theme */
-        body.light *, body.dark * {
+        .sidebar, .generator-panel, .table-card, .modal, .live-preview-banner, .ent-card, .ent-col {
             transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
         }
 
         .app-layout {
             display: flex;
             height: 100vh;
+            height: 100dvh;
             width: 100%;
             overflow: hidden;
         }
@@ -178,7 +187,7 @@
 
         .nav-item.active { 
             background: var(--primary-light);
-            color: var(--primary);
+            color: var(--primary-text);
             font-weight: 600;
         }
 
@@ -204,8 +213,8 @@
             gap: 2px;
         }
 
-            line-height: 1.5;
-        }
+            
+        
 
 
 
@@ -242,7 +251,7 @@
             cursor: pointer;
             padding: 6px 10px;
             transition: all 0.2s ease;
-            opacity: 0.5;
+            
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -295,7 +304,7 @@
         }
         .back-link:hover {
             background: var(--primary-light);
-            color: var(--primary);
+            color: var(--primary-text);
             border-color: var(--primary);
         }
 
@@ -311,11 +320,11 @@
             justify-content: center;
             transition: all .2s;
             line-height: 1;
-            opacity: 0.5;
+            
         }
         .theme-header-btn:hover {
             background: var(--primary-light);
-            color: var(--primary);
+            color: var(--primary-text);
             border-color: var(--primary);
             opacity: 1;
         }
@@ -336,6 +345,7 @@
             flex: 1;
             margin-left: 240px;
             height: 100vh;
+            height: 100dvh;
             overflow-y: auto;
             padding: 24px 32px 24px 24px;
             box-sizing: border-box;
@@ -390,7 +400,7 @@
             font-weight: 600;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            color: var(--primary);
+            color: var(--primary-text);
             white-space: nowrap;
             background: var(--primary-light);
             border: 1px solid var(--primary-glow);
@@ -489,10 +499,7 @@
             box-shadow: 0 0 10px var(--primary-glow);
         }
 
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
+        
 
         .progress-label { 
             font-size: 13px; 
@@ -528,7 +535,7 @@
         /* ── Refined Primary Button ── */
         .primary-btn {
             padding: 7px 14px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: linear-gradient(135deg, var(--primary-dark), #1d4ed8);
             color: white;
             border: none;
             border-radius: 8px;
@@ -544,7 +551,7 @@
         }
 
         .primary-btn:hover { 
-            background: linear-gradient(135deg, var(--primary-dark), #1d4ed8);
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
         }
@@ -574,7 +581,7 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 500;
             font-family: "Inter", sans-serif;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -606,7 +613,7 @@
         .danger-btn {
             padding: 8px 14px;
             background: transparent;
-            color: var(--danger);
+            color: var(--danger-text);
             border: 1px solid rgba(220, 38, 38, 0.25);
             border-radius: 10px;
             cursor: pointer;
@@ -668,20 +675,21 @@
             line-height: 1.4;
         }
 
-        .priority-badge { 
-            padding: 5px 12px; 
-            border-radius: 50px; 
-            font-size: 12px; 
-            color: white; 
-            white-space: nowrap; 
+        .priority-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
             font-weight: 600;
+            color: white;
+            white-space: nowrap;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
         .priority-Critical { background: linear-gradient(135deg, #dc2626, #b91c1c); }
-        .priority-High     { background: linear-gradient(135deg, #f97316, #ea580c); }
-        .priority-Medium   { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-        .priority-Low      { background: linear-gradient(135deg, #10b981, #059669); }
+        .priority-High     { background: linear-gradient(135deg, #c2410c, #9a3412); }
+        .priority-Medium   { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+        .priority-Low      { background: linear-gradient(135deg, #047857, #065f46); }
         .priority-Trivial  { background: linear-gradient(135deg, #6b7280, #4b5563); }
 
         .test-card-actions { 
@@ -701,7 +709,7 @@
             border: 2px solid var(--border);
             background: transparent;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--text-muted);
             font-family: "Inter", sans-serif;
@@ -716,9 +724,9 @@
         }
 
         .status-btn.active-pass { 
-            background: linear-gradient(135deg, var(--success), #059669);
+            background: linear-gradient(135deg, #047857, #065f46);
             color: white;
-            border-color: var(--success);
+            border-color: #047857;
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
 
@@ -730,16 +738,10 @@
         }
 
         .status-btn.active-blocked { 
-            background: linear-gradient(135deg, var(--warning), #ea580c);
+            background: linear-gradient(135deg, #c2410c, #9a3412);
             color: white;
-            border-color: var(--warning);
+            border-color: #c2410c;
             box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
-        }
-
-        .status-msg { 
-            color: var(--text-muted); 
-            font-size: 15px; 
-            padding: 12px 0;
         }
 
         /* ── Table Card - Enhanced ── */
@@ -796,58 +798,6 @@
         }
 
         /* ── Dashboard Grid ── */
-        .dash-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); 
-            gap: 10px; 
-            margin-bottom: 14px; 
-        }
-
-        .dash-card { 
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 14px;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .dash-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .dash-value { 
-            font-size: 24px; 
-            font-weight: 700; 
-            margin-bottom: 4px; 
-            line-height: 1;
-            letter-spacing: -0.02em;
-        }
-
-        .dash-label { 
-            font-size: 11px; 
-            color: var(--text-muted);
-            font-weight: 500;
-            display: flex; 
-            align-items: center; 
-            gap: 6px;
-        }
-
-        .dash-dot { 
-            width: 8px; 
-            height: 8px; 
-            border-radius: 50%; 
-            flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .dash-section-title { 
-            font-size: 13px; 
-            font-weight: 600; 
-            margin: 0 0 8px;
-            color: var(--text);
-        }
 
         .section-header { 
             display: flex; 
@@ -950,7 +900,7 @@
         .close-btn:hover { 
             background: var(--danger-light);
             border-color: var(--danger);
-            color: var(--danger);
+            color: var(--danger-text);
         }
 
         .close-btn i {
@@ -1000,18 +950,6 @@
             margin-top: auto;
             flex-shrink: 0;
         }
-
-        /* ── RTL Support ── */
-        body[dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border); }
-        body[dir="rtl"] .nav-item { text-align: right; flex-direction: row-reverse; }
-        body[dir="rtl"] .nav-item::before { left: auto; right: 0; border-radius: 4px 0 0 4px; }
-        body[dir="rtl"] .sidebar-nav { direction: rtl; }
-        body[dir="rtl"] .test-card-header { flex-direction: row-reverse; }
-        body[dir="rtl"] .test-card-actions { flex-direction: row-reverse; }
-        body[dir="rtl"] .btn-row { flex-direction: row-reverse; }
-        body[dir="rtl"] .section-header { flex-direction: row-reverse; }
-        body[dir="rtl"] textarea { text-align: right; }
-        body[dir="rtl"] .live-preview-banner::before { left: auto; right: 0; }
         
         /* ── Scrollbar Styling ── */
         ::-webkit-scrollbar {
@@ -1036,12 +974,8 @@
         /* ── Selection ── */
         ::selection {
             background: var(--primary-light);
-            color: var(--primary);
+            color: var(--primary-text);
         }
-
-        /* ═══════════════════════════════════════════
-           NEW FEATURES STYLES
-           ═══════════════════════════════════════════ */
 
         /* ── Toast Notifications ── */
         .toast-container {
@@ -1179,16 +1113,16 @@
         }
 
         .search-clear.visible { display: block; }
-        .search-clear:hover { color: var(--danger); }
+        .search-clear:hover { color: var(--danger-text); }
 
         /* ── Character Limit Warning ── */
         .char-warning {
-            color: var(--warning) !important;
+            color: var(--warning-text) !important;
             font-weight: 600;
         }
 
         .char-danger {
-            color: var(--danger) !important;
+            color: var(--danger-text) !important;
             font-weight: 700;
             animation: pulse 1s ease-in-out infinite;
         }
@@ -1211,7 +1145,7 @@
         .bulk-count {
             font-size: 14px;
             font-weight: 600;
-            color: var(--primary);
+            color: var(--primary-text);
         }
 
         .bulk-buttons {
@@ -1327,36 +1261,13 @@
         }
 
         .edit-step-remove:hover {
-            color: var(--danger);
+            color: var(--danger-text);
             background: var(--hover-bg);
         }
 
         .edit-step-remove i {
             width: 16px;
             height: 16px;
-        }
-
-        /* ── Duplicate Button ── */
-        .duplicate-btn {
-            padding: 6px 12px;
-            background: var(--primary-light);
-            color: var(--primary);
-            border: 1px solid var(--primary-glow);
-            border-radius: 8px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            font-family: "Inter", sans-serif;
-            transition: all 0.2s ease;
-        }
-
-        .duplicate-btn:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-1px);
         }
 
         /* ── Icon Button (compact) ── */
@@ -1392,48 +1303,10 @@
         }
 
         .clickable-title:hover {
-            color: var(--primary);
-        }
-
-        /* ── Copy Button ── */
-        .copy-btn {
-            padding: 6px 12px;
-            background: var(--success-light);
-            color: var(--success);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 8px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            font-family: "Inter", sans-serif;
-            transition: all 0.2s ease;
-        }
-
-        .copy-btn:hover {
-            background: var(--success);
-            color: white;
-            transform: translateY(-1px);
+            color: var(--primary-text);
         }
 
         /* ── Drag and Drop ── */
-        .drag-handle {
-            cursor: grab;
-            padding: 4px;
-            color: var(--text-muted);
-            opacity: 0.5;
-            transition: opacity 0.2s ease;
-        }
-
-        .drag-handle:hover {
-            opacity: 1;
-        }
-
-        .drag-handle:active {
-            cursor: grabbing;
-        }
 
         .test-card.dragging {
             opacity: 0.5;
@@ -1451,98 +1324,6 @@
             border-radius: 10px;
             padding: 10px 12px;
             margin-bottom: 10px;
-        }
-
-        .chart-title {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text);
-        }
-
-        .chart-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .chart-container svg {
-            width: 80px !important;
-            height: 80px !important;
-        }
-
-        .h-bar-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 6px;
-        }
-        .h-bar-row:last-child { margin-bottom: 0; }
-        .h-bar-label {
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--text);
-            width: 72px;
-            flex-shrink: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .h-bar-track {
-            flex: 1;
-            height: 18px;
-            background: var(--border);
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        .h-bar-fill {
-            height: 100%;
-            border-radius: 5px;
-            background: linear-gradient(90deg, var(--primary), #8b5cf6);
-            transition: width .4s ease;
-        }
-        .h-bar-count {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text);
-            width: 28px;
-            text-align: right;
-            flex-shrink: 0;
-        }
-
-        .day-chart {
-            display: flex;
-            align-items: flex-end;
-            gap: 4px;
-            height: 66px;
-            padding: 0 2px;
-        }
-        .day-col {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-        }
-        .day-bar {
-            width: 100%;
-            max-width: 28px;
-            border-radius: 4px 4px 0 0;
-            min-height: 2px;
-            background: linear-gradient(180deg, var(--primary), #8b5cf6);
-            transition: height .3s ease;
-        }
-        .day-lbl {
-            font-size: 9px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
-        .day-val {
-            font-size: 9px;
-            font-weight: 700;
-            color: var(--text);
         }
 
         /* ── Enterprise Dashboard ── */
@@ -1604,7 +1385,7 @@
             line-height: 1.2;
         }
         .ent-card-l {
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 500;
             color: var(--text-muted);
             white-space: nowrap;
@@ -1612,7 +1393,7 @@
             text-overflow: ellipsis;
         }
         .ent-badge {
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 600;
             padding: 1px 6px;
             border-radius: 10px;
@@ -1625,50 +1406,16 @@
         body.dark .ent-badge.down { background: rgba(220,38,38,0.15); color: #f87171; }
 
         body.dark .toggle-btn { background: var(--card-bg); border-color: var(--border); color: var(--text); }
-        body.dark .toggle-btn.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
-        body.dark .comp-card { background: var(--hover-bg); }
+        body.dark .toggle-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
         .toggle-row { display:flex; gap:4px; align-items:center; }
         .toggle-btn { font-size:11px; padding:4px 10px; border:1px solid var(--border); border-radius:6px; background:var(--card-bg); color:var(--text); cursor:pointer; font-weight:500; font-family:Inter,sans-serif; line-height:1.3; white-space:nowrap; }
-        .toggle-btn.active { background:#3b82f6; color:#fff; border-color:#3b82f6; }
-        .comp-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px; }
-        .comp-card { background:var(--hover-bg); border-radius:8px; padding:10px 12px; text-align:center; border:1px solid var(--border); }
-        .comp-val { font-size:18px; font-weight:800; line-height:1.2; }
-        .comp-lbl { font-size:10px; color:var(--text-muted); margin-top:2px; font-weight:500; }
-        .cmp-delta { font-size:10px; font-weight:600; margin-top:2px; display:inline-block; }
-        .cmp-delta.up { color:#10b981; }
-        .cmp-delta.down { color:#dc2626; }
-
-        .ent-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
+        .toggle-btn.active { background: #2563eb; color:#fff; border-color: #2563eb; }
         .ent-col {
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 10px;
             padding: 12px 14px;
         }
-        .ent-widgets {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            min-width: 160px;
-        }
-        .ent-widget {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px 14px;
-            flex: 1;
-        }
-        .ent-widget-s {
-            font-size: 10px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-        .ent-tt { cursor: pointer; }
         .ent-chart-h {
             font-size: 11px;
             font-weight: 600;
@@ -1680,61 +1427,6 @@
             align-items: center;
             gap: 6px;
         }
-        .ent-total {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text);
-        }
-        .ent-bar-group {
-            display: flex;
-            align-items: flex-end;
-            gap: 6px;
-            height: 90px;
-            padding: 0 2px;
-        }
-        .ent-bar-c {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-        }
-        .ent-bar {
-            width: 100%;
-            max-width: 28px;
-            border-radius: 4px 4px 0 0;
-            min-height: 2px;
-            transition: height .3s ease;
-        }
-        .ent-bar-l {
-            font-size: 9px;
-            font-weight: 500;
-            color: var(--text-muted);
-        }
-        .ent-bar-v {
-            font-size: 9px;
-            font-weight: 700;
-            color: var(--text);
-        }
-        .ent-pie-wrap {
-            display: flex;
-            justify-content: center;
-            padding: 4px 0;
-        }
-        .ent-line { width: 100%; }
-        .ent-line svg { width: 100%; display: block; }
-        .ent-line-l {
-            display: flex;
-            gap: 4px;
-            margin-top: 2px;
-        }
-        .ent-line-l span {
-            flex: 1;
-            text-align: center;
-            font-size: 9px;
-            font-weight: 500;
-            color: var(--text-muted);
-        }
 
         .ent-table-wrap {
             overflow-x: auto;
@@ -1742,7 +1434,7 @@
         .ent-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 11px;
+            font-size: 12px;
         }
         .ent-table th {
             text-align: left;
@@ -1750,7 +1442,7 @@
             font-weight: 600;
             color: var(--text-muted);
             border-bottom: 1px solid var(--border);
-            font-size: 9px;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.04em;
         }
@@ -1762,21 +1454,9 @@
         .ent-table tr:last-child td { border-bottom: none; }
         .ent-id {
             font-weight: 600;
-            color: var(--primary);
-            font-size: 10px;
+            color: var(--primary-text);
+            font-size: 11px;
             white-space: nowrap;
-        }
-        .ent-sc {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: 600;
-            color: #fff;
-        }
-        .ent-pc {
-            font-size: 10px;
-            font-weight: 600;
         }
         /* ── Enterprise preview styles ── */
         .chart-container { position:relative; }
@@ -1784,94 +1464,25 @@
             display:inline-block;
             padding:2px 10px;
             border-radius:20px;
-            font-size:10px;
+            font-size: 11px;
             font-weight:600;
         }
-        .status-pass { background:#dcfce7; color:#16a34a; }
-        .status-fail { background:#fee2e2; color:#dc2626; }
-        .status-blocked { background:#ffedd5; color:#ea580c; }
-        .status-untested { background:#f1f5f9; color:#94a3b8; }
-        .priority-badge {
-            display:inline-block;
-            padding:2px 8px;
-            border-radius:4px;
-            font-size:10px;
-            font-weight:600;
-        }
-        .priority-critical { background:#fee2e2; color:#dc2626; }
-        .priority-high { background:#ffedd5; color:#f97316; }
-        .priority-medium { background:#eff6ff; color:#3b82f6; }
-        .priority-low { background:#dcfce7; color:#16a34a; }
-        .widget-card {
-            background:var(--card-bg);
-            border:1px solid var(--border);
-            border-radius:10px;
-            padding:14px 16px;
-        }
-        .widget-h {
-            font-size:10px;
-            font-weight:600;
-            text-transform:uppercase;
-            letter-spacing:0.04em;
-            color:var(--text-muted);
-            margin-bottom:10px;
-        }
-        .widget-stat {
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            padding:5px 0;
-        }
-        .widget-stat + .widget-stat { border-top:1px solid var(--border); }
-        .widget-sn { font-size:11px; color:var(--text); }
-        .widget-sv { font-size:12px; font-weight:700; color:var(--text); }
-        .wdg-bar { height:6px; background:var(--border); border-radius:4px; overflow:hidden; margin:4px 0 8px; }
-        .wdg-fill { height:100%; border-radius:4px; }
-        .wdg-center { text-align:center; padding:6px 0; }
-        .wdg-num { font-size:30px; font-weight:800; color:var(--primary); }
-        .wdg-sub { font-size:10px; color:var(--text-muted); margin-top:2px; }
-        .wdg-legend { display:flex; justify-content:space-between; margin-top:6px; font-size:10px; color:var(--text-muted); }
+        .status-pass { background:#dcfce7; color: #166534; }
+        .status-fail { background:#fee2e2; color: #991b1b; }
+        .status-blocked { background:#ffedd5; color: #9a3412; }
+        .status-untested { background:#f1f5f9; color: #475569; }
+        
+        .priority-critical { background:#fee2e2; color: #991b1b; }
+        .priority-high { background:#ffedd5; color: #9a3412; }
+        .priority-medium { background:#eff6ff; color: #1d4ed8; }
+        .priority-low { background:#dcfce7; color: #166534; }
 
         @media (max-width: 768px) {
             .ent-cards { grid-template-columns: repeat(3, 1fr); }
-            .ent-row { grid-template-columns: 1fr; }
             .ent-header { flex-direction: column; align-items: flex-start; }
         }
         @media (max-width: 480px) {
             .ent-cards { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        .side-widgets {
-            padding: 10px 12px;
-            border-top: 1px solid var(--border);
-        }
-        .side-widget {
-            margin-bottom: 10px;
-        }
-        .side-widget:last-child { margin-bottom: 0; }
-        .side-widget-h {
-            font-size: 9px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-        .side-widget-v {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text);
-        }
-        .side-widget-s {
-            font-size: 10px;
-            color: var(--text-muted);
-        }
-        .side-widget-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 4px;
         }
         
         /* ── API Config Modal ── */
@@ -1885,11 +1496,6 @@
             color: var(--text-muted);
             margin-bottom: 8px;
             display: block;
-        }
-
-        .api-input-group {
-            display: flex;
-            gap: 8px;
         }
 
         .api-input {
@@ -1964,19 +1570,7 @@
         }
 
         .clear-textarea.visible { display: flex; }
-        .clear-textarea:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
-
-        /* ── Undo Button ── */
-        /* ── Keyboard Shortcut Hint ── */
-        .kbd {
-            background: var(--hover-bg);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 2px 6px;
-            font-size: 11px;
-            font-family: monospace;
-            font-weight: 600;
-        }
+        .clear-textarea:hover { background: var(--danger-light); color: var(--danger-text); border-color: var(--danger); }
 
         /* ── Hamburger Button ── */
         .hamburger {
@@ -1993,7 +1587,7 @@
 
         .hamburger:hover {
             border-color: var(--primary);
-            color: var(--primary);
+            color: var(--primary-text);
         }
 
         .hamburger i {
@@ -2018,10 +1612,6 @@
             opacity: 1;
             pointer-events: auto;
         }
-
-        /* ═══════════════════════════════════════════
-           MOBILE RESPONSIVE
-           ═══════════════════════════════════════════ */
 
         /* ── Tablets & small screens ── */
         @media (max-width: 1024px) {
@@ -2146,24 +1736,6 @@
                 padding: 10px 12px;
             }
 
-            .dash-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-                margin-bottom: 10px;
-            }
-
-            .dash-card {
-                padding: 10px 12px;
-            }
-
-            .dash-value {
-                font-size: 22px;
-            }
-
-            .dash-label {
-                font-size: 11px;
-            }
-
             .section-header {
                 flex-direction: column;
                 align-items: flex-start;
@@ -2204,10 +1776,6 @@
                 flex-wrap: wrap;
             }
 
-            .chart-grid {
-                grid-template-columns: 1fr;
-            }
-
             .toast {
                 min-width: auto;
                 max-width: calc(100vw - 32px);
@@ -2224,32 +1792,7 @@
                 font-size: 12px;
             }
 
-            .api-input-group {
-                flex-direction: column;
-            }
-
             /* Fix RTL sidebar on mobile */
-            body[dir="rtl"] .sidebar {
-                transform: translateX(100%);
-                left: auto;
-                right: 0;
-                border-left: 1px solid var(--border);
-                border-right: none;
-            }
-
-            body[dir="rtl"] .sidebar.open {
-                transform: translateX(0);
-            }
-
-            body[dir="rtl"] .hamburger {
-                left: auto;
-                right: 16px;
-            }
-
-            body[dir="rtl"] .main-content {
-                margin-left: 0;
-                margin-right: 0;
-            }
 
         }
 
@@ -2262,19 +1805,6 @@
 
             .generator-panel {
                 padding: 16px 12px;
-            }
-
-            .dash-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 6px;
-            }
-
-            .dash-value {
-                font-size: 20px;
-            }
-
-            .dash-card {
-                padding: 8px 10px;
             }
 
             .modal {
@@ -2294,28 +1824,75 @@
                 font-size: 13px;
             }
         }
+
+        /* ═══════════════════════════════════════════
+           ACCESSIBILITY
+           ═══════════════════════════════════════════ */
+        .skip-link {
+            position: fixed; left: 8px; top: -64px; z-index: 3000;
+            padding: 10px 16px; border-radius: 8px;
+            background: var(--primary-text); color: #fff;
+            font-weight: 600; font-size: 14px; text-decoration: none;
+            transition: top 0.15s ease;
+        }
+        body.dark .skip-link { background: #60a5fa; color: #0f1117; }
+        .skip-link:focus { top: 8px; }
+
+        :focus-visible { outline: 2px solid var(--primary-text); outline-offset: 2px; }
+        .api-input:focus-visible, .text-input:focus-visible, .search-input:focus-visible,
+        textarea:focus-visible, .inline-edit:focus-visible, .ent-select:focus-visible {
+            outline: 2px solid var(--primary-text); outline-offset: 2px;
+        }
+        #pageTitle:focus, #main:focus { outline: none; }
+
+        /* hidden dialogs and the closed phone drawer must not be reachable with Tab */
+        .modal-overlay { visibility: hidden; transition: opacity 0.3s ease, visibility 0s linear 0.3s; }
+        .modal-overlay.visible { visibility: visible; transition: opacity 0.3s ease, visibility 0s; }
+        @media (max-width: 768px) {
+            .sidebar { visibility: hidden; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.3s; }
+            .sidebar.open { visibility: visible; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s; }
+        }
+
+        .row-open-btn {
+            background: none; border: 0; padding: 0; margin: 0;
+            font: inherit; color: inherit; cursor: pointer; text-align: left;
+        }
+        .row-open-btn:hover { color: var(--primary-text); }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                transition-delay: 0s !important;
+                scroll-behavior: auto !important;
+            }
+            .test-card:hover, .primary-btn:hover, .secondary-btn:hover, .danger-btn:hover,
+            .lang-btn:hover, .status-btn:hover { transform: none; }
+        }
     </style>
 </head>
 
 <body class="light">
-<!-- Hero Splash (dismissible landing) -->
+<a class="skip-link" href="#main" data-i18n="skipToContent">Skip to main content</a>
+
 <!-- Toast Container -->
-<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+<div class="toast-container" id="toastContainer" role="status" aria-live="polite"></div>
 
 <!-- API Config Modal -->
 <div id="apiConfigOverlay" class="modal-overlay">
-    <div class="modal" style="max-width:520px;">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="apiConfigTitle" style="max-width:520px;">
         <div class="modal-header">
-            <h2 data-i18n="apiConfig">API Configuration</h2>
-            <button id="apiConfigClose" class="close-btn"><i data-lucide="x"></i></button>
+            <h2 id="apiConfigTitle" data-i18n="apiConfig">API Configuration</h2>
+            <button id="apiConfigClose" class="close-btn" type="button" aria-label="Close" data-i18n-aria="close"><i data-lucide="x"></i></button>
         </div>
         <div class="modal-content">
             <div class="api-config-section">
-                <label class="api-config-label" data-i18n="apiEndpointUrl">API Endpoint URL</label>
+                <label class="api-config-label" for="apiUrlInput" data-i18n="apiEndpointUrl">API Endpoint URL</label>
                 <input type="text" id="apiUrlInput" class="api-input" data-i18n-placeholder="apiEndpointPlaceholder" placeholder="https://your-api.com/endpoint" />
             </div>
             <div class="api-config-section">
-                <label class="api-config-label" data-i18n="apiModelName">Model Name</label>
+                <label class="api-config-label" for="apiModelInput" data-i18n="apiModelName">Model Name</label>
                 <select id="apiModelInput" class="api-input">
                     <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
                     <option value="claude-sonnet-5-5">Claude Sonnet 5.5</option>
@@ -2323,14 +1900,14 @@
                 </select>
             </div>
             <div class="api-config-section">
-                <label class="api-config-label" data-i18n="apiMaxTokens">Max Tokens</label>
+                <label class="api-config-label" for="apiTokensInput" data-i18n="apiMaxTokens">Max Tokens</label>
                 <input type="number" id="apiTokensInput" class="api-input" data-i18n-placeholder="apiTokensPlaceholder" placeholder="4096" value="4096" />
             </div>
             <div class="api-config-section">
-                <label class="api-config-label" data-i18n="apiKeyLabel">Anthropic API Key</label>
+                <label class="api-config-label" for="apiKeyInput" data-i18n="apiKeyLabel">Anthropic API Key</label>
                 <div style="display:flex;gap:6px;">
                     <input type="password" id="apiKeyInput" class="api-input" data-i18n-placeholder="apiKeyPlaceholder" placeholder="sk-ant-..." style="flex:1;" />
-                    <button id="toggleApiKey" class="secondary-btn" style="padding:8px 12px;" title="Show/hide key"><i data-lucide="eye"></i></button>
+                    <button id="toggleApiKey" class="secondary-btn" style="padding:8px 12px;" title="Show/hide key" type="button" aria-label="Show or hide key" data-i18n-aria="showHideKey"><i data-lucide="eye"></i></button>
                 </div>
                 <p style="font-size:11px;color:var(--text-muted);margin:6px 0 0;" data-i18n="apiKeyHint">Your key is sent to the proxy and forwarded to Anthropic. Never shared.</p>
             </div>
@@ -2343,10 +1920,10 @@
 
 <!-- Bulk Delete Confirm Modal -->
 <div id="bulkDeleteOverlay" class="modal-overlay">
-    <div class="modal" style="max-width:400px;">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="bulkDeleteTitle" style="max-width:400px;">
         <div class="modal-header">
-            <h2 data-i18n="deleteSelected">Delete Selected</h2>
-            <button id="bulkDeleteClose" class="close-btn"><i data-lucide="x"></i></button>
+            <h2 id="bulkDeleteTitle" data-i18n="deleteSelected">Delete Selected</h2>
+            <button id="bulkDeleteClose" class="close-btn" type="button" aria-label="Close" data-i18n-aria="close"><i data-lucide="x"></i></button>
         </div>
         <div class="modal-content">
             <p id="bulkDeleteText"></p>
@@ -2360,10 +1937,10 @@
 
 <!-- Import/Export Data Modal -->
 <div id="importExportOverlay" class="modal-overlay">
-    <div class="modal" style="max-width:480px;">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="importExportTitle" style="max-width:480px;">
         <div class="modal-header">
-            <h2 data-i18n="importExportTitle">Import / Export Data</h2>
-            <button id="importExportClose" class="close-btn"><i data-lucide="x"></i></button>
+            <h2 id="importExportTitle" data-i18n="importExportTitle">Import / Export Data</h2>
+            <button id="importExportClose" class="close-btn" type="button" aria-label="Close" data-i18n-aria="close"><i data-lucide="x"></i></button>
         </div>
         <div class="modal-content">
             <div class="api-config-section">
@@ -2386,10 +1963,10 @@
 
 <div class="app-layout">
 
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">QA Studio</div>
-        <nav class="sidebar-nav">
-            <button class="nav-item active" data-view="generator" data-tip="tipGenerator">
+        <nav class="sidebar-nav" aria-label="Main navigation" data-i18n-aria="mainNav">
+            <button class="nav-item active" data-view="generator" data-tip="tipGenerator" aria-current="page">
                 <i data-lucide="sparkles"></i><span data-i18n="generator">Generator</span>
             </button>
             <button class="nav-item" data-view="dashboard" data-tip="tipDashboard">
@@ -2408,40 +1985,39 @@
                 <i data-lucide="settings"></i><span data-i18n="apiConfig">API Configuration</span>
             </button>
         </nav>
-        <div id="sideWidgets" class="side-widgets" style="display:none"></div>
         <div class="sidebar-footer">
-            <button id="clearAllBtn" class="nav-item" style="color:#dc2626;">
+            <button id="clearAllBtn" class="nav-item" style="color:var(--danger-text);">
                 <i data-lucide="trash-2"></i><span data-i18n="clearAllData">Clear All Data</span>
             </button>
             
         </div>
     </aside>
 
-    <main class="main-content">
+    <main class="main-content" id="main" tabindex="-1">
       <div class="top-bar-row">
-        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
+        <button class="hamburger" id="hamburgerBtn" type="button" aria-label="Toggle menu" data-i18n-aria="toggleMenu" aria-expanded="false" aria-controls="sidebar">
           <i data-lucide="menu"></i>
         </button>
         <div class="top-right-bar">
           <a href="index.html" class="back-link">← <span data-i18n="back">Back</span></a>
           <span class="live-clock" id="liveClock"></span>
           <div class="lang-flags" id="langFlags">
-              <button class="lang-btn" data-lang="fi" title="Suomi">FI</button>
-              <button class="lang-btn" data-lang="en" title="English">EN</button>
+              <button class="lang-btn" data-lang="fi" lang="fi" type="button" title="Suomi" aria-label="FI Suomi" aria-pressed="false">FI</button>
+              <button class="lang-btn" data-lang="en" lang="en" type="button" title="English" aria-label="EN English" aria-pressed="false">EN</button>
           </div>
-          <button id="themeToggleBtn" class="theme-header-btn" aria-label="Toggle theme">
+          <button id="themeToggleBtn" class="theme-header-btn" type="button" aria-label="Toggle theme" data-i18n-aria="toggleTheme">
             <i data-lucide="moon" id="themeToggleBtnIcon"></i>
           </button>
         </div>
       </div>
       <div class="sidebar-overlay" id="sidebarOverlay"></div>
       <div class="main-content-inner">
-        <h1 class="topbar" id="pageTitle">Generator</h1>
+        <h1 class="topbar" id="pageTitle" tabindex="-1">Generator</h1>
         <p class="page-subtitle" id="pageSubtitle">Generate, save, and track test cases by project.</p>
 
         <section id="view-generator">
             <!-- Live Preview Banner -->
-            <div class="live-preview-banner">
+            <div class="live-preview-banner" aria-hidden="true">
                 <span class="live-preview-label" data-i18n="livePreviewLabel">// live preview</span>
                 <span class="live-preview-text" id="livePreviewText"><span class="live-preview-cursor"></span></span>
             </div>
@@ -2452,7 +2028,7 @@
                   <span class="import-prompt-text" data-i18n="importPrompt">Paste or type your user stories below — copy them directly from Jira, Notion, spreadsheets, or any requirements document.</span>
                 </div>
                 <div class="textarea-wrapper">
-                    <textarea id="testInput" data-i18n-placeholder="testInputPlaceholder" placeholder="Describe the feature you want test cases for…"></textarea>
+                    <textarea id="testInput" aria-label="Feature description or user stories" data-i18n-aria="testInputLabel" data-i18n-placeholder="testInputPlaceholder" placeholder="Describe the feature you want test cases for…"></textarea>
                     <button class="clear-textarea" id="clearTextarea">
                         <i data-lucide="x"></i> <span data-i18n="clearBtn">Clear</span>
                     </button>
@@ -2461,14 +2037,14 @@
                     <span class="char-counter" id="charCounter">0 characters</span>
                 </div>
                 <div class="progress-wrap" id="progressWrap">
-                    <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+                    <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="progressLabel"><div class="progress-bar" id="progressBar"></div></div>
                     <div class="progress-label" id="progressLabel" data-i18n="generating">Generating…</div>
                 </div>
                 <div class="btn-row">
                     <button id="generateBtn" class="primary-btn" disabled>
                         <i data-lucide="wand-2"></i><span data-i18n="generate">Generate Test Cases</span>
                     </button>
-                    <button id="demoBtn" class="secondary-btn" style="color:var(--warning);">
+                    <button id="demoBtn" class="secondary-btn" style="color:var(--warning-text);">
                         <i data-lucide="flask-conical"></i><span data-i18n="demo">Demo</span>
                     </button>
                     <button id="exportJson" class="secondary-btn" disabled>
@@ -2500,13 +2076,13 @@
             </div>
 
             <div class="search-wrapper" id="generatorSearchWrap" style="display:none;">
-                <label for="generatorSearch" class="sr-only" data-i18n="searchHistory">Search</label>
+                <label for="generatorSearch" class="sr-only" data-i18n="generatorSearchLabel">Search test cases</label>
                 <i data-lucide="search" class="search-icon"></i>
                 <input type="text" id="generatorSearch" class="search-input" data-i18n-placeholder="generatorSearchPlaceholder" placeholder="Search by title, tags, priority…" />
-                <button class="search-clear" id="generatorSearchClear"><i data-lucide="x"></i></button>
+                <button class="search-clear" id="generatorSearchClear" type="button" aria-label="Clear search" data-i18n-aria="clearSearch"><i data-lucide="x"></i></button>
             </div>
             <div id="results" class="results"></div>
-            <div id="resultsMeta" style="text-align:center;font-size:13px;color:var(--text-muted);margin-top:12px;"></div>
+            <div id="resultsMeta" aria-live="polite" style="text-align:center;font-size:13px;color:var(--text-muted);margin-top:12px;"></div>
         </section>
 
         <section id="view-dashboard" style="display:none;">
@@ -2548,10 +2124,10 @@
 
 <!-- Details modal -->
 <div id="modalOverlay" class="modal-overlay">
-    <div class="modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="modal-header">
             <h2 id="modalTitle">Details</h2>
-            <button id="modalClose" class="close-btn"><i data-lucide="x"></i></button>
+            <button id="modalClose" class="close-btn" type="button" aria-label="Close" data-i18n-aria="close"><i data-lucide="x"></i></button>
         </div>
         <div id="modalContent" class="modal-content"></div>
     </div>
@@ -2559,14 +2135,14 @@
 
 <!-- Save-to-project modal -->
 <div id="saveModalOverlay" class="modal-overlay">
-    <div class="modal" style="max-width:420px;">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="saveModalTitle" style="max-width:420px;">
         <div class="modal-header">
-            <h2 data-i18n="saveProject">Save to Project</h2>
-            <button id="saveModalClose" class="close-btn"><i data-lucide="x"></i></button>
+            <h2 id="saveModalTitle" data-i18n="saveProject">Save to Project</h2>
+            <button id="saveModalClose" class="close-btn" type="button" aria-label="Close" data-i18n-aria="close"><i data-lucide="x"></i></button>
         </div>
         <div style="display:flex;flex-direction:column;gap:14px;margin-top:6px;">
-            <input id="projectNameInput" type="text" class="text-input" data-i18n-placeholder="projectNamePlaceholder" placeholder="Project name…" />
-            <textarea id="projectDescInput" class="text-input" data-i18n-placeholder="projectDescPlaceholder" placeholder="Description (optional)…" style="min-height:60px;resize:vertical;padding:10px 12px;font-family:inherit;font-size:13px;background:var(--card-bg);color:var(--text);border:1px solid var(--border);border-radius:10px;outline:none;"></textarea>
+            <input id="projectNameInput" type="text" aria-label="Project name" data-i18n-aria="projectNamePlaceholder" class="text-input" data-i18n-placeholder="projectNamePlaceholder" placeholder="Project name…" />
+            <textarea id="projectDescInput" aria-label="Description (optional)" data-i18n-aria="projectDescPlaceholder" class="text-input" data-i18n-placeholder="projectDescPlaceholder" placeholder="Description (optional)…" style="min-height:60px;resize:vertical;padding:10px 12px;font-family:inherit;font-size:13px;background:var(--card-bg);color:var(--text);border:1px solid var(--border);border-radius:10px;outline:none;"></textarea>
             <button id="confirmSaveBtn" class="primary-btn" style="justify-content:center;">
                 <i data-lucide="check"></i><span data-i18n="save">Save</span>
             </button>
@@ -2576,15 +2152,15 @@
 
 <!-- Confirm Dialog -->
 <div id="confirmOverlay" class="modal-overlay">
-    <div class="modal" style="max-width:420px;">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" style="max-width:420px;">
         <div class="modal-header">
-            <h2 id="confirmTitle">Confirm</h2>
-            <button id="confirmClose" class="close-btn"><i data-lucide="x"></i></button>
+            <h2 id="confirmTitle" data-i18n="confirmTitle">Confirm</h2>
+            <button id="confirmClose" class="close-btn" type="button" aria-label="Close" data-i18n-aria="close"><i data-lucide="x"></i></button>
         </div>
         <div class="modal-content">
             <p id="confirmMessage" style="margin:0 0 20px;line-height:1.6;"></p>
             <div style="display:flex;gap:10px;justify-content:flex-end;">
-                <button id="confirmCancel" class="secondary-btn" style="padding:10px 20px;">Cancel</button>
+                <button id="confirmCancel" class="secondary-btn" style="padding:10px 20px;" data-i18n="cancel">Cancel</button>
                 <button id="confirmOk" class="primary-btn" style="padding:10px 20px;background:linear-gradient(135deg,var(--danger),#b91c1c);">Delete</button>
             </div>
         </div>
