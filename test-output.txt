@@ -1,0 +1,152 @@
+
+> test
+> playwright test
+
+
+Running 71 tests using 10 workers
+
+  ✓   1 [desktop] › e2e\css-hygiene.spec.js:9:5 › the stylesheet has no duplicates or leftovers (140ms)
+  ✓   3 [desktop] › e2e\generator.spec.js:10:5 › initial state: Generate disabled, Demo enabled, exports disabled (1.4s)
+  ✓  10 [desktop] › e2e\css-hygiene.spec.js:21:5 › the top bar styles apply (a stray rule used to swallow them) (1.4s)
+  ✓   2 [desktop] › e2e\landing.spec.js:8:5 › page title and hero heading (1.5s)
+  ✓   5 [desktop] › e2e\landing-content.spec.js:8:5 › How it Works shows four steps, API key first, and the real test case count (1.4s)
+  ✓   8 [desktop] › e2e\keyboard.spec.js:10:5 › skip link appears on the first Tab and jumps to the main area (1.5s)
+  ✓   9 [desktop] › e2e\projects.spec.js:23:5 › dashboard shows the empty state when there is no data (1.6s)
+  ✓  14 [desktop] › e2e\landing.spec.js:13:5 › both CTAs link to app.html (576ms)
+  ✓   7 [desktop] › e2e\a11y.spec.js:35:7 › structure and labels › landing page (2.0s)
+  ✓   6 [desktop] › e2e\hardening.spec.js:21:5 › AI output with quotes and markup stays inert text (2.2s)
+  ✓  15 [desktop] › e2e\landing-content.spec.js:19:5 › the Finnish text matches the new steps too (763ms)
+  ✓  13 [desktop] › e2e\css-hygiene.spec.js:26:5 › closed dialogs are invisible to Tab and screen readers (1.0s)
+  ✓  11 [desktop] › e2e\reduced-motion.spec.js:4:5 › reduced motion requested: the typing demo is a still sentence (2.4s)
+  ✓   4 [desktop] › e2e\no-third-party.spec.js:11:5 › app and landing page only talk to our own server and the proxy (2.5s)
+  ✓  12 [desktop] › e2e\generator.spec.js:18:5 › demo generates 16 cards and enables export/save (1.2s)
+  ✓  16 [desktop] › e2e\keyboard.spec.js:20:5 › navigating moves focus to the page heading and marks the current page (1.1s)
+  ✓  21 [desktop] › e2e\landing-content.spec.js:26:5 › FAQ: the API key answer is consistent (a key is required) (610ms)
+  ✓  24 [desktop] › e2e\no-third-party.spec.js:31:7 › /app.html: no third-party hosts and a well-formed CSP (280ms)
+  ✓  18 [desktop] › e2e\landing.spec.js:18:5 › language toggle translates the page and persists across reload (1.4s)
+  ✓  28 [desktop] › e2e\no-third-party.spec.js:31:7 › /index.html: no third-party hosts and a well-formed CSP (472ms)
+  ✓  30 [desktop] › e2e\no-third-party.spec.js:49:5 › every script on the app page is loaded from our own vendor folder or app.js (267ms)
+  ✓  23 [desktop] › e2e\reduced-motion.spec.js:15:5 › reduced motion requested: animations are switched off (1.3s)
+  ✓  20 [desktop] › e2e\hardening.spec.js:44:5 › API key is sent to the proxy but never persisted (2.7s)
+  ✓  27 [desktop] › e2e\landing-content.spec.js:30:5 › FAQ buttons expose aria-expanded and keep it in sync (2.1s)
+  ✓  26 [desktop] › e2e\keyboard.spec.js:29:5 › a test case title opens with Enter, Escape closes it and focus returns (2.6s)
+  ✓  17 [desktop] › e2e\projects.spec.js:28:5 › dashboard KPIs add up after saving a demo project (3.7s)
+  ✓  22 [desktop] › e2e\sw.spec.js:6:5 › service worker installs, precaches the app and serves it offline (2.9s)
+  ✓  29 [desktop] › e2e\landing.spec.js:28:5 › theme toggle switches to dark and persists (1.9s)
+  ✓  33 [desktop] › e2e\landing-content.spec.js:39:5 › link previews use absolute image URLs (683ms)
+  ✓  25 [desktop] › e2e\generator.spec.js:26:5 › search by id is deterministic (tc-01 matches TC-010..TC-016) (3.8s)
+  ✓  36 [desktop] › e2e\sw.spec.js:38:5 › the service worker never intercepts POST requests (1.2s)
+  ✓  31 [desktop] › e2e\reduced-motion.spec.js:23:5 › normal motion: the typing demo still types (2.6s)
+  ✓  37 [desktop] › e2e\landing.spec.js:35:5 › language chosen on the landing page carries into the app (1.7s)
+  ✓  38 [desktop] › e2e\landing-content.spec.js:46:5 › the page no longer carries the ignored cache meta tags (1.1s)
+  ✓  34 [desktop] › e2e\keyboard.spec.js:40:5 › checkbox: Space toggles it and keeps the focus (1.9s)
+  ✓  35 [desktop] › e2e\projects.spec.js:37:5 › dashboard KPIs match seeded data exactly (1.9s)
+  ✓  32 [desktop] › e2e\hardening.spec.js:58:5 › import escapes project names and normalizes bad shapes (2.3s)
+  ✓  19 [desktop] › e2e\a11y.spec.js:41:7 › structure and labels › generator with test cards (5.4s)
+  ✓  42 [desktop] › e2e\hardening.spec.js:81:5 › import rejects unsupported versions (613ms)
+  ✓  40 [desktop] › e2e\keyboard.spec.js:52:5 › move down and up work without a mouse, and the focus follows the card (1.2s)
+  ✓  39 [desktop] › e2e\generator.spec.js:35:5 › bulk select and delete (2.1s)
+  ✓  44 [desktop] › e2e\hardening.spec.js:89:5 › corrupted localStorage does not break the app (923ms)
+  ✓  45 [desktop] › e2e\keyboard.spec.js:71:5 › status buttons report on/off to assistive technology (932ms)
+  ✓  41 [desktop] › e2e\projects.spec.js:59:5 › project row opens a detail modal that closes again (2.7s)
+  ✓  48 [desktop] › e2e\keyboard.spec.js:79:5 › the generator search box has the right name (922ms)
+  ✓  46 [desktop] › e2e\generator.spec.js:49:5 › save to project shows it in Projects with its test count (1.8s)
+  ✓  47 [desktop] › e2e\hardening.spec.js:96:5 › CSV export: BOM present and formulas neutralised (1.7s)
+  ✓  51 [desktop] › e2e\generator.spec.js:64:5 › mocked API: 10 cards, Critical first, request has model/tokens/feature (1.0s)
+  ✓  52 [desktop] › e2e\hardening.spec.js:112:5 › an invalid stored model falls back to a valid default (1.5s)
+  ✓  53 [desktop] › e2e\generator.spec.js:80:7 › HTTP 429: friendly error, no cards, Generate re-enabled (806ms)
+  ✓  49 [desktop] › e2e\projects.spec.js:70:5 › suites view lists every saved project (2.7s)
+  ✓  54 [desktop] › e2e\hardening.spec.js:124:5 › switching language keeps the typed text (745ms)
+  ✓  55 [desktop] › e2e\generator.spec.js:80:7 › HTTP 401: friendly error, no cards, Generate re-enabled (823ms)
+  ✓  43 [desktop] › e2e\a11y.spec.js:48:7 › structure and labels › dashboard, projects, suites and history (6.5s)
+  ✓  57 [desktop] › e2e\hardening.spec.js:132:5 › a response cut off at max_tokens shows a warning (1.0s)
+  ✓  56 [desktop] › e2e\projects.spec.js:78:5 › history records the demo run and can be cleared (1.3s)
+  ✓  59 [desktop] › e2e\generator.spec.js:80:7 › HTTP 500: friendly error, no cards, Generate re-enabled (951ms)
+  ✓  61 [desktop] › e2e\hardening.spec.js:141:5 › Retry works without inline handlers (CSP-safe) (751ms)
+  ✓  62 [desktop] › e2e\projects.spec.js:87:5 › language toggle switches the UI to Finnish and back (687ms)
+  ✓  58 [mobile] › e2e\mobile.spec.js:4:5 › app: hamburger opens the drawer, navigation closes it (1.7s)
+  ✓  63 [desktop] › e2e\generator.spec.js:89:5 › network failure shows the connectivity message (672ms)
+  ✓  65 [mobile] › e2e\mobile.spec.js:13:5 › app: Demo works on a phone viewport (674ms)
+  ✓  64 [desktop] › e2e\projects.spec.js:94:5 › theme toggle switches mode and survives a reload (864ms)
+  ✓  66 [mobile] › e2e\mobile.spec.js:19:5 › landing: mobile menu opens (450ms)
+  ✘  50 [desktop] › e2e\keyboard.spec.js:84:5 › API dialog: named dialog, Escape closes it, focus returns, closed dialog is unreachable (6.6s)
+  ✓  60 [desktop] › e2e\a11y.spec.js:58:7 › structure and labels › dialogs: details, edit, API configuration, confirm (5.3s)
+  ✓  67 [desktop] › e2e\keyboard.spec.js:98:5 › confirm dialog is translated and Escape answers it (2.5s)
+  ✓  69 [desktop] › e2e\keyboard.spec.js:114:5 › edit dialog: fields have labels and focus returns to the Edit button (1.3s)
+
+CONTRAST (light): 5 issue(s)
+  generator/light: span[data-i18n="demo"] - Element has insufficient color contrast of 2.68 (foreground color: #f97316, background color: #f9fafb, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1
+  dashboard/light: .ent-card:nth-child(1) > .ent-card-b > .ent-card-v - Element has insufficient color contrast of 3.67 (foreground color: #3b82f6, background color: #ffffff, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1
+  dashboard/light: .ent-card:nth-child(2) > .ent-card-b > .ent-card-v - Element has insufficient color contrast of 2.53 (foreground color: #10b981, background color: #ffffff, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1
+  dashboard/light: #saveModalTitle - Element has insufficient color contrast of 1.25 (foreground color: #d8dbdf, background color: #f2f3f6, font size: 15.0pt (20px), font weight: bold). Expected contrast ratio of 3:1
+  dashboard/light: #projectNameInput - Element has insufficient color contrast of 1.23 (foreground color: #d8dbdf, background color: #f0f2f5, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1
+  ✓  68 [desktop] › e2e\a11y.spec.js:86:9 › colour contrast (report only) › app, light theme (3.2s)
+
+CONTRAST (dark): 6 issue(s)
+  generator/dark: span[data-i18n="clearAllData"] - Element has insufficient color contrast of 3.67 (foreground color: #dc2626, background color: #151821, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1
+  dashboard/dark: span[data-i18n="clearAllData"] - Element has insufficient color contrast of 3.67 (foreground color: #dc2626, background color: #151821, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1
+  dashboard/dark: #saveModalTitle - Element has insufficient color contrast of 1.42 (foreground color: #2f3136, background color: #111319, font size: 15.0pt (20px), font weight: bold). Expected contrast ratio of 3:1
+  dashboard/dark: #projectNameInput - Element has insufficient color contrast of 1.44 (foreground color: #2f3136, background color: #0f1117, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1
+  projects/dark: span[data-i18n="clearAllData"] - Element has insufficient color contrast of 3.67 (foreground color: #dc2626, background color: #151821, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1
+  history/dark: span[data-i18n="clearAllData"] - Element has insufficient color contrast of 3.67 (foreground color: #dc2626, background color: #151821, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1
+  ✓  70 [desktop] › e2e\a11y.spec.js:86:9 › colour contrast (report only) › app, dark theme (2.8s)
+
+CONTRAST (landing): 8 issue(s)
+  landing/dark: h3[data-i18n="featAiTitle"] - Element has insufficient color contrast of 1.53 (foreground color: #e5e7eb, background color: #bbbcbf, font size: 13.5pt (18px), font weight: normal). Expected contrast ratio of 4.5:1
+  landing/dark: p[data-i18n="featAiDesc"] - Element has insufficient color contrast of 1.33 (foreground color: #9ca3af, background color: #bbbcbf, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1
+  landing/dark: h3[data-i18n="featDashTitle"] - Element has insufficient color contrast of 1.53 (foreground color: #e5e7eb, background color: #bbbcbf, font size: 13.5pt (18px), font weight: normal). Expected contrast ratio of 4.5:1
+  landing/dark: p[data-i18n="featDashDesc"] - Element has insufficient color contrast of 1.33 (foreground color: #9ca3af, background color: #bbbcbf, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1
+  landing/dark: h3[data-i18n="featExportTitle"] - Element has insufficient color contrast of 1.53 (foreground color: #e5e7eb, background color: #bbbcbf, font size: 13.5pt (18px), font weight: normal). Expected contrast ratio of 4.5:1
+  landing/dark: p[data-i18n="featExportDesc"] - Element has insufficient color contrast of 1.33 (foreground color: #9ca3af, background color: #bbbcbf, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1
+  landing/dark: h3[data-i18n="featLangTitle"] - Element has insufficient color contrast of 1.53 (foreground color: #e5e7eb, background color: #bbbcbf, font size: 13.5pt (18px), font weight: normal). Expected contrast ratio of 4.5:1
+  landing/dark: p[data-i18n="featLangDesc"] - Element has insufficient color contrast of 1.33 (foreground color: #9ca3af, background color: #bbbcbf, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1
+  ✓  71 [desktop] › e2e\a11y.spec.js:106:7 › colour contrast (report only) › landing page, light and dark (927ms)
+
+
+  1) [desktop] › e2e\keyboard.spec.js:84:5 › API dialog: named dialog, Escape closes it, focus returns, closed dialog is unreachable 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m([22m[2m)[22m failed
+
+    Locator:  locator('#openApiConfigBtn')
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 5000ms[22m
+    [2m  - waiting for locator('#openApiConfigBtn')[22m
+    [2m    14 × locator resolved to <button class="nav-item" id="openApiConfigBtn" data-tip="tipApiConfig" title="Configure API endpoint and model">…</button>[22m
+    [2m       - unexpected value "inactive"[22m
+
+
+      93 |   await page.keyboard.press("Escape");
+      94 |   await expect(dialog).toBeHidden();
+    > 95 |   await expect(opener).toBeFocused();
+         |                        ^
+      96 | });
+      97 |
+      98 | test("confirm dialog is translated and Escape answers it", async ({ page }) => {
+        at C:\Users\engmi\qa-studio\e2e\keyboard.spec.js:95:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\keyboard-API-dialog-named--04503-losed-dialog-is-unreachable-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\keyboard-API-dialog-named--04503-losed-dialog-is-unreachable-desktop\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\keyboard-API-dialog-named--04503-losed-dialog-is-unreachable-desktop\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\keyboard-API-dialog-named--04503-losed-dialog-is-unreachable-desktop\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [desktop] › e2e\keyboard.spec.js:84:5 › API dialog: named dialog, Escape closes it, focus returns, closed dialog is unreachable 
+  70 passed (28.8s)
+
+To open last HTML report run:
+[36m[39m
+[36m  npx playwright show-report[39m
+[36m[39m
